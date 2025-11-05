@@ -1,0 +1,29 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+env:
+  # Check if we should deploy (main branch push without #skip in commit message)
+  OK_TO_DEPLOY: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+
+jobs:
+  deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Node.js version latest LTS 24.x
+          node-version: '24'
+      - name: Install frontend dependencies
+        run: npm install --prefix frontend
+      - name: Install backend dependencies
+        run: npm install --prefix backend
+      - name: Check style
+        run: npm run lint
