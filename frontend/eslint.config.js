@@ -11,7 +11,7 @@ export default defineConfig([
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,
-      reactHooks.configs['recommended-latest'],
+      reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
     languageOptions: {
@@ -24,19 +24,28 @@ export default defineConfig([
       },
     },
     plugins: {
-      '@stylistic': stylistic,
+      stylistic: stylistic,
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-      '@stylistic/indent': ['error', 2],
-      '@stylistic/linebreak-style': ['error', 'unix'],
-      '@stylistic/quotes': ['error', 'single'],
-      '@stylistic/semi': ['error', 'never'],
+      'stylistic/indent': ['error', 2],
+      'stylistic/linebreak-style': ['error', 'unix'],
+      'stylistic/quotes': ['error', 'single'],
+      'stylistic/semi': ['error', 'never'],
       eqeqeq: 'error',
       'no-trailing-spaces': 'error',
       'object-curly-spacing': ['error', 'always'],
       'arrow-spacing': ['error', { before: true, after: true }],
       'no-console': 'off',
     },
+  },
+  {
+    ignores: [
+      'node_modules/**',
+      'build/**',
+      'coverage/**',
+      '*.config.js',
+      '.env',
+    ],
   },
 ])
