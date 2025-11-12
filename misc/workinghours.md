@@ -6,5 +6,6 @@ Working hours:
 |        | 3 | backend initialization, middleware, pipeline workflow |
 | 6.11   | 1 | eslint configuration |
 | 11.11  | 2 | Postgres with docker  |
-| xxxxx  | x | |
-| Yht.   | 8 |
+| 12.11  | 3 | User -model with controller. Added migrations |
+|        | 3 | Backend: Vitest + Supertest initialization. Setup test-database. Test user creation. Update CI workflow. E2E: Playwright initialization. |
+| Yht.   | 14 |

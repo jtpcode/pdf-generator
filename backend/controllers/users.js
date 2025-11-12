@@ -28,7 +28,8 @@ router.post('/', async (req, res) => {
     passwordHash,
   })
 
-  res.status(201).json(user)
+  const { passwordHash: _, ...userWithoutPassword } = user.toJSON()
+  res.status(201).json(userWithoutPassword)
 })
 
 router.get('/:id', async (req, res) => {

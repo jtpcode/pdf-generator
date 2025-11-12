@@ -15,16 +15,18 @@ app.use(logger)
 
 // Routes
 app.use('/api/users', usersRouter)
-app.get('/', (req, res) => {
-  res.send('TESTING')
-})
 
 // Error handling middleware
 app.use(unknownEndpoint)
 app.use(errorHandler)
 
-// Start the server
-await connectToDatabase()
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+// Export app for testing
+export default app
+
+// Start the server only if this file is run directly
+if (process.env.NODE_ENV !== 'test') {
+  await connectToDatabase()
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+  })
+}
