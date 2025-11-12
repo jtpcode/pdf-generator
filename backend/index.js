@@ -1,7 +1,9 @@
 import express from 'express'
+
 import { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler } from './utils/middleware.js'
 import { PORT } from './utils/config.js'
 import { connectToDatabase } from './utils/db.js'
+import usersRouter from './controllers/users.js'
 
 const app = express()
 
@@ -12,6 +14,7 @@ app.use(staticFiles)
 app.use(logger)
 
 // Routes
+app.use('/api/users', usersRouter)
 app.get('/', (req, res) => {
   res.send('TESTING')
 })

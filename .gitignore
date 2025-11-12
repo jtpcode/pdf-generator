@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # Docker files
 docker-compose.dev.yml
+
+# REST requests
+requests.http

@@ -2,11 +2,12 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import express from 'express'
 
-// Morgan body-token
+// Morgan: 'body'-token with password filtering
 morgan.token('body', (req) => {
   if (req.body) {
-    const strBody = JSON.stringify(req.body)
-    return strBody !== '{}' ? strBody : ' '
+    const safeBody = { ...req.body }
+    if (safeBody.password) safeBody.password = '[REDACTED]'
+    return JSON.stringify(safeBody)
   }
   return ' '
 })
@@ -22,17 +23,14 @@ const unknownEndpoint = (req, res) => {
 const errorHandler = (error, req, res, next) => {
   logger.error(error.message)
 
+  if (error.name === 'SequelizeValidationError') {
+    return res.status(400).json({ error: error.errors[0].message })
+  }
+
   // if (error.name === 'CastError') {
   //   return res.status(400).send({ error: 'Malformatted id.' })
   // } else if (error.name === 'ValidationError') {
   //   return res.status(400).json({ error: error.message })
-  // } else if (
-  //   error.name === 'MongoServerError' &&
-  //   error.message.includes('E11000 duplicate key error')
-  // ) {
-  //   return res
-  //     .status(400)
-  //     .json({ error: 'Expected `username` to be unique.' })
   // } else if (error.name === 'JsonWebTokenError') {
   //   return res.status(401).json({ error: 'Token missing or invalid.' })
   // } else if (error.name === 'TokenExpiredError') {

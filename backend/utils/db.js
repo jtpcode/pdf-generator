@@ -2,6 +2,8 @@ import Sequelize from 'sequelize'
 import { DATABASE_URL } from './config.js'
 import { Umzug, SequelizeStorage } from 'umzug'
 
+import { pathToFileURL } from 'url'
+
 const sequelize = new Sequelize(DATABASE_URL)
 
 // If you need to use SSL connection, uncomment below and comment the above line
@@ -31,6 +33,20 @@ const connectToDatabase = async () => {
 const migrationConf = {
   migrations: {
     glob: 'migrations/*.js',
+    // For ESM: import file and use default export as a migration object
+    resolve: ({ name, path }) => {
+      return {
+        name,
+        up: async (params) => {
+          const mod = await import(pathToFileURL(path))
+          return mod.default.up(params)
+        },
+        down: async (params) => {
+          const mod = await import(pathToFileURL(path))
+          return mod.default.down(params)
+        }
+      }
+    }
   },
   storage: new SequelizeStorage({ sequelize, tableName: 'migrations' }),
   context: sequelize.getQueryInterface(),
