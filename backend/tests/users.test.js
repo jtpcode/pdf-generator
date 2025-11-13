@@ -35,6 +35,41 @@ describe('User API', () => {
     expect(response.body.passwordHash).toBeUndefined()
   })
 
+  test('rejects user with short username', async () => {
+    const newUser = {
+      username: 'short',
+      name: 'Test User',
+      password: 'password123'
+    }
+
+    const response = await request(app)
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Validation len on username failed')
+  })
+
+  test('rejects user with duplicate username', async () => {
+    const newUser = {
+      username: 'testuser',
+      name: 'Test User',
+      password: 'password123'
+    }
+
+    await request(app)
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+
+    const response = await request(app)
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('username must be unique')
+  })
+
   test('rejects user with short password', async () => {
     const newUser = {
       username: 'testuser',

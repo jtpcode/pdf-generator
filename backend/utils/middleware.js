@@ -20,26 +20,89 @@ const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: 'Unknown endpoint.' })
 }
 
-const errorHandler = (error, req, res, next) => {
-  logger.error(error.message)
+const errorHandler = (error, req, res, _next) => { // eslint-disable-line no-unused-vars
+  console.error('Error caught by errorHandler:', error.name, error.message)
 
+  // =============================================================================
+  // SEQUELIZE DATABASE ERRORS
+  // =============================================================================
+
+  // Sequelize validation errors (model-level validations)
   if (error.name === 'SequelizeValidationError') {
-    return res.status(400).json({ error: error.errors[0].message })
+    return res.status(400).json({
+      error: error.errors[0].message,
+      type: 'validation_error'
+    })
   }
 
-  // if (error.name === 'CastError') {
-  //   return res.status(400).send({ error: 'Malformatted id.' })
-  // } else if (error.name === 'ValidationError') {
-  //   return res.status(400).json({ error: error.message })
-  // } else if (error.name === 'JsonWebTokenError') {
-  //   return res.status(401).json({ error: 'Token missing or invalid.' })
-  // } else if (error.name === 'TokenExpiredError') {
-  //   return res.status(401).json({
-  //     error: 'Token expired.'
-  //   })
-  // }
+  // Sequelize unique constraint errors (database-level)
+  if (error.name === 'SequelizeUniqueConstraintError') {
+    const field = error.errors[0].path
+    return res.status(400).json({
+      error: `${field} must be unique`,
+      type: 'duplicate_error'
+    })
+  }
 
-  next(error)
+  // Sequelize foreign key constraint errors
+  if (error.name === 'SequelizeForeignKeyConstraintError') {
+    return res.status(400).json({
+      error: 'Invalid reference to related data',
+      type: 'foreign_key_error'
+    })
+  }
+
+  // =============================================================================
+  // JWT AUTHENTICATION ERRORS
+  // =============================================================================
+
+  // Invalid JWT token
+  if (error.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      error: 'Token missing or invalid',
+      type: 'auth_error'
+    })
+  }
+
+  // Expired JWT token
+  if (error.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      error: 'Token expired',
+      type: 'auth_error'
+    })
+  }
+
+  // =============================================================================
+  // UNHANDLED ERRORS
+  // =============================================================================
+
+  console.error('Unhandled error type:', error.name, error)
+  res.status(500).json({
+    error: 'Internal server error',
+    type: 'server_error'
+  })
 }
+
+// const errorHandler = (error, req, res, next) => {
+//   logger.error(error.message)
+
+//   if (error.name === 'SequelizeValidationError') {
+//     return res.status(400).json({ error: error.errors[0].message })
+//   }
+
+//   // if (error.name === 'CastError') {
+//   //   return res.status(400).send({ error: 'Malformatted id.' })
+//   // } else if (error.name === 'ValidationError') {
+//   //   return res.status(400).json({ error: error.message })
+//   // } else if (error.name === 'JsonWebTokenError') {
+//   //   return res.status(401).json({ error: 'Token missing or invalid.' })
+//   // } else if (error.name === 'TokenExpiredError') {
+//   //   return res.status(401).json({
+//   //     error: 'Token expired.'
+//   //   })
+//   // }
+
+//   next(error)
+// }
 
 export { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler }
