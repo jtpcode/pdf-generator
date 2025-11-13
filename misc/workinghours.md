@@ -9,4 +9,5 @@ Working hours:
 | 12.11  | 3 | User -model with controller. Added migrations |
 |        | 3 | Backend: Vitest + Supertest initialization. Setup test-database. Test user creation. Update CI workflow. E2E: Playwright initialization. |
 | 13.11  | 2 | More User -tests. Study error handling middleware.  |
-| Yht.   | 14 |
+|        | 2 | Login controller, sessions migration. |
+| Yht.   | 18 |

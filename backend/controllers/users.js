@@ -4,13 +4,13 @@ import { User } from '../models/index.js'
 
 const router = Router()
 
-router.get('/', async (req, res) => {
-  const users = await User.findAll({
-    attributes: { exclude: ['passwordHash'] },
-  })
+// router.get('/', async (req, res) => {
+//   const users = await User.findAll({
+//     attributes: { exclude: ['passwordHash'] },
+//   })
 
-  res.json(users)
-})
+//   res.json(users)
+// })
 
 router.post('/', async (req, res) => {
   const { username, name, password } = req.body
@@ -32,14 +32,14 @@ router.post('/', async (req, res) => {
   res.status(201).json(userWithoutPassword)
 })
 
-router.get('/:id', async (req, res) => {
-  const user = await User.findByPk(req.params.id, {
-    attributes: ['name', 'username'],
-  })
-  if (!user) {
-    return res.status(404).json({ error: 'User not found' })
-  }
-  res.json(user)
-})
+// router.get('/:id', async (req, res) => {
+//   const user = await User.findByPk(req.params.id, {
+//     attributes: ['name', 'username'],
+//   })
+//   if (!user) {
+//     return res.status(404).json({ error: 'User not found' })
+//   }
+//   res.json(user)
+// })
 
 export default router

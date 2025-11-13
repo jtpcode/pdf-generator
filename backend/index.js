@@ -4,6 +4,7 @@ import { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler 
 import { PORT } from './utils/config.js'
 import { connectToDatabase } from './utils/db.js'
 import usersRouter from './controllers/users.js'
+import loginRouter from './controllers/login.js'
 
 const app = express()
 
@@ -15,13 +16,11 @@ app.use(logger)
 
 // Routes
 app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 
 // Error handling middleware
 app.use(unknownEndpoint)
 app.use(errorHandler)
-
-// Export app for testing
-export default app
 
 // Start the server only if this file is run directly
 if (process.env.NODE_ENV !== 'test') {
@@ -30,3 +29,6 @@ if (process.env.NODE_ENV !== 'test') {
     console.log(`Server running on port ${PORT}`)
   })
 }
+
+// Export app for testing
+export default app

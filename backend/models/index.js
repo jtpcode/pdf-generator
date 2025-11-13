@@ -1,7 +1,7 @@
 import User from './user.js'
-// const Session = require('./session')
+import Session from './session.js'
 
-// User.hasMany(Session)
-// Session.belongsTo(User)
+User.hasMany(Session)
+Session.belongsTo(User)
 
-export { User }
+export { User, Session }
