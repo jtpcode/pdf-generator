@@ -10,4 +10,5 @@ Working hours:
 |        | 3 | Backend: Vitest + Supertest initialization. Setup test-database. Test user creation. Update CI workflow. E2E: Playwright initialization. |
 | 13.11  | 2 | More User -tests. Study error handling middleware.  |
 |        | 2 | Login controller, sessions migration. |
-| Yht.   | 18 |
+| 26.11  | 3 | Add tests for user login. Disable parallelism in tests to avoid database conflicts.  |
+| Yht.   | 21 |

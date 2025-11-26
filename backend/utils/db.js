@@ -20,8 +20,13 @@ const sequelize = new Sequelize(DATABASE_URL)
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
-    await runMigrations()
-    console.log('database connected')
+
+    // Only run migrations in non-test environments
+    if (process.env.NODE_ENV !== 'test') {
+      await runMigrations()
+    }
+
+    console.log('Database connected successfully')
   } catch (err) {
     console.log('connecting database failed:', err)
     return process.exit(1)

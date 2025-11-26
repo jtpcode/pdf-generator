@@ -1,21 +1,11 @@
-import { describe, test, expect, beforeAll, beforeEach, afterAll } from 'vitest'
+import { describe, test, expect, beforeEach } from 'vitest'
 import request from 'supertest'
 import app from '../index.js'
-import { connectToDatabase, sequelize } from '../utils/db.js'
 import { User } from '../models/index.js'
 
 describe('User API', () => {
-  beforeAll(async () => {
-    await connectToDatabase()
-    await sequelize.sync({ force: true })
-  })
-
   beforeEach(async () => {
     await User.destroy({ where: {} })
-  })
-
-  afterAll(async () => {
-    await sequelize.close()
   })
 
   test('creates new user with valid data', async () => {
