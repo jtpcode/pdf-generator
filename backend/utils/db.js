@@ -4,7 +4,9 @@ import { Umzug, SequelizeStorage } from 'umzug'
 
 import { pathToFileURL } from 'url'
 
-const sequelize = new Sequelize(DATABASE_URL)
+const sequelize = new Sequelize(DATABASE_URL, {
+  dialect: 'postgres',
+})
 
 // If you need to use SSL connection, uncomment below and comment the above line
 //
@@ -20,12 +22,7 @@ const sequelize = new Sequelize(DATABASE_URL)
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
-
-    // Only run migrations in non-test environments
-    if (process.env.NODE_ENV !== 'test') {
-      await runMigrations()
-    }
-
+    await runMigrations()
     console.log('Database connected successfully')
   } catch (err) {
     console.log('connecting database failed:', err)

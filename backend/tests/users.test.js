@@ -1,7 +1,9 @@
 import { describe, test, expect, beforeEach } from 'vitest'
-import request from 'supertest'
+import supertest from 'supertest'
 import app from '../index.js'
 import { User } from '../models/index.js'
+
+const api = supertest(app)
 
 describe('User API', () => {
   beforeEach(async () => {
@@ -15,7 +17,7 @@ describe('User API', () => {
       password: 'password123'
     }
 
-    const response = await request(app)
+    const response = await api
       .post('/api/users')
       .send(newUser)
       .expect(201)
@@ -32,7 +34,7 @@ describe('User API', () => {
       password: 'password123'
     }
 
-    const response = await request(app)
+    const response = await api
       .post('/api/users')
       .send(newUser)
       .expect(400)
@@ -47,12 +49,12 @@ describe('User API', () => {
       password: 'password123'
     }
 
-    await request(app)
+    await api
       .post('/api/users')
       .send(newUser)
       .expect(201)
 
-    const response = await request(app)
+    const response = await api
       .post('/api/users')
       .send(newUser)
       .expect(400)
@@ -67,7 +69,7 @@ describe('User API', () => {
       password: '123'
     }
 
-    const response = await request(app)
+    const response = await api
       .post('/api/users')
       .send(newUser)
       .expect(400)

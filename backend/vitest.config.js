@@ -14,6 +14,7 @@ export default defineConfig({
     fileParallelism: false,
     sequence: {
       concurrent: false
-    }
+    },
+    testTimeout: 10000
   }
 })

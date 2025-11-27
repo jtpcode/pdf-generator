@@ -1,9 +1,11 @@
 import { describe, test, expect, beforeEach } from 'vitest'
-import request from 'supertest'
+import supertest from 'supertest'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 import app from '../index.js'
 import { User, Session } from '../models/index.js'
+
+const api = supertest(app)
 
 describe('Login API', () => {
   beforeEach(async () => {
@@ -20,7 +22,7 @@ describe('Login API', () => {
       passwordHash: password
     })
 
-    const response = await request(app)
+    const response = await api
       .post('/api/login')
       .send({ username: 'testuser', password: 'password123' })
       .expect(200)
@@ -37,7 +39,7 @@ describe('Login API', () => {
   })
 
   test('rejects non-existing user', async () => {
-    const response = await request(app)
+    const response = await api
       .post('/api/login')
       .send({ username: 'nonuser', password: 'password123' })
       .expect(401)
@@ -54,7 +56,7 @@ describe('Login API', () => {
       passwordHash: await bcrypt.hash('password123', 1)
     })
 
-    const response = await request(app)
+    const response = await api
       .post('/api/login')
       .send({ username: 'testuser', password: 'wrongpassword' })
       .expect(401)
@@ -72,7 +74,7 @@ describe('Login API', () => {
       disabled: true
     })
 
-    const response = await request(app)
+    const response = await api
       .post('/api/login')
       .send({ username: 'testuser', password: 'password123' })
       .expect(401)
