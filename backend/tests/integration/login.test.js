@@ -2,15 +2,15 @@ import { describe, test, expect, beforeEach } from 'vitest'
 import supertest from 'supertest'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-import app from '../index.js'
-import { User, Session } from '../models/index.js'
+import app from '../../index.js'
+import { User, Session } from '../../models/index.js'
 
 const api = supertest(app)
 
 describe('Login API', () => {
   beforeEach(async () => {
-    await Session.destroy({ where: {} })
-    await User.destroy({ where: {} })
+    await Session.destroy({ where: {}, truncate: { cascade: true } })
+    await User.destroy({ where: {}, truncate: { cascade: true } })
   })
 
   test('returns token and stores session with valid credentials', async () => {

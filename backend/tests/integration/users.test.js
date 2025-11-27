@@ -1,13 +1,13 @@
 import { describe, test, expect, beforeEach } from 'vitest'
 import supertest from 'supertest'
-import app from '../index.js'
-import { User } from '../models/index.js'
+import app from '../../index.js'
+import { User } from '../../models/index.js'
 
 const api = supertest(app)
 
 describe('User API', () => {
   beforeEach(async () => {
-    await User.destroy({ where: {} })
+    await User.destroy({ where: {}, truncate: { cascade: true } })
   })
 
   test('creates new user with valid data', async () => {

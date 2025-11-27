@@ -11,4 +11,5 @@ Working hours:
 | 13.11  | 2 | More User -tests. Study error handling middleware.  |
 |        | 2 | Login controller, sessions migration. |
 | 26.11  | 3 | Add tests for user login. Disable parallelism in tests to avoid database conflicts.  |
-| Yht.   | 21 |
+| 27.11  | 4 | Unit tests for user. Study unit- and integration testing with in-memory PG-database.  |
+| Yht.   | 25 |
