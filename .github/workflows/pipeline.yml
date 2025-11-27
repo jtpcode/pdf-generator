@@ -44,6 +44,7 @@ jobs:
         run: npm run test:backend
         env:
           TEST_DATABASE_URL: postgres://postgres:testpassword123@localhost:5432/pdf_generator_test
+          SECRET: test-secret-key-for-ci
       # - name: Run frontend tests
       #   run: npm run test:frontend
       # - name: Build application
