@@ -22,6 +22,8 @@ const sequelize = new Sequelize(DATABASE_URL, {
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
+
+    // Initialize models with the default sequelize instance
     initModels(sequelize)
     await runMigrations()
     console.log('Database connected successfully')

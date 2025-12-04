@@ -17,6 +17,7 @@ beforeAll(async () => {
     logging: false,
   })
 
+  // Initialize models with the test sequelize instance
   initModels(sequelize)
   await sequelize.sync({ force: true })
 

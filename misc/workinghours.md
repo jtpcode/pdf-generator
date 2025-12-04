@@ -13,4 +13,6 @@ Working hours:
 | 26.11  | 3 | Add tests for user login. Disable parallelism in tests to avoid database conflicts.  |
 | 27.11  | 4 | Unit tests for user. Study unit- and integration testing with in-memory PG-database.  |
 | 4.12   | 2 | Use @testcontainers for backend testing. Change Sequalize-model initialization accordingly. Update CI-actions. |
-| Yht.   | 27 |
+|        | 3 | Login page, initial front page with logout. Study and use MaterialUI. |
+| Yht.   | 30 |
+Login page, initial front page with logout. Use MaterialUI.
