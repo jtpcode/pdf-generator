@@ -1,7 +1,12 @@
 import User from './user.js'
 import Session from './session.js'
 
-User.hasMany(Session)
-Session.belongsTo(User)
+const initModels = (sequelize) => {
+  User.initModel(sequelize)
+  Session.initModel(sequelize)
 
-export { User, Session }
+  User.hasMany(Session)
+  Session.belongsTo(User)
+}
+
+export { User, Session, initModels }

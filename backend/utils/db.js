@@ -1,8 +1,8 @@
 import Sequelize from 'sequelize'
 import { DATABASE_URL } from './config.js'
 import { Umzug, SequelizeStorage } from 'umzug'
-
 import { pathToFileURL } from 'url'
+import { initModels } from '../models/index.js'
 
 const sequelize = new Sequelize(DATABASE_URL, {
   dialect: 'postgres',
@@ -22,6 +22,7 @@ const sequelize = new Sequelize(DATABASE_URL, {
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
+    initModels(sequelize)
     await runMigrations()
     console.log('Database connected successfully')
   } catch (err) {

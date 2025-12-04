@@ -1,37 +1,31 @@
 import { beforeAll, afterAll } from 'vitest'
+import { PostgreSqlContainer } from '@testcontainers/postgresql'
 import { Sequelize } from 'sequelize'
-import { DATABASE_URL } from '../utils/config.js'
-import { User, Session } from '../models/index.js'
+import { initModels } from '../models/index.js'
 
-let testSequelize
+let container
+let sequelize
 
 beforeAll(async () => {
-  // Ensure we're in test environment
-  process.env.NODE_ENV = 'test'
+  container = await new PostgreSqlContainer('postgres:16-alpine')
+    .withDatabase('testdb')
+    .withUsername('testuser')
+    .withPassword('testpass')
+    .start()
 
-  try {
-    // Create a new Sequelize instance just for the tests
-    testSequelize = new Sequelize(DATABASE_URL, {
-      logging: false,
-      dialect: 'postgres'
-    })
+  sequelize = new Sequelize(container.getConnectionUri(), {
+    logging: false,
+  })
 
-    await testSequelize.authenticate()
-    console.log('TEST-database connected for tests')
+  initModels(sequelize)
+  await sequelize.sync({ force: true })
 
-    await User.sync({ force: true })
-    await Session.sync({ force: true })
-    console.log('TEST-database tables created')
-  } catch (error) {
-    console.error('TEST-setup failed:', error)
-    throw error
-  }
-})
+  console.log('Test database container started')
+}, 60000)
 
 afterAll(async () => {
-  try {
-    await testSequelize.close()
-  } catch (error) {
-    console.error('TEST-cleanup failed:', error)
-  }
+  await sequelize?.close()
+  await container?.stop()
 })
+
+export { sequelize }
