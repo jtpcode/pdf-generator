@@ -30,7 +30,7 @@ jobs:
         run: npm run test:backend
         env:
           SECRET: test-secret-key-for-ci
-          DATABASE_URL: test-database-url-for-ci
+          DATABASE_URL: postgres://dummy:dummy@localhost:5432/dummy
       # - name: Run frontend tests
       #   run: npm run test:frontend
       # - name: Build application
