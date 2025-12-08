@@ -10,9 +10,10 @@ Working hours:
 |        | 3 | Backend: Vitest + Supertest initialization. Setup test-database. Test user creation. Update CI workflow. E2E: Playwright initialization. |
 | 13.11  | 2 | More User -tests. Study error handling middleware.  |
 |        | 2 | Login controller, sessions migration. |
-| 26.11  | 3 | Add tests for user login. Disable parallelism in tests to avoid database conflicts.  |
-| 27.11  | 4 | Unit tests for user. Study unit- and integration testing with in-memory PG-database.  |
+| 26.11  | 3 | Add tests for user login. Disable parallelism in tests to avoid database conflicts. |
+| 27.11  | 4 | Unit tests for user. Study unit- and integration testing with in-memory PG-database. |
 | 4.12   | 2 | Use @testcontainers for backend testing. Change Sequalize-model initialization accordingly. Update CI-actions. |
 |        | 3 | Login page, initial front page with logout. Study and use MaterialUI. |
-| Yht.   | 30 |
-Login page, initial front page with logout. Use MaterialUI.
+| 5.12   | 6 | Revert back to basic Docker Postgres for testing: compatible for regular and e2e-Playwright tests. |
+| 8.11   | 2 | Adjust backend-, e2e-tests. Streamline CI-pipeline. |
+| Yht.   | 38 |

@@ -16,22 +16,66 @@ jobs:
   deployment_pipeline:
     runs-on: ubuntu-latest
     
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: testpassword123
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-node@v4
         with:
-          # Node.js version latest LTS 24.x
           node-version: '24'
-      - name: Install frontend and backend dependencies
-        run: npm run install_dependencies
+      
+      - name: Install root dependencies
+        run: npm ci
+      
+      - name: Install frontend dependencies
+        run: npm --prefix frontend ci
+      
+      - name: Install backend dependencies
+        run: npm --prefix backend ci
+      
       - name: Check style
         run: npm run lint
+      
       - name: Run backend tests
         run: npm run test:backend
         env:
           SECRET: test-secret-key-for-ci
-          DATABASE_URL: postgres://dummy:dummy@localhost:5432/dummy
+          TEST_DATABASE_URL: postgres://postgres:dummypassword1234@localhost:5432/test_db
+      
       # - name: Run frontend tests
       #   run: npm run test:frontend
+      
+      - name: Install Playwright Browsers
+        if: ${{ contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
+        run: npx playwright install --with-deps
+      
+      - name: Run Playwright tests
+        if: ${{ contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
+        env:
+          SECRET: test-secret-key-for-ci
+          TEST_DATABASE_URL: postgres://postgres:dummypassword1234@localhost:5432/test_db
+        run: npx playwright test
+      
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && (contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request') }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+      
       # - name: Build application
       #   run: npm run build

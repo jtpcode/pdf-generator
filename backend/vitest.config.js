@@ -4,18 +4,13 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     environment: 'node',
-    globalSetup: ['./tests/global-setup.js'],
-    setupFiles: ['./tests/setup-models.js'],
-    pool: 'forks',
+    pool: 'threads',
     poolOptions: {
-      forks: {
-        singleFork: true
+      threads: {
+        singleThread: true
       }
     },
     fileParallelism: false,
-    sequence: {
-      concurrent: false
-    },
     testTimeout: 10000
   }
 })

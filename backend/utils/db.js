@@ -2,10 +2,12 @@ import Sequelize from 'sequelize'
 import { DATABASE_URL } from './config.js'
 import { Umzug, SequelizeStorage } from 'umzug'
 import { pathToFileURL } from 'url'
-import { initModels } from '../models/index.js'
+
+const isTest = process.env.NODE_ENV === 'test'
 
 const sequelize = new Sequelize(DATABASE_URL, {
   dialect: 'postgres',
+  logging: isTest ? false : console.log,
 })
 
 // If you need to use SSL connection, uncomment below and comment the above line
@@ -22,9 +24,6 @@ const sequelize = new Sequelize(DATABASE_URL, {
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
-
-    // Initialize models with the default sequelize instance
-    initModels(sequelize)
     await runMigrations()
     console.log('Database connected successfully')
   } catch (err) {

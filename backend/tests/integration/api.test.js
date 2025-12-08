@@ -1,11 +1,90 @@
-import { describe, test, expect, beforeEach } from 'vitest'
+import { describe, test, expect, afterAll, beforeEach } from 'vitest'
 import supertest from 'supertest'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-import app from '../../index.js'
+import app from '../../app.js'
 import { User, Session } from '../../models/index.js'
+import { sequelize } from '../../utils/db.js'
 
 const api = supertest(app)
+
+afterAll(async () => {
+  await sequelize.close()
+})
+
+describe('User API', () => {
+  beforeEach(async () => {
+    await Session.destroy({ where: {}, truncate: { cascade: true } })
+    await User.destroy({ where: {}, truncate: { cascade: true } })
+  })
+
+  test('creates new user with valid data', async () => {
+    const newUser = {
+      username: 'testuser',
+      name: 'Test User',
+      password: 'password123'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+
+    expect(response.body.username).toBe('testuser')
+    expect(response.body.name).toBe('Test User')
+    expect(response.body.passwordHash).toBeUndefined()
+  })
+
+  test('rejects user with short username', async () => {
+    const newUser = {
+      username: 'short',
+      name: 'Test User',
+      password: 'password123'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Validation len on username failed')
+  })
+
+  test('rejects user with duplicate username', async () => {
+    const newUser = {
+      username: 'testuser',
+      name: 'Test User',
+      password: 'password123'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('username must be unique')
+  })
+
+  test('rejects user with short password', async () => {
+    const newUser = {
+      username: 'testuser',
+      name: 'Test User',
+      password: '123'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Password must be at least 8 characters long')
+  })
+})
 
 describe('Login API', () => {
   beforeEach(async () => {
