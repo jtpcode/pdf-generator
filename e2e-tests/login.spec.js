@@ -45,47 +45,15 @@ test.describe('Login functionality', () => {
     await expect(page.getByRole('heading', { name: 'PDF Generator Login' })).toBeVisible();
   });
 
-  test('should logout successfully', async ({ page }) => {
-    // Login
-    await page.getByLabel('Username').fill('testuser');
-    await page.getByLabel('Password').fill('testpassword');
-    await page.getByRole('button', { name: 'Login' }).click();
-
-    await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible();
-
-    // Logout
-    await page.getByRole('button', { name: 'Logout' }).click();
-
-    await expect(page.getByRole('heading', { name: 'PDF Generator Login' })).toBeVisible();
-  });
-
-  test('should persist session after page reload', async ({ page }) => {
-    // Login
-    await page.getByLabel('Username').fill('testuser');
-    await page.getByLabel('Password').fill('testpassword');
-    await page.getByRole('button', { name: 'Login' }).click();
-
-    await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible();
-
-    // Reload page
-    await page.reload();
-
-    // Should still be logged in
-    await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible();
-    await expect(page.getByText(/Logged in as: testuser/)).toBeVisible();
-  });
-
   test('should require both username and password', async ({ page }) => {
-    // Try to submit without filling fields
     await page.getByRole('button', { name: 'Login' }).click();
 
-    // Should still be on login page (HTML5 validation prevents submission)
     await expect(page.getByRole('heading', { name: 'PDF Generator Login' })).toBeVisible();
   });
 
-  test.describe('when logged in', () => {
+  test.describe('When logged in', () => {
     test.beforeEach(async ({ page }) => {
-      // Login before each test in this block
+      // Login
       await page.getByLabel('Username').fill('testuser');
       await page.getByLabel('Password').fill('testpassword');
       await page.getByRole('button', { name: 'Login' }).click();
@@ -100,5 +68,12 @@ test.describe('Login functionality', () => {
       await page.getByRole('button', { name: 'Logout' }).click();
       await expect(page.getByRole('heading', { name: 'PDF Generator Login' })).toBeVisible();
     });
+
+    test('should persist session after page reload', async ({ page }) => {
+      await page.reload();
+
+      await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible();
+      await expect(page.getByText(/Logged in as: testuser/)).toBeVisible();
+  });
   });
 });

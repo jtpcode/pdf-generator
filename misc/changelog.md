@@ -1,5 +1,7 @@
 Changelog:
 
+| date | tasks |
+| :----: | :----- |
 | 5.11   | project initialization, middleware, pipeline workflow |
 | 6.11   | eslint configuration |
 | 11.11  | Initialize Postgres with docker |
@@ -7,4 +9,5 @@ Changelog:
 | 13.11  | More User -tests, Login controller, sessions migration. |
 | 26.11  | Add tests for user login. Disable parallelism in tests to avoid database conflicts. |
 | 4.12   | Use @testcontainers for backend testing. Login page, initial front page with logout. |
+| 8.12   | Revert back to basic Docker Postgres for testing: compatible for regular and e2e-Playwright tests. |
 

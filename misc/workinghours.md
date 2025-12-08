@@ -1,7 +1,7 @@
 Working hours:
 
 | date | hours | tasks  |
-| :----:|:-----| :-----|
+| :----: | :-----: | :----- |
 | 5.11   | 2 | project initialization, lint config |
 |        | 3 | backend initialization, middleware, pipeline workflow |
 | 6.11   | 1 | eslint configuration |
@@ -15,5 +15,5 @@ Working hours:
 | 4.12   | 2 | Use @testcontainers for backend testing. Change Sequalize-model initialization accordingly. Update CI-actions. |
 |        | 3 | Login page, initial front page with logout. Study and use MaterialUI. |
 | 5.12   | 6 | Revert back to basic Docker Postgres for testing: compatible for regular and e2e-Playwright tests. |
-| 8.11   | 2 | Adjust backend-, e2e-tests. Streamline CI-pipeline. |
-| Yht.   | 38 |
+| 8.11   | 3 | Adjust backend-, e2e-tests. Streamline CI-pipeline. |
+| Yht.   | 39 |

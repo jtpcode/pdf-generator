@@ -14,8 +14,8 @@ afterAll(async () => {
 
 describe('User API', () => {
   beforeEach(async () => {
-    await Session.destroy({ where: {}, truncate: { cascade: true } })
-    await User.destroy({ where: {}, truncate: { cascade: true } })
+    // Reset database
+    await api.post('/api/testing/reset')
   })
 
   test('creates new user with valid data', async () => {
@@ -88,8 +88,8 @@ describe('User API', () => {
 
 describe('Login API', () => {
   beforeEach(async () => {
-    await Session.destroy({ where: {}, truncate: { cascade: true } })
-    await User.destroy({ where: {}, truncate: { cascade: true } })
+    // Reset database
+    await api.post('/api/testing/reset')
   })
 
   test('returns token and stores session with valid credentials', async () => {

@@ -3,15 +3,15 @@ import { User, Session } from '../models/index.js'
 
 const testingRouter = express.Router()
 
-// Reset database - only available in test/development mode
+// Reset database - only available in test mode
 testingRouter.post('/reset', async (req, res) => {
-  if (process.env.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'development') {
-    return res.status(403).json({ error: 'Operation not allowed in production' })
+  if (process.env.NODE_ENV !== 'test') {
+    return res.status(403).json({ error: 'Operation allowed only in testing environment' })
   }
 
   try {
-    await Session.destroy({ where: {} })
-    await User.destroy({ where: {} })
+    await Session.destroy({ where: {}, truncate: { cascade: true } })
+    await User.destroy({ where: {}, truncate: { cascade: true } })
 
     res.status(204).end()
   } catch (error) {

@@ -11,6 +11,8 @@ on:
 env:
   # Check if we should deploy (main branch push without #skip in commit message)
   OK_TO_DEPLOY: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+  # Run Playwright tests if commit contains #play or it's a pull request
+  RUN_PLAYWRIGHT: ${{ contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
 
 jobs:
   deployment_pipeline:
@@ -60,18 +62,18 @@ jobs:
       #   run: npm run test:frontend
       
       - name: Install Playwright Browsers
-        if: ${{ contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
+        if: env.RUN_PLAYWRIGHT == 'true'
         run: npx playwright install --with-deps
       
       - name: Run Playwright tests
-        if: ${{ contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
+        if: env.RUN_PLAYWRIGHT == 'true'
         env:
           SECRET: test-secret-key-for-ci
           TEST_DATABASE_URL: postgres://postgres:dummypassword1234@localhost:5432/test_db
         run: npx playwright test
       
       - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() && (contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request') }}
+        if: ${{ !cancelled() && env.RUN_PLAYWRIGHT == 'true' }}
         with:
           name: playwright-report
           path: playwright-report/

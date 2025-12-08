@@ -25,8 +25,8 @@ app.get('/health', (req, res) => {
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 
-// Testing routes - only in test/development mode
-if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+// Testing routes - only in test mode
+if (process.env.NODE_ENV === 'test') {
   app.use('/api/testing', testingRouter)
 }
 
