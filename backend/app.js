@@ -16,7 +16,7 @@ app.use(jsonParser)
 app.use(staticFiles)
 app.use(logger)
 
-// Health check endpoint
+// Health check
 app.get('/health', (req, res) => {
   res.send('OK')
 })

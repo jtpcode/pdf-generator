@@ -83,26 +83,4 @@ const errorHandler = (error, req, res, _next) => { // eslint-disable-line no-unu
   })
 }
 
-// const errorHandler = (error, req, res, next) => {
-//   logger.error(error.message)
-
-//   if (error.name === 'SequelizeValidationError') {
-//     return res.status(400).json({ error: error.errors[0].message })
-//   }
-
-//   // if (error.name === 'CastError') {
-//   //   return res.status(400).send({ error: 'Malformatted id.' })
-//   // } else if (error.name === 'ValidationError') {
-//   //   return res.status(400).json({ error: error.message })
-//   // } else if (error.name === 'JsonWebTokenError') {
-//   //   return res.status(401).json({ error: 'Token missing or invalid.' })
-//   // } else if (error.name === 'TokenExpiredError') {
-//   //   return res.status(401).json({
-//   //     error: 'Token expired.'
-//   //   })
-//   // }
-
-//   next(error)
-// }
-
 export { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler }
