@@ -17,6 +17,8 @@ env:
 jobs:
   deployment_pipeline:
     runs-on: ubuntu-latest
+    # Skip entire CI pipeline if commit message contains #noci
+    if: ${{ !contains(join(github.event.commits.*.message, ' '), '#noci') }}
     
     services:
       postgres:
