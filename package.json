@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "lint": "npm --prefix frontend run lint && npm --prefix backend run lint",
-    "test:backend": "cd backend && npm run test:run",
+    "test:backend": "cd backend && npm test",
     "test:frontend": "cd frontend && npm test",
     "test:playwright": "npx playwright test"
   },

@@ -10,14 +10,14 @@
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development node --watch index.js",
     "dev:test": "NODE_ENV=test node index.js",
-    "test": "NODE_ENV=test vitest",
-    "test:run": "NODE_ENV=test vitest run",
+    "test": "NODE_ENV=test vitest run --coverage",
     "lint": "eslint .",
     "migration:down": "node utils/rollback.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@stylistic/eslint-plugin": "^5.5.0",
+    "@vitest/coverage-v8": "^4.0.15",
     "eslint": "^9.39.1",
     "eslint-plugin-security": "^3.0.1",
     "globals": "^16.5.0",

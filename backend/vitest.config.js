@@ -11,6 +11,18 @@ export default defineConfig({
       }
     },
     fileParallelism: false,
-    testTimeout: 10000
+    testTimeout: 10000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      include: ['controllers/**', 'utils/**', 'models/**'],
+      exclude: [
+        'node_modules/**',
+        'tests/**',
+        '**/*.test.js',
+        '**/*.spec.js',
+        'migrations/**',
+      ]
+    }
   }
 })
