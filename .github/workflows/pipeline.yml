@@ -60,9 +60,9 @@ jobs:
           SECRET: test-secret-key-for-ci
           TEST_DATABASE_URL: postgres://postgres:dummypassword1234@localhost:5432/test_db
       
-      # - name: Run frontend tests
-      #   run: npm run test:frontend
-      
+      - name: Run frontend tests
+        run: npm run test:frontend
+
       - name: Install Playwright Browsers
         if: env.RUN_PLAYWRIGHT == 'true'
         run: npx playwright install --with-deps

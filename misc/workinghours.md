@@ -15,5 +15,6 @@ Working hours:
 | 4.12   | 2 | Use @testcontainers for backend testing. Change Sequalize-model initialization accordingly. Update CI-actions. |
 |        | 3 | Login page, initial front page with logout. Study and use MaterialUI. |
 | 5.12   | 6 | Revert back to basic Docker Postgres for testing: compatible for regular and e2e-Playwright tests. |
-| 8.11   | 3 | Adjust backend-, e2e-tests. Streamline CI-pipeline. |
-| Yht.   | 39 |
+| 8.12   | 3 | Adjust backend-, e2e-tests. Streamline CI-pipeline. |
+| 10.12  | 2 | Add frontend unit tests for: Login, Welcome -components. Configure Vitest, CI. |
+| Yht.   | 41 |

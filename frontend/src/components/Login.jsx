@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Container, TextField, Button, Box, Typography, Paper, Alert } from '@mui/material'
 import authService from '../services/authService'
 
-const Login = ({ onLoginSuccess }) => {
+const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -16,7 +16,7 @@ const Login = ({ onLoginSuccess }) => {
 
       if (userData.token) {
         authService.saveUser(userData)
-        onLoginSuccess(userData)
+        onLogin(userData)
       }
     } catch (err) {
       setError(err.message || 'Login failed')

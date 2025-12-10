@@ -10,4 +10,5 @@ Changelog:
 | 26.11  | Add tests for user login. Disable parallelism in tests to avoid database conflicts. |
 | 4.12   | Use @testcontainers for backend testing. Login page, initial front page with logout. |
 | 8.12   | Revert back to basic Docker Postgres for testing: compatible for regular and e2e-Playwright tests. |
+| 10.12  | Add frontend unit tests for: Login, Welcome -components. Configure Vitest, CI. |
 

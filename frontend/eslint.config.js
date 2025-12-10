@@ -40,6 +40,14 @@ export default defineConfig([
     },
   },
   {
+  files: ['**/*.test.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.vitest
+      }
+    },
+  },
+  {
     ignores: [
       'node_modules/**',
       'build/**',

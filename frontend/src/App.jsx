@@ -9,7 +9,7 @@ const theme = createTheme()
 const App = () => {
   const [user, setUser] = useState(() => authService.getStoredUser())
 
-  const handleLoginSuccess = (userData) => {
+  const handleLogin = (userData) => {
     setUser(userData)
   }
 
@@ -23,7 +23,7 @@ const App = () => {
       {user ? (
         <Welcome user={user} onLogout={handleLogout} />
       ) : (
-        <Login onLoginSuccess={handleLoginSuccess} />
+        <Login onLogin={handleLogin} />
       )}
     </ThemeProvider>
   )

@@ -4,7 +4,7 @@
   "scripts": {
     "lint": "npm --prefix frontend run lint && npm --prefix backend run lint",
     "test:backend": "cd backend && npm run test:run",
-    "test:frontend": "cd frontend && npm run test",
+    "test:frontend": "cd frontend && npm test",
     "test:playwright": "npx playwright test"
   },
   "devDependencies": {
