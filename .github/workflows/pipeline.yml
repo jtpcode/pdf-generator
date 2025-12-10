@@ -63,6 +63,11 @@ jobs:
       - name: Run frontend tests
         run: npm run test:frontend
 
+      - name: Upload coverage reports to Codecov
+          uses: codecov/codecov-action@v5
+          with:
+            token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Install Playwright Browsers
         if: env.RUN_PLAYWRIGHT == 'true'
         run: npx playwright install --with-deps
