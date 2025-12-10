@@ -17,4 +17,5 @@ Working hours:
 | 5.12   | 6 | Revert back to basic Docker Postgres for testing: compatible for regular and e2e-Playwright tests. |
 | 8.12   | 3 | Adjust backend-, e2e-tests. Streamline CI-pipeline. |
 | 10.12  | 2 | Add frontend unit tests for: Login, Welcome -components. Configure Vitest, CI. |
-| Yht.   | 41 |
+|        | 1 | Add coverage for front and backend via Codecov. |
+| Yht.   | 42 |
