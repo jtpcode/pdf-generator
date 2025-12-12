@@ -1,6 +1,10 @@
 import helmet from 'helmet'
 import morgan from 'morgan'
 import express from 'express'
+import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
+import { User, Session } from '../models/index.js'
+import { JWT_SECRET } from './config.js'
 
 // Morgan: 'body'-token with password filtering
 morgan.token('body', (req) => {
@@ -73,6 +77,34 @@ const errorHandler = (error, req, res, _next) => { // eslint-disable-line no-unu
   }
 
   // =============================================================================
+  // MULTER FILE UPLOAD ERRORS
+  // =============================================================================
+
+  // Multer file size error
+  if (error.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({
+      error: 'File too large (max 10MB)',
+      type: 'file_upload_error'
+    })
+  }
+
+  // Other multer errors
+  if (error.name === 'MulterError') {
+    return res.status(400).json({
+      error: error.message,
+      type: 'file_upload_error'
+    })
+  }
+
+  // File filter errors (from multer fileFilter)
+  if (error.message === 'Only Excel files (.xls, .xlsx) are allowed') {
+    return res.status(400).json({
+      error: error.message,
+      type: 'file_type_error'
+    })
+  }
+
+  // =============================================================================
   // UNHANDLED ERRORS
   // =============================================================================
 
@@ -83,4 +115,43 @@ const errorHandler = (error, req, res, _next) => { // eslint-disable-line no-unu
   })
 }
 
-export { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler }
+const tokenExtractor = async (req, res, next) => {
+  const authorization = req.get('authorization')
+
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    const token = authorization.substring(7)
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+
+    try {
+      jwt.verify(token, JWT_SECRET)
+
+      const session = await Session.findOne({
+        where: { tokenHash },
+        include: {
+          model: User,
+          attributes: ['id', 'username', 'disabled']
+        }
+      })
+
+      if (!session || session.expiresAt < new Date()) {
+        return res.status(401).json({ error: 'token expired or invalid' })
+      }
+
+      if (session.user.disabled) {
+        return res.status(401).json({ error: 'account disabled' })
+      }
+
+      req.user = session.user
+
+    } catch (error) {
+      console.log('Error in tokenExtractor:', error.message)
+      return res.status(401).json({ error: 'token invalid' })
+    }
+  } else {
+    return res.status(401).json({ error: 'token missing' })
+  }
+
+  next()
+}
+
+export { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler, tokenExtractor }

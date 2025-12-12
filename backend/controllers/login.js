@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 import { Router } from 'express'
 import { User, Session } from '../models/index.js'
-import { SECRET } from '../utils/config.js'
+import { JWT_SECRET } from '../utils/config.js'
 import { Op } from 'sequelize'
 
 const router = Router()
@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
     id: user.id,
   }
 
-  const token = jwt.sign(userForToken, SECRET)
+  const token = jwt.sign(userForToken, JWT_SECRET)
   const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
 
   const expiresAt = new Date()

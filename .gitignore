@@ -145,8 +145,11 @@ docker-compose.dev.yml
 requests.http
 
 # Playwright
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# Uploaded files
+uploads/

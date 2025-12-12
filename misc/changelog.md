@@ -11,4 +11,5 @@ Changelog:
 | 4.12   | Use @testcontainers for backend testing. Login page, initial front page with logout. |
 | 8.12   | Revert back to basic Docker Postgres for testing: compatible for regular and e2e-Playwright tests. |
 | 10.12  | Add frontend unit tests for: Login, Welcome -components. Configure Vitest, CI. Add coverage for front and backend via Codecov. |
+| 12.12  | Add file upload functionality to backend and frontend. |
 

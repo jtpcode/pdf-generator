@@ -1,7 +1,12 @@
 import User from './user.js'
 import Session from './session.js'
+import File from './file.js'
 
-User.hasMany(Session)
-Session.belongsTo(User)
+// Define associations
+User.hasMany(Session, { foreignKey: 'userId' })
+Session.belongsTo(User, { foreignKey: 'userId' })
 
-export { User, Session }
+User.hasMany(File, { foreignKey: 'userId' })
+File.belongsTo(User, { foreignKey: 'userId' })
+
+export { User, Session, File }

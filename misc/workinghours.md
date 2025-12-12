@@ -18,4 +18,6 @@ Working hours:
 | 8.12   | 3 | Adjust backend-, e2e-tests. Streamline CI-pipeline. |
 | 10.12  | 2 | Add frontend unit tests for: Login, Welcome -components. Configure Vitest, CI. |
 |        | 1 | Add coverage for front and backend via Codecov. |
-| Yht.   | 42 |
+| 11.12  | 4 | Add file upload functionality to backend and frontend. |
+| 12.12  | 2 | Continue: add file upload functionality to backend and frontend. Study error handling. |
+| Yht.   | 48 |

@@ -25,9 +25,13 @@ const getStoredUser = () => {
   return user ? JSON.parse(user) : null
 }
 
+const getToken = () => {
+  return localStorage.getItem('token')
+}
+
 const saveUser = (userData) => {
   localStorage.setItem('token', userData.token)
   localStorage.setItem('user', JSON.stringify(userData))
 }
 
-export default { login, logout, getStoredUser, saveUser }
+export default { login, logout, getStoredUser, getToken, saveUser }
