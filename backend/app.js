@@ -4,6 +4,7 @@ import { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler 
 import { connectToDatabase } from './utils/db.js'
 import usersRouter from './controllers/users.js'
 import loginRouter from './controllers/login.js'
+import logoutRouter from './controllers/logout.js'
 import filesRouter from './controllers/files.js'
 import testingRouter from './controllers/testing.js'
 
@@ -25,6 +26,7 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
+app.use('/api/logout', logoutRouter)
 app.use('/api/files', filesRouter)
 
 // Testing routes - only in test mode

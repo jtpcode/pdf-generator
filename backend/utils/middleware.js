@@ -142,6 +142,7 @@ const tokenExtractor = async (req, res, next) => {
       }
 
       req.user = session.user
+      req.session = session
 
     } catch (error) {
       console.log('Error in tokenExtractor:', error.message)

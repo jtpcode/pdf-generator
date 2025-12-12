@@ -15,7 +15,22 @@ const login = async (username, password) => {
   return response.json()
 }
 
-const logout = () => {
+const logout = async () => {
+  const token = localStorage.getItem('token')
+
+  if (token) {
+    try {
+      await fetch('/api/logout', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+    } catch (error) {
+      console.error('Logout request failed:', error)
+    }
+  }
+
   localStorage.removeItem('token')
   localStorage.removeItem('user')
 }

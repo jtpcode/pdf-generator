@@ -20,4 +20,5 @@ Working hours:
 |        | 1 | Add coverage for front and backend via Codecov. |
 | 11.12  | 4 | Add file upload functionality to backend and frontend. |
 | 12.12  | 2 | Continue: add file upload functionality to backend and frontend. Study error handling. |
-| Yht.   | 48 |
+|        | 2 | Add logout with session deletion. Uploads are now in /uploads/user.id/file.xlsx |
+| Yht.   | 50 |
