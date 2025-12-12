@@ -86,7 +86,7 @@ const Welcome = ({ user, onLogout }) => {
     <Container maxWidth="md">
       <Box sx={{ mt: 8 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h3">
+          <Typography variant="h3" component="h3">
             Welcome!
           </Typography>
           <Button variant="outlined" onClick={handleLogout}>
@@ -111,7 +111,7 @@ const Welcome = ({ user, onLogout }) => {
         )}
 
         <Paper sx={{ p: 3, mb: 4 }}>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" component="h5" gutterBottom>
             Upload Excel File
           </Typography>
           <Button
@@ -131,7 +131,7 @@ const Welcome = ({ user, onLogout }) => {
         </Paper>
 
         <Paper sx={{ p: 3 }}>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5"component="h5" gutterBottom>
             Your Files
           </Typography>
 

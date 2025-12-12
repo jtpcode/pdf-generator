@@ -94,7 +94,7 @@ describe('Login API', () => {
 
   test('returns token and stores session with valid credentials', async () => {
     // Reduced salt rounds for faster tests
-    const password = await bcrypt.hash('password123', 1)
+    const password = await bcrypt.hash('password123', 5)
     const user = await User.create({
       username: 'testuser',
       name: 'Test User',
@@ -132,7 +132,7 @@ describe('Login API', () => {
     await User.create({
       username: 'testuser',
       name: 'Test User',
-      passwordHash: await bcrypt.hash('password123', 1)
+      passwordHash: await bcrypt.hash('password123', 5)
     })
 
     const response = await api
@@ -149,7 +149,7 @@ describe('Login API', () => {
     await User.create({
       username: 'testuser',
       name: 'Test User',
-      passwordHash: await bcrypt.hash('password123', 1),
+      passwordHash: await bcrypt.hash('password123', 5),
       disabled: true
     })
 
