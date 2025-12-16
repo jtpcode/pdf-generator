@@ -88,19 +88,19 @@ const errorHandler = (error, req, res, _next) => { // eslint-disable-line no-unu
     })
   }
 
-  // Other multer errors
-  if (error.name === 'MulterError') {
-    return res.status(400).json({
-      error: error.message,
-      type: 'file_upload_error'
-    })
-  }
-
   // File filter errors (from multer fileFilter)
   if (error.message === 'Only Excel files (.xls, .xlsx) are allowed') {
     return res.status(400).json({
       error: error.message,
       type: 'file_type_error'
+    })
+  }
+
+  // Other multer errors
+  if (error.name === 'MulterError') {
+    return res.status(400).json({
+      error: error.message,
+      type: 'file_upload_error'
     })
   }
 
@@ -144,8 +144,7 @@ const tokenExtractor = async (req, res, next) => {
       req.user = session.user
       req.session = session
 
-    } catch (error) {
-      console.log('Error in tokenExtractor:', error.message)
+    } catch {
       return res.status(401).json({ error: 'token invalid' })
     }
   } else {

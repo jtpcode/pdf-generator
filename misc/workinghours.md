@@ -21,4 +21,5 @@ Working hours:
 | 11.12  | 4 | Add file upload functionality to backend and frontend. |
 | 12.12  | 2 | Continue: add file upload functionality to backend and frontend. Study error handling. |
 |        | 2 | Add logout with session deletion. Uploads are now in /uploads/user.id/file.xlsx |
-| Yht.   | 50 |
+| 16.12  | 3 | Add backend tests for file upload and logout. Refactor api tests. |
+| Yht.   | 53 |
