@@ -24,4 +24,5 @@ Working hours:
 | 16.12  | 3 | Add backend tests for file upload and logout. Refactor api tests. |
 |        | 2 | Debug playwright server removal. |
 | 17.12  | 2 | Add e2e tests for file upload, refactor e2e tests. Add test-uploads dir for test files and deletion of them afterwards. |
-| Yht.   | 55 |
+|        | 3 | Add frontend file upload tests. Debug frontend file upload testing. |
+| Yht.   | 60 |

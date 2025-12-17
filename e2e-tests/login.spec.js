@@ -109,11 +109,19 @@ test.describe('Login functionality', () => {
       await expect(page.getByText('No files uploaded yet')).toBeVisible()
     })
 
-    test('should upload an Excel file successfully', async ({ page }) => {
+    test('should upload Excel files successfully (.xlsx and .xls)', async ({ page }) => {
+      // Test .xlsx format
       await uploadFile(page, createMockExcelFile('test-file.xlsx'))
-
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
       await expect(page.getByText('test-file.xlsx')).toBeVisible()
+      
+      // Wait for success message to disappear
+      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible()
+      
+      // Test .xls format
+      await uploadFile(page, createMockExcelFile('old-format.xls', 'mock xls file content', 'xls'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+      await expect(page.getByText('old-format.xls')).toBeVisible()
     })
 
     test('should reject non-Excel files', async ({ page }) => {
@@ -150,31 +158,14 @@ test.describe('Login functionality', () => {
 
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
       
-      // Check that file size info is displayed (the exact format depends on file size)
       const listItem = page.locator('li', { has: page.getByText('sized-file.xlsx') })
       await expect(listItem).toBeVisible()
       
       // Should contain file size info (B, KB, or MB)
       await expect(listItem).toContainText(/B|KB|MB/)
-    })
-
-    test('should support .xls file format', async ({ page }) => {
-      await uploadFile(page, createMockExcelFile('old-format.xls', 'mock xls file content', 'xls'))
-
-      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
-      await expect(page.getByText('old-format.xls')).toBeVisible()
-    })
-
-    test('should disable upload button while uploading', async ({ page }) => {
-      // This test verifies the loading state
-      const uploadButton = page.getByRole('button', { name: 'Choose File' })
-      await expect(uploadButton).toBeEnabled()
       
-      // Note: The actual disabled state might be too fast to catch in a real test
-      // but the component should handle it
-      await uploadFile(page, createMockExcelFile('test-upload.xlsx', 'mock excel file'))
-
-      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+      // Should contain upload date (checking for common date patterns)
+      await expect(listItem).toContainText(/\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}-\d{2}-\d{2}/)
     })
   })
 })

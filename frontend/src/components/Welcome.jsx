@@ -124,7 +124,6 @@ const Welcome = ({ user, onLogout }) => {
             <input
               type="file"
               hidden
-              accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               onChange={handleFileUpload}
             />
           </Button>
