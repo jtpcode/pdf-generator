@@ -5,14 +5,17 @@ import { promises as fs } from 'fs'
 import { fileURLToPath } from 'url'
 import { File } from '../models/index.js'
 import { tokenExtractor } from '../utils/middleware.js'
+import { UPLOADS_DIR } from '../utils/config.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const router = express.Router()
 
-// Base uploads directory
-const uploadsDir = path.join(__dirname, '..', 'uploads')
+// Base uploads directory - uses test-uploads in test environment
+const uploadsDir = path.join(__dirname, '..', UPLOADS_DIR)
+// SAFE: UPLOADS_DIR is controlled via config and not user input
+// eslint-disable-next-line security/detect-non-literal-fs-filename
 await fs.mkdir(uploadsDir, { recursive: true })
 
 // Helper function to get user-specific directory

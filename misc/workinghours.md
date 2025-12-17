@@ -22,4 +22,6 @@ Working hours:
 | 12.12  | 2 | Continue: add file upload functionality to backend and frontend. Study error handling. |
 |        | 2 | Add logout with session deletion. Uploads are now in /uploads/user.id/file.xlsx |
 | 16.12  | 3 | Add backend tests for file upload and logout. Refactor api tests. |
-| Yht.   | 53 |
+|        | 2 | Debug playwright server removal. |
+| 17.12  | 2 | Add e2e tests for file upload, refactor e2e tests. Add test-uploads dir for test files and deletion of them afterwards. |
+| Yht.   | 55 |

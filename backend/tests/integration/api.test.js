@@ -8,7 +8,14 @@ import { sequelize } from '../../utils/db.js'
 
 const api = supertest(app)
 
+beforeEach(async () => {
+  // Reset database before each test
+  await api.post('/api/testing/resetDb')
+})
+
 afterAll(async () => {
+  // Clean up uploads after all tests
+  await api.post('/api/testing/deleteTestUploads')
   await sequelize.close()
 })
 
@@ -54,11 +61,6 @@ const uploadFile = (token, filename, contentType, content = 'mock file content')
 }
 
 describe('User API', () => {
-  beforeEach(async () => {
-    // Reset database
-    await api.post('/api/testing/reset')
-  })
-
   test('creates new user with valid data', async () => {
     const newUser = {
       username: 'testuser',
@@ -128,11 +130,6 @@ describe('User API', () => {
 })
 
 describe('Login API', () => {
-  beforeEach(async () => {
-    // Reset database
-    await api.post('/api/testing/reset')
-  })
-
   test('returns token and stores session with valid credentials', async () => {
     const user = await createUser()
 
@@ -196,11 +193,6 @@ describe('Login API', () => {
 })
 
 describe('Logout API', () => {
-  beforeEach(async () => {
-    // Reset database
-    await api.post('/api/testing/reset')
-  })
-
   test('destroys session with valid token', async () => {
     const user = await createUser()
     const token = await loginUser()
@@ -251,11 +243,6 @@ describe('Logout API', () => {
 })
 
 describe('File API', () => {
-  beforeEach(async () => {
-    // Reset database
-    await api.post('/api/testing/reset')
-  })
-
   describe('GET /api/files', () => {
     test('returns empty array when user has no files', async () => {
       const token = await createAndLoginUser()

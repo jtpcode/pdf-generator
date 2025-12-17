@@ -38,5 +38,4 @@ if (process.env.NODE_ENV === 'test') {
 app.use(unknownEndpoint)
 app.use(errorHandler)
 
-// Export app for testing
 export default app

@@ -1,4 +1,3 @@
-// @ts-check
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -14,7 +13,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './e2e-tests',
-  timeout: 3000,
+  timeout: 30000,
   /* Run tests in files in parallel */
   fullyParallel: false,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -74,13 +73,13 @@ export default defineConfig({
     {
       command: 'cd backend && npm run dev:test',
       url: 'http://localhost:3001/health',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
       timeout: 120 * 1000,
     },
     {
       command: 'cd frontend && npm run dev',
       url: 'http://localhost:5173',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: false,
       timeout: 120 * 1000,
     },
   ],
