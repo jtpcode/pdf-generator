@@ -138,9 +138,6 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Docker files
-docker-compose.dev.yml
-
 # REST requests
 requests.http
 
@@ -154,3 +151,5 @@ playwright/.auth/
 # Uploaded files
 uploads/
 test-uploads/
+.github/instructions/
+.github/prompts/

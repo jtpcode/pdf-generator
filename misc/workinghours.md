@@ -2,7 +2,7 @@ Working hours:
 
 | date | hours | tasks  |
 | :----: | :-----: | :----- |
-| 5.11   | 2 | project initialization, lint config |
+| 5.11.2025 | 2 | project initialization, lint config |
 |        | 3 | backend initialization, middleware, pipeline workflow |
 | 6.11   | 1 | eslint configuration |
 | 11.11  | 2 | Postgres with docker  |
@@ -25,4 +25,6 @@ Working hours:
 |        | 2 | Debug playwright server removal. |
 | 17.12  | 2 | Add e2e tests for file upload, refactor e2e tests. Add test-uploads dir for test files and deletion of them afterwards. |
 |        | 3 | Add frontend file upload tests. Debug frontend file upload testing. |
-| Yht.   | 60 |
+| 5.1.2026 | 4 | Study Copilot: MCP, tools, copilot-instructions.md, agent mode |
+| 6.1.2026 | 2 | Create copilot-instructions.md and README.md |
+| Yht.   | 66 |
