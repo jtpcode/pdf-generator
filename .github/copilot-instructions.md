@@ -3,7 +3,7 @@
 ## Repository Overview
 
 **Project Type**: Full-stack web application for PDF generation with Excel file upload
-**Languages/Frameworks**: Node.js 24, Express.js, React 19, Vite, Sequelize ORM
+**Languages/Frameworks**: Node.js 24, Express.js, React 19.2, Vite, Sequelize ORM
 **Database**: PostgreSQL 18
 **Testing**: Vitest (backend & frontend unit tests), Playwright (E2E tests)
 **Architecture**: Monorepo with separate frontend and backend packages
@@ -98,7 +98,7 @@ npm run test:backend
 **Playwright E2E Tests**:
 ```bash
 # First time only - install browsers (takes ~60 seconds)
-npx playwright install --with-deps chromium
+npx playwright install --with-deps
 
 # Run E2E tests
 npx playwright test
@@ -151,7 +151,7 @@ cd frontend && npm run dev
 7. `npm run test:backend` (with DB connection)
 8. `npm run test:frontend`
 9. Upload coverage to Codecov
-10. **Conditionally** install Playwright browsers (if PR or commit contains `#play`)
+10. **Conditionally** install Playwright browsers with `npx playwright install --with-deps` (if PR or commit contains `#play`)
 11. **Conditionally** run `npx playwright test` (if PR or commit contains `#play`)
 12. Upload Playwright report as artifact
 
@@ -254,7 +254,7 @@ JWT_SECRET=test-secret-key-for-ci TEST_DATABASE_URL=postgres://postgres:dummypas
 npm run test:frontend
 
 # Optional: E2E tests (if making frontend/integration changes)
-npx playwright install --with-deps chromium
+npx playwright install --with-deps
 JWT_SECRET=test-secret-key-for-ci TEST_DATABASE_URL=postgres://postgres:dummypassword1234@localhost:5432/test_db npx playwright test
 ```
 
