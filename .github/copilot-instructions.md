@@ -3,7 +3,7 @@
 ## Repository Overview
 
 **Project Type**: Full-stack web application for PDF generation with Excel file upload
-**Languages/Frameworks**: Node.js 24, Express.js, React 19.2, Vite, Sequelize ORM
+**Languages/Frameworks**: Node.js 24, Express.js, React ^19.2, Vite, Sequelize ORM
 **Database**: PostgreSQL 18
 **Testing**: Vitest (backend & frontend unit tests), Playwright (E2E tests)
 **Architecture**: Monorepo with separate frontend and backend packages
@@ -195,7 +195,7 @@ cd frontend && npm run dev
 - File uploads go to `uploads/` (production) or `test-uploads/` (test mode)
 
 ### Frontend-Specific
-- React 19 with functional components and hooks
+- React ^19.2 with functional components and hooks
 - Material-UI (@mui/material) for UI components
 - API calls via service layers (`services/authService.js`, `services/fileService.js`)
 - No TypeScript (plain JavaScript with JSX)
