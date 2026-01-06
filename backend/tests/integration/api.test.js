@@ -21,7 +21,7 @@ afterAll(async () => {
 
 // Helper functions
 const createUser = async (username = 'testuser', name = 'Test User') => {
-  const passwordHash = await bcrypt.hash('password123', 1)
+  const passwordHash = await bcrypt.hash('testpassword123', 1)
   return await User.create({
     username,
     name,
@@ -32,7 +32,7 @@ const createUser = async (username = 'testuser', name = 'Test User') => {
 const loginUser = async (username = 'testuser') => {
   const response = await api
     .post('/api/login')
-    .send({ username, password: 'password123' })
+    .send({ username, password: 'testpassword123' })
     .expect(200)
 
   return response.body.token
@@ -65,7 +65,7 @@ describe('User API', () => {
     const newUser = {
       username: 'testuser',
       name: 'Test User',
-      password: 'password123'
+      password: 'validpassword123'
     }
 
     const response = await api
@@ -80,9 +80,9 @@ describe('User API', () => {
 
   test('rejects user with short username', async () => {
     const newUser = {
-      username: 'short',
+      username: 'ab',
       name: 'Test User',
-      password: 'password123'
+      password: 'validpassword123'
     }
 
     const response = await api
@@ -90,14 +90,14 @@ describe('User API', () => {
       .send(newUser)
       .expect(400)
 
-    expect(response.body.error).toBe('Validation len on username failed')
+    expect(response.body.error).toBe('Username must be between 3 and 50 characters')
   })
 
   test('rejects user with duplicate username', async () => {
     const newUser = {
       username: 'testuser',
       name: 'Test User',
-      password: 'password123'
+      password: 'validpassword123'
     }
 
     await api
@@ -117,7 +117,7 @@ describe('User API', () => {
     const newUser = {
       username: 'testuser',
       name: 'Test User',
-      password: '123'
+      password: 'short'
     }
 
     const response = await api
@@ -125,7 +125,7 @@ describe('User API', () => {
       .send(newUser)
       .expect(400)
 
-    expect(response.body.error).toBe('Password must be at least 8 characters long')
+    expect(response.body.error).toBe('Password must be at least 12 characters long')
   })
 })
 
@@ -135,7 +135,7 @@ describe('Login API', () => {
 
     const response = await api
       .post('/api/login')
-      .send({ username: 'testuser', password: 'password123' })
+      .send({ username: 'testuser', password: 'testpassword123' })
       .expect(200)
 
     expect(response.body.username).toBe('testuser')
@@ -152,7 +152,7 @@ describe('Login API', () => {
   test('rejects non-existing user', async () => {
     const response = await api
       .post('/api/login')
-      .send({ username: 'nonuser', password: 'password123' })
+      .send({ username: 'nonuser', password: 'testpassword123' })
       .expect(401)
 
     expect(response.body.error).toBe('invalid username or password')
@@ -177,13 +177,13 @@ describe('Login API', () => {
     await User.create({
       username: 'testuser',
       name: 'Test User',
-      passwordHash: await bcrypt.hash('password123', 1),
+      passwordHash: await bcrypt.hash('testpassword123', 1),
       disabled: true
     })
 
     const response = await api
       .post('/api/login')
-      .send({ username: 'testuser', password: 'password123' })
+      .send({ username: 'testuser', password: 'testpassword123' })
       .expect(401)
 
     expect(response.body.error).toBe('invalid username or password')

@@ -26,5 +26,5 @@ Working hours:
 | 17.12  | 2 | Add e2e tests for file upload, refactor e2e tests. Add test-uploads dir for test files and deletion of them afterwards. |
 |        | 3 | Add frontend file upload tests. Debug frontend file upload testing. |
 | 5.1.2026 | 4 | Study Copilot: MCP, tools, copilot-instructions.md, agent mode |
-| 6.1.2026 | 2 | Create copilot-instructions.md and README.md |
-| Yht.   | 66 |
+| 6.1.2026 | 5 | Create copilot-instructions.md and update README.md. Update name/username/password validation in backend, update tests accordingly. Add stricter rateLimiter-middleware for repeated Login/Create user -requests and looser limiter for other endpoints. |
+| Yht.   | 69 |

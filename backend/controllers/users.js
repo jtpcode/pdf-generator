@@ -4,19 +4,58 @@ import { User } from '../models/index.js'
 
 const router = Router()
 
-// router.get('/', async (req, res) => {
-//   const users = await User.findAll({
-//     attributes: { exclude: ['passwordHash'] },
-//   })
+const validateUsername = (username) => {
+  if (!username || typeof username !== 'string') {
+    return 'Username is required'
+  }
+  if (username.length < 3 || username.length > 50) {
+    return 'Username must be between 3 and 50 characters'
+  }
+  if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+    return 'Username can only contain letters, numbers, hyphens and underscores'
+  }
+  return undefined
+}
 
-//   res.json(users)
-// })
+const validateName = (name) => {
+  if (!name || typeof name !== 'string') {
+    return 'Name is required'
+  }
+  if (name.length < 1 || name.length > 100) {
+    return 'Name must be between 1 and 100 characters'
+  }
+  return undefined
+}
+
+const validatePassword = (password) => {
+  if (!password || typeof password !== 'string') {
+    return 'Password is required'
+  }
+  if (password.length < 12) {
+    return 'Password must be at least 12 characters long'
+  }
+  if (password.length > 128) {
+    return 'Password must be at most 128 characters long'
+  }
+  return undefined
+}
 
 router.post('/', async (req, res) => {
   const { username, name, password } = req.body
 
-  if (!password || password.length < 8) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters long' })
+  const usernameError = validateUsername(username)
+  if (usernameError) {
+    return res.status(400).json({ error: usernameError })
+  }
+
+  const nameError = validateName(name)
+  if (nameError) {
+    return res.status(400).json({ error: nameError })
+  }
+
+  const passwordError = validatePassword(password)
+  if (passwordError) {
+    return res.status(400).json({ error: passwordError })
   }
 
   const saltRounds = 10
@@ -31,15 +70,5 @@ router.post('/', async (req, res) => {
   const { passwordHash: _, ...userWithoutPassword } = user.toJSON()
   res.status(201).json(userWithoutPassword)
 })
-
-// router.get('/:id', async (req, res) => {
-//   const user = await User.findByPk(req.params.id, {
-//     attributes: ['name', 'username'],
-//   })
-//   if (!user) {
-//     return res.status(404).json({ error: 'User not found' })
-//   }
-//   res.json(user)
-// })
 
 export default router
