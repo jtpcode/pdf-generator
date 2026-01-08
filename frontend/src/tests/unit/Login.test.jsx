@@ -100,7 +100,7 @@ describe('Login Component', () => {
     await user.click(loginButton)
 
     await waitFor(() => {
-      expect(screen.getByText('Login failed')).toBeInTheDocument()
+      expect(screen.getByText('Login failed. Please try again.')).toBeInTheDocument()
     })
   })
 
@@ -174,5 +174,69 @@ describe('Login Component', () => {
 
     const passwordInput = screen.getByLabelText(/password/i)
     expect(passwordInput).toHaveAttribute('type', 'password')
+  })
+
+  it('shows loading state during login', async () => {
+    const user = userEvent.setup()
+    // Mock login to never resolve to simulate loading state
+    authService.login.mockImplementation(() => new Promise(() => {}))
+
+    render(<Login onLogin={mockOnLogin} />)
+
+    const usernameInput = screen.getByLabelText(/username/i)
+    const passwordInput = screen.getByLabelText(/password/i)
+    const loginButton = screen.getByRole('button', { name: /login/i })
+
+    await user.type(usernameInput, 'testuser')
+    await user.type(passwordInput, 'testpass123')
+    await user.click(loginButton)
+
+    await waitFor(() => {
+      expect(screen.getByText('Logging in...')).toBeInTheDocument()
+    })
+  })
+
+  it('disables inputs and button during login', async () => {
+    const user = userEvent.setup()
+    authService.login.mockImplementation(() => new Promise(() => {}))
+
+    render(<Login onLogin={mockOnLogin} />)
+
+    const usernameInput = screen.getByLabelText(/username/i)
+    const passwordInput = screen.getByLabelText(/password/i)
+    const loginButton = screen.getByRole('button', { name: /login/i })
+
+    await user.type(usernameInput, 'testuser')
+    await user.type(passwordInput, 'testpass123')
+    await user.click(loginButton)
+
+    await waitFor(() => {
+      expect(usernameInput).toBeDisabled()
+      expect(passwordInput).toBeDisabled()
+      expect(loginButton).toBeDisabled()
+    })
+  })
+
+  it('re-enables inputs after failed login', async () => {
+    const user = userEvent.setup()
+    authService.login.mockRejectedValue(new Error('Login failed'))
+
+    render(<Login onLogin={mockOnLogin} />)
+
+    const usernameInput = screen.getByLabelText(/username/i)
+    const passwordInput = screen.getByLabelText(/password/i)
+    const loginButton = screen.getByRole('button', { name: /login/i })
+
+    await user.type(usernameInput, 'testuser')
+    await user.type(passwordInput, 'testpass123')
+    await user.click(loginButton)
+
+    await waitFor(() => {
+      expect(screen.getByText('Login failed')).toBeInTheDocument()
+    })
+
+    expect(usernameInput).not.toBeDisabled()
+    expect(passwordInput).not.toBeDisabled()
+    expect(loginButton).not.toBeDisabled()
   })
 })

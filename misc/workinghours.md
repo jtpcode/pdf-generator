@@ -27,5 +27,6 @@ Working hours:
 |        | 3 | Add frontend file upload tests. Debug frontend file upload testing. |
 | 5.1.2026 | 4 | Study Copilot: MCP, tools, copilot-instructions.md, agent mode |
 | 6.1 | 5 | Create copilot-instructions.md and update README.md. Update name/username/password validation in backend, update tests accordingly. Add stricter rateLimiter-middleware for repeated Login/Create user -requests and looser limiter for other endpoints. |
-| 8.1  | 4 | Update login.js, Welcome.jsx tests and copilot instructions |
-| Total   | 73 |
+| 8.1  | 4 | Update login.js, files.js, testing.js, change User-model's username length and copilot instructions. |
+|      | 4 | Review frontend code and tests, also services. Improve error handling. Add tests for frontend login loading state. |
+| Total   | 77 |

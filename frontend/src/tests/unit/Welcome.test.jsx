@@ -8,6 +8,9 @@ import fileService from '../../services/fileService'
 vi.mock('../../services/authService')
 vi.mock('../../services/fileService')
 
+// NOTE: waitFor is used to handle async state updates (fetchFiles in useEffect)
+// instead of using act() directly.
+
 describe('Welcome Component', () => {
   const mockOnLogout = vi.fn()
   const mockUser = { username: 'testuser' }

@@ -15,14 +15,24 @@ const getAllFiles = async () => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(errorData.error || 'Failed to fetch files')
+    let errorMessage = 'Failed to fetch files'
+    try {
+      const errorData = await response.json()
+      errorMessage = errorData.error || errorMessage
+    } catch {
+      errorMessage = `${errorMessage} (${response.status})`
+    }
+    throw new Error(errorMessage)
   }
 
   return response.json()
 }
 
 const uploadFile = async (file) => {
+  if (!file) {
+    throw new Error('No file provided')
+  }
+
   const formData = new FormData()
   formData.append('file', file)
 
@@ -33,8 +43,14 @@ const uploadFile = async (file) => {
   })
 
   if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(errorData.error || 'Failed to upload file')
+    let errorMessage = 'Failed to upload file'
+    try {
+      const errorData = await response.json()
+      errorMessage = errorData.error || errorMessage
+    } catch {
+      errorMessage = `${errorMessage} (${response.status})`
+    }
+    throw new Error(errorMessage)
   }
 
   return response.json()

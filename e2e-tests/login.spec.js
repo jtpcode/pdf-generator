@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-// Helper function to create mock Excel file
+// Helper functions
 const createMockExcelFile = (filename, content = 'mock excel file content', fileExtension = 'xlsx') => {
   const mimeTypes = {
     xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -14,17 +14,14 @@ const createMockExcelFile = (filename, content = 'mock excel file content', file
   }
 }
 
-// Helper function to upload file
 const uploadFile = async (page, fileConfig) => {
   await page.setInputFiles('input[type="file"]', fileConfig)
 }
 
 test.describe('Login functionality', () => {
   test.beforeEach(async ({ page, request }) => {
-    // Reset database
     await request.post('http://localhost:3001/api/testing/resetDb')
 
-    // Create test user
     await request.post('http://localhost:3001/api/users', {
       data: {
         username: 'testuser',
@@ -33,12 +30,10 @@ test.describe('Login functionality', () => {
       }
     })
 
-    // Navigate to the application
     await page.goto('/')
   })
 
   test.afterAll(async ({ request }) => {
-    // Clean up uploads after all tests
     await request.post('http://localhost:3001/api/testing/deleteTestUploads')
   })
 
@@ -76,7 +71,6 @@ test.describe('Login functionality', () => {
 
   test.describe('When logged in', () => {
     test.beforeEach(async ({ page }) => {
-      // Login
       await page.getByLabel('Username').fill('testuser')
       await page.getByLabel('Password').fill('testpassword123')
       await page.getByRole('button', { name: 'Login' }).click()
@@ -110,22 +104,18 @@ test.describe('Login functionality', () => {
     })
 
     test('should upload Excel files successfully (.xlsx and .xls)', async ({ page }) => {
-      // Test .xlsx format
       await uploadFile(page, createMockExcelFile('test-file.xlsx'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
       await expect(page.getByText('test-file.xlsx')).toBeVisible()
 
-      // Wait for success message to disappear
       await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible()
 
-      // Test .xls format
       await uploadFile(page, createMockExcelFile('old-format.xls', 'mock xls file content', 'xls'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
       await expect(page.getByText('old-format.xls')).toBeVisible()
     })
 
     test('should reject non-Excel files', async ({ page }) => {
-      // Try to upload a PDF file
       await uploadFile(page, {
         name: 'test-file.pdf',
         mimeType: 'application/pdf',
@@ -138,14 +128,11 @@ test.describe('Login functionality', () => {
     })
 
     test('should display multiple uploaded files', async ({ page }) => {
-      // Upload first file
       await uploadFile(page, createMockExcelFile('first-file.xlsx', 'mock excel file 1'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
 
-      // Wait for success message to disappear
       await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible()
 
-      // Upload second file
       await uploadFile(page, createMockExcelFile('second-file.xlsx', 'mock excel file 2'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
 
@@ -161,10 +148,8 @@ test.describe('Login functionality', () => {
       const listItem = page.locator('li', { has: page.getByText('sized-file.xlsx') })
       await expect(listItem).toBeVisible()
 
-      // Should contain file size info (B, KB, or MB)
       await expect(listItem).toContainText(/B|KB|MB/)
 
-      // Should contain upload date (checking for common date patterns)
       await expect(listItem).toContainText(/\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}-\d{2}-\d{2}/)
     })
   })

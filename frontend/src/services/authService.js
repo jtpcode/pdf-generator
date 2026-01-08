@@ -1,4 +1,12 @@
 const login = async (username, password) => {
+  if (!username || !password) {
+    throw new Error('Username and password are required')
+  }
+
+  if (typeof username !== 'string' || typeof password !== 'string') {
+    throw new Error('Invalid credentials format')
+  }
+
   const response = await fetch('/api/login', {
     method: 'POST',
     headers: {
@@ -26,8 +34,8 @@ const logout = async () => {
           'Authorization': `Bearer ${token}`
         }
       })
-    } catch (error) {
-      console.error('Logout request failed:', error)
+    } catch {
+      // Ignore - local cleanup happens regardless
     }
   }
 

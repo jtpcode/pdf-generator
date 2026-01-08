@@ -15,4 +15,5 @@ Changelog:
 | 16.12 | Add backend tests for file upload and logout. |
 | 17.12 | Add e2e tests for file upload, refactor e2e tests. Add test-uploads dir for test files and deletion of them afterwards. Add frontend file upload tests. |
 | 6.1.2026 | Update name/username/password validation in backend. Add stricter rateLimiter for repeated Login/Create user -requests and looser limiter for other endpoints. |
+| 8.1 | Change User-model's username length, sanitize filename in file upload. Minor changes in frontend code, improve error handling. |
 

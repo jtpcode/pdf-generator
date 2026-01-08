@@ -7,7 +7,14 @@ import authService from './services/authService'
 const theme = createTheme()
 
 const App = () => {
-  const [user, setUser] = useState(() => authService.getStoredUser())
+  const [user, setUser] = useState(() => {
+    try {
+      return authService.getStoredUser()
+    } catch (error) {
+      console.error('Failed to retrieve stored user:', error)
+      return null
+    }
+  })
 
   const handleLogin = (userData) => {
     setUser(userData)

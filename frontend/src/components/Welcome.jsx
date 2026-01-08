@@ -41,13 +41,16 @@ const Welcome = ({ user, onLogout }) => {
     const file = event.target.files[0]
     if (!file) return
 
-    // Validate file type
     const allowedTypes = [
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ]
+    const allowedExtensions = ['.xls', '.xlsx']
 
-    if (!allowedTypes.includes(file.type)) {
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+
+    // Validate both MIME type and extension to prevent MIME type spoofing
+    if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
       setError('Only Excel files (.xls, .xlsx) are allowed')
       return
     }
@@ -130,7 +133,7 @@ const Welcome = ({ user, onLogout }) => {
         </Paper>
 
         <Paper sx={{ p: 3 }}>
-          <Typography variant="h5"component="h5" gutterBottom>
+          <Typography variant="h5" component="h5" gutterBottom>
             Your Files
           </Typography>
 

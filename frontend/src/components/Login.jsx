@@ -1,15 +1,18 @@
 import { useState } from 'react'
-import { Container, TextField, Button, Box, Typography, Paper, Alert } from '@mui/material'
+import PropTypes from 'prop-types'
+import { Container, TextField, Button, Box, Typography, Paper, Alert, CircularProgress } from '@mui/material'
 import authService from '../services/authService'
 
 const Login = ({ onLogin }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
+    setIsLoading(true)
 
     try {
       const userData = await authService.login(username, password)
@@ -19,7 +22,9 @@ const Login = ({ onLogin }) => {
         onLogin(userData)
       }
     } catch (err) {
-      setError(err.message || 'Login failed')
+      setError(err.message || 'Login failed. Please try again.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -41,6 +46,7 @@ const Login = ({ onLogin }) => {
               margin="normal"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              disabled={isLoading}
               required
             />
             <TextField
@@ -51,6 +57,7 @@ const Login = ({ onLogin }) => {
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
               required
             />
             <Button
@@ -58,14 +65,26 @@ const Login = ({ onLogin }) => {
               variant="contained"
               type="submit"
               sx={{ mt: 3 }}
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? (
+                <>
+                  <CircularProgress size={24} sx={{ mr: 1, color: 'inherit' }} />
+                  Logging in...
+                </>
+              ) : (
+                'Login'
+              )}
             </Button>
           </Box>
         </Paper>
       </Box>
     </Container>
   )
+}
+
+Login.propTypes = {
+  onLogin: PropTypes.func.isRequired,
 }
 
 export default Login
