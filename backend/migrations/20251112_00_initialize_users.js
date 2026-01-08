@@ -43,5 +43,5 @@ export default {
   },
   down: async ({ context: queryInterface }) => {
     await queryInterface.dropTable('users')
-  },
+  }
 }

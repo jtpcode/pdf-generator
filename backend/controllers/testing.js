@@ -10,7 +10,6 @@ const __dirname = path.dirname(__filename)
 
 const testingRouter = express.Router()
 
-// Reset database - only available in test mode
 testingRouter.post('/resetDb', async (req, res) => {
   if (process.env.NODE_ENV !== 'test') {
     return res.status(403).json({ error: 'Operation allowed only in testing environment' })
@@ -28,7 +27,6 @@ testingRouter.post('/resetDb', async (req, res) => {
   }
 })
 
-// Delete test uploads - only available in test mode
 testingRouter.post('/deleteTestUploads', async (req, res) => {
   if (process.env.NODE_ENV !== 'test') {
     return res.status(403).json({ error: 'Operation allowed only in testing environment' })
