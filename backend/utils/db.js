@@ -5,21 +5,20 @@ import { pathToFileURL } from 'url'
 
 const isTest = process.env.NODE_ENV === 'test'
 
+const dialectOptions = process.env.DATABASE_SSL === 'true'
+  ? {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
+  : {}
+
 const sequelize = new Sequelize(DATABASE_URL, {
   dialect: 'postgres',
   logging: isTest ? false : console.log,
+  dialectOptions
 })
-
-// If you need to use SSL connection, uncomment below and comment the above line
-//
-// const sequelize = new Sequelize(DATABASE_URL, {
-//   dialectOptions: {
-//     ssl: {
-//       require: true,
-//       rejectUnauthorized: false
-//     }
-//   },
-// })
 
 const connectToDatabase = async () => {
   try {
@@ -27,11 +26,9 @@ const connectToDatabase = async () => {
     await runMigrations()
     console.log('Database connected successfully')
   } catch (err) {
-    console.log('connecting database failed:', err)
+    console.log('failed to connect to database:', err)
     return process.exit(1)
   }
-
-  return null
 }
 
 const migrationConf = {
