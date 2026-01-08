@@ -15,3 +15,4 @@ export const PORT = process.env.PORT || 3001
 export const UPLOADS_DIR = process.env.NODE_ENV === 'test'
   ? 'test-uploads'
   : 'uploads'
+export const SESSION_EXPIRY_DAYS = 7

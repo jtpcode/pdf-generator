@@ -3,7 +3,7 @@
 ## Repository Overview
 
 **Project Type**: Full-stack web application for PDF generation with Excel file upload
-**Languages/Frameworks**: Node.js 24, Express.js, React ^19.2, Vite, Sequelize ORM
+**Languages/Frameworks**: Node.js 24, Express.js 5, React ^19.2, Vite, Sequelize ORM
 **Database**: PostgreSQL 18
 **Testing**: Vitest (backend & frontend unit tests), Playwright (E2E tests)
 **Architecture**: Monorepo with separate frontend and backend packages
@@ -81,7 +81,6 @@ npm run test:frontend
 ```
 - Uses Vitest + jsdom + React Testing Library
 - Runs in ~5 seconds
-- **Expected warnings**: React `act()` warnings in stderr (tests still pass, ignorable)
 - Coverage included automatically
 
 **Backend Tests** (requires PostgreSQL):
@@ -234,6 +233,7 @@ cd frontend && npm run dev
 5. **Testing endpoint** `/api/testing/resetDb` only available in test mode (`NODE_ENV=test`)
 6. **Coverage is tracked** via Codecov (badge in README)
 7. **Dependencies use `npm ci`** for reproducible installs - ALWAYS use `npm ci`, not `npm install`
+8. **Express.js 5** is used (not 4) - ensure middleware and routing follow v5 conventions
 
 ## Validation Checklist Before PR
 

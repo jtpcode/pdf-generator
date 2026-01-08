@@ -17,23 +17,29 @@ describe('Welcome Component', () => {
     fileService.getAllFiles.mockResolvedValue([])
   })
 
-  it('renders welcome message', () => {
+  it('renders welcome message', async () => {
     render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
-    expect(screen.getByText('Welcome!')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('Welcome!')).toBeInTheDocument()
+    })
   })
 
-  it('displays username correctly', () => {
+  it('displays username correctly', async () => {
     render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
-    expect(screen.getByText(/Logged in as: testuser/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Logged in as: testuser/i)).toBeInTheDocument()
+    })
   })
 
-  it('renders logout button', () => {
+  it('renders logout button', async () => {
     render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
-    const logoutButton = screen.getByRole('button', { name: /logout/i })
-    expect(logoutButton).toBeInTheDocument()
+    await waitFor(() => {
+      const logoutButton = screen.getByRole('button', { name: /logout/i })
+      expect(logoutButton).toBeInTheDocument()
+    })
   })
 
   it('calls authService.logout and onLogout when logout button is clicked', async () => {
@@ -49,30 +55,38 @@ describe('Welcome Component', () => {
     expect(mockOnLogout).toHaveBeenCalledTimes(1)
   })
 
-  it('handles undefined user gracefully', () => {
+  it('handles undefined user gracefully', async () => {
     render(<Welcome user={undefined} onLogout={mockOnLogout} />)
 
-    expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
+    })
   })
 
-  it('handles null user gracefully', () => {
+  it('handles null user gracefully', async () => {
     render(<Welcome user={null} onLogout={mockOnLogout} />)
 
-    expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
+    })
   })
 
-  it('handles user without username property', () => {
+  it('handles user without username property', async () => {
     const userWithoutUsername = {}
     render(<Welcome user={userWithoutUsername} onLogout={mockOnLogout} />)
 
-    expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
+    })
   })
 
-  it('logout button is clickable and not disabled', () => {
+  it('logout button is clickable and not disabled', async () => {
     render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
-    const logoutButton = screen.getByRole('button', { name: /logout/i })
-    expect(logoutButton).not.toBeDisabled()
+    await waitFor(() => {
+      const logoutButton = screen.getByRole('button', { name: /logout/i })
+      expect(logoutButton).not.toBeDisabled()
+    })
   })
 
   describe('File Upload', () => {
@@ -89,17 +103,21 @@ describe('Welcome Component', () => {
       createMockFileData(2, 'another-file.xlsx', 2048, 1)
     ]
 
-    it('renders file upload section', () => {
+    it('renders file upload section', async () => {
       render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
-      expect(screen.getByRole('heading', { name: /Upload Excel File/i })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: /Choose File/i })).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: /Upload Excel File/i })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /Choose File/i })).toBeInTheDocument()
+      })
     })
 
-    it('renders user files section', () => {
+    it('renders user files section', async () => {
       render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
-      expect(screen.getByRole('heading', { name: /Your Files/i })).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: /Your Files/i })).toBeInTheDocument()
+      })
     })
 
     it('displays "No files uploaded yet" when there are no files', async () => {

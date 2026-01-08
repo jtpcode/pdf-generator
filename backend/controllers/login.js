@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import crypto from 'crypto'
 import { Router } from 'express'
 import { User, Session } from '../models/index.js'
-import { JWT_SECRET } from '../utils/config.js'
+import { JWT_SECRET, SESSION_EXPIRY_DAYS } from '../utils/config.js'
 import { Op } from 'sequelize'
 
 const router = Router()
@@ -38,7 +38,7 @@ router.post('/', async (req, res) => {
   const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
 
   const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + 7)
+  expiresAt.setDate(expiresAt.getDate() + SESSION_EXPIRY_DAYS)
 
   await Session.destroy({
     where: {
