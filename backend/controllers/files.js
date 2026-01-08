@@ -23,6 +23,23 @@ const getUserUploadDir = (userId) => {
   return path.join(uploadsDir, String(userId))
 }
 
+// Validate filename to prevent path traversal attacks
+const isValidFilename = (filename) => {
+  if (!filename || filename.trim().length === 0) {
+    return false
+  }
+
+  const dangerousPatterns = [
+    /\.\./,     // Parent directory traversal
+    /\//,       // Unix path separator
+    /\\/,       // Windows path separator
+    /\0/,       // Null byte
+    /^\.+$/     // Only dots (., .., ...)
+  ]
+
+  return !dangerousPatterns.some(pattern => pattern.test(filename))
+}
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -52,6 +69,11 @@ const upload = multer({
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     ]
+
+    if (!isValidFilename(file.originalname)) {
+      cb(new Error('Invalid filename: empty name or contains forbidden characters (e.g., .., /, \\)'))
+      return
+    }
 
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true)

@@ -13,7 +13,7 @@ export default {
         unique: true,
         allowNull: false,
         validate: {
-          len: [8, 20]
+          len: [3, 50]
         }
       },
       password_hash: {

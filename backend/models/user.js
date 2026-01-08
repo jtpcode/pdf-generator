@@ -1,7 +1,7 @@
 import { Model, DataTypes } from 'sequelize'
 import { sequelize } from '../utils/db.js'
 
-class User extends Model {}
+class User extends Model { }
 
 User.init({
   id: {
@@ -14,7 +14,7 @@ User.init({
     unique: true,
     allowNull: false,
     validate: {
-      len: [8, 20]
+      len: [3, 50]
     }
   },
   passwordHash: {

@@ -20,7 +20,11 @@ afterAll(async () => {
 })
 
 // Helper functions
-const createUser = async (username = 'testuser', name = 'Test User') => {
+const generateUniqueUsername = (base = 'testuser') => {
+  return `${base}_${process.pid}_${Date.now()}`
+}
+
+const createUser = async (username = generateUniqueUsername(), name = 'Test User') => {
   const passwordHash = await bcrypt.hash('testpassword123', 1)
   return await User.create({
     username,
@@ -38,9 +42,9 @@ const loginUser = async (username = 'testuser') => {
   return response.body.token
 }
 
-const createAndLoginUser = async (username = 'testuser', name = 'Test User') => {
-  await createUser(username, name)
-  return await loginUser(username)
+const createAndLoginUser = async (username = generateUniqueUsername(), name = 'Test User') => {
+  const user = await createUser(username, name)
+  return { token: await loginUser(username), user }
 }
 
 const uploadFile = (token, filename, contentType, content = 'mock file content') => {
@@ -62,8 +66,9 @@ const uploadFile = (token, filename, contentType, content = 'mock file content')
 
 describe('User API', () => {
   test('creates new user with valid data', async () => {
+    const username = generateUniqueUsername()
     const newUser = {
-      username: 'testuser',
+      username,
       name: 'Test User',
       password: 'validpassword123'
     }
@@ -73,7 +78,7 @@ describe('User API', () => {
       .send(newUser)
       .expect(201)
 
-    expect(response.body.username).toBe('testuser')
+    expect(response.body.username).toBe(username)
     expect(response.body.name).toBe('Test User')
     expect(response.body.passwordHash).toBeUndefined()
   })
@@ -93,9 +98,36 @@ describe('User API', () => {
     expect(response.body.error).toBe('Username must be between 3 and 50 characters')
   })
 
-  test('rejects user with duplicate username', async () => {
+  test('rejects user with empty username', async () => {
     const newUser = {
-      username: 'testuser',
+      username: '',
+      name: 'Test User',
+      password: 'validpassword123'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+  })
+
+  test('rejects user with username containing special characters', async () => {
+    const newUser = {
+      username: 'test<script>alert(1)</script>',
+      name: 'Test User',
+      password: 'validpassword123'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+  })
+
+  test('rejects user with duplicate username', async () => {
+    const username = generateUniqueUsername()
+    const newUser = {
+      username,
       name: 'Test User',
       password: 'validpassword123'
     }
@@ -131,14 +163,15 @@ describe('User API', () => {
 
 describe('Login API', () => {
   test('returns token and stores session with valid credentials', async () => {
-    const user = await createUser()
+    const username = generateUniqueUsername()
+    const user = await createUser(username)
 
     const response = await api
       .post('/api/login')
-      .send({ username: 'testuser', password: 'testpassword123' })
+      .send({ username, password: 'testpassword123' })
       .expect(200)
 
-    expect(response.body.username).toBe('testuser')
+    expect(response.body.username).toBe(username)
     expect(response.body.name).toBe('Test User')
     expect(response.body.token).toBeTruthy()
 
@@ -161,11 +194,12 @@ describe('Login API', () => {
   })
 
   test('rejects invalid password', async () => {
-    await createUser()
+    const username = generateUniqueUsername()
+    await createUser(username)
 
     const response = await api
       .post('/api/login')
-      .send({ username: 'testuser', password: 'wrongpassword' })
+      .send({ username, password: 'wrongpassword' })
       .expect(401)
 
     expect(response.body.error).toBe('invalid username or password')
@@ -174,8 +208,9 @@ describe('Login API', () => {
   })
 
   test('rejects disabled user', async () => {
+    const username = generateUniqueUsername()
     await User.create({
-      username: 'testuser',
+      username,
       name: 'Test User',
       passwordHash: await bcrypt.hash('testpassword123', 1),
       disabled: true
@@ -183,7 +218,7 @@ describe('Login API', () => {
 
     const response = await api
       .post('/api/login')
-      .send({ username: 'testuser', password: 'testpassword123' })
+      .send({ username, password: 'testpassword123' })
       .expect(401)
 
     expect(response.body.error).toBe('invalid username or password')
@@ -194,20 +229,18 @@ describe('Login API', () => {
 
 describe('Logout API', () => {
   test('destroys session with valid token', async () => {
-    const user = await createUser()
-    const token = await loginUser()
+    const username = generateUniqueUsername()
+    const user = await createUser(username)
+    const token = await loginUser(username)
 
-    // Verify session exists
     const sessionBefore = await Session.findOne({ where: { userId: user.id } })
     expect(sessionBefore).not.toBeNull()
 
-    // Logout
     await api
       .delete('/api/logout')
       .set('Authorization', `bearer ${token}`)
       .expect(204)
 
-    // Verify session is destroyed
     const sessionAfter = await Session.findOne({ where: { userId: user.id } })
     expect(sessionAfter).toBeNull()
   })
@@ -228,10 +261,10 @@ describe('Logout API', () => {
   })
 
   test('rejects logout with expired/non-existent session', async () => {
-    const user = await createUser()
-    const token = await loginUser()
+    const username = generateUniqueUsername()
+    const user = await createUser(username)
+    const token = await loginUser(username)
 
-    // Manually delete the session
     await Session.destroy({ where: { userId: user.id } })
 
     await api
@@ -245,7 +278,7 @@ describe('Logout API', () => {
 describe('File API', () => {
   describe('GET /api/files', () => {
     test('returns empty array when user has no files', async () => {
-      const token = await createAndLoginUser()
+      const { token } = await createAndLoginUser()
 
       const response = await api
         .get('/api/files')
@@ -256,8 +289,9 @@ describe('File API', () => {
     })
 
     test('returns user files in descending order by creation date', async () => {
-      const user = await createUser()
-      const token = await loginUser()
+      const username = generateUniqueUsername()
+      const user = await createUser(username)
+      const token = await loginUser(username)
 
       // Create test files with different timestamps
       await File.create({
@@ -294,10 +328,11 @@ describe('File API', () => {
     })
 
     test('only returns files belonging to authenticated user', async () => {
-      const user1 = await createUser('testuser1', 'Test User 1')
-      const user2 = await createUser('testuser2', 'Test User 2')
+      const username1 = generateUniqueUsername('user1')
+      const username2 = generateUniqueUsername('user2')
+      const user1 = await createUser(username1, 'Test User 1')
+      const user2 = await createUser(username2, 'Test User 2')
 
-      // Create files for both users
       await File.create({
         filename: 'user1file.xlsx',
         originalName: 'User-1-File.xlsx',
@@ -316,10 +351,8 @@ describe('File API', () => {
         userId: user2.id
       })
 
-      // Login as user1
-      const token = await loginUser('testuser1')
+      const token = await loginUser(username1)
 
-      // Get files for user1
       const response = await api
         .get('/api/files')
         .set('Authorization', `bearer ${token}`)
@@ -347,7 +380,7 @@ describe('File API', () => {
 
   describe('POST /api/files', () => {
     test('uploads .xlsx file successfully', async () => {
-      const token = await createAndLoginUser()
+      const { token } = await createAndLoginUser()
 
       const response = await uploadFile(
         token,
@@ -362,7 +395,7 @@ describe('File API', () => {
     })
 
     test('uploads .xls file successfully', async () => {
-      const token = await createAndLoginUser()
+      const { token } = await createAndLoginUser()
 
       const response = await uploadFile(
         token,
@@ -377,7 +410,7 @@ describe('File API', () => {
     })
 
     test('rejects non-Excel file', async () => {
-      const token = await createAndLoginUser()
+      const { token } = await createAndLoginUser()
 
       await uploadFile(
         token,
@@ -386,8 +419,18 @@ describe('File API', () => {
       ).expect(400)
     })
 
+    test('handles file with empty filename', async () => {
+      const { token } = await createAndLoginUser()
+
+      await uploadFile(
+        token,
+        '',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ).expect(400)
+    })
+
     test('rejects request without file', async () => {
-      const token = await createAndLoginUser()
+      const { token } = await createAndLoginUser()
 
       const response = await api
         .post('/api/files')
