@@ -248,5 +248,36 @@ describe('Welcome Component', () => {
         expect(screen.getByText(/2\.0 KB/i)).toBeInTheDocument()
       })
     })
+
+    it('displays file size in MB for files >= 1048576 bytes', async () => {
+      const mockFiles = [
+        createMockFileData(1, 'large-file.xlsx', 5242880)
+      ]
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText(/5\.0 MB/i)).toBeInTheDocument()
+      })
+    })
+
+    it('does nothing when no file is selected', async () => {
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
+
+      Object.defineProperty(fileInput, 'files', {
+        value: [],
+        writable: false
+      })
+
+      const changeEvent = new Event('change', { bubbles: true })
+      fileInput.dispatchEvent(changeEvent)
+
+      await waitFor(() => {
+        expect(fileService.uploadFile).not.toHaveBeenCalled()
+      })
+    })
   })
 })

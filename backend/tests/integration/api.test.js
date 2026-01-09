@@ -1,68 +1,25 @@
 import { describe, test, expect, afterAll, beforeEach } from 'vitest'
-import supertest from 'supertest'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-import app from '../../app.js'
 import { User, Session, File } from '../../models/index.js'
 import { sequelize } from '../../utils/db.js'
-
-const api = supertest(app)
+import {
+  api,
+  generateUniqueUsername,
+  createUser,
+  loginUser,
+  createAndLoginUser,
+  uploadFile
+} from '../helpers.js'
 
 beforeEach(async () => {
-  // Reset database before each test
   await api.post('/api/testing/resetDb')
-})
+}, 15000)
 
 afterAll(async () => {
-  // Clean up uploads after all tests
   await api.post('/api/testing/deleteTestUploads')
   await sequelize.close()
-})
-
-// Helper functions
-const generateUniqueUsername = (base = 'testuser') => {
-  return `${base}_${process.pid}_${Date.now()}`
-}
-
-const createUser = async (username = generateUniqueUsername(), name = 'Test User') => {
-  const passwordHash = await bcrypt.hash('testpassword123', 1)
-  return await User.create({
-    username,
-    name,
-    passwordHash
-  })
-}
-
-const loginUser = async (username = 'testuser') => {
-  const response = await api
-    .post('/api/login')
-    .send({ username, password: 'testpassword123' })
-    .expect(200)
-
-  return response.body.token
-}
-
-const createAndLoginUser = async (username = generateUniqueUsername(), name = 'Test User') => {
-  const user = await createUser(username, name)
-  return { token: await loginUser(username), user }
-}
-
-const uploadFile = (token, filename, contentType, content = 'mock file content') => {
-  const buffer = Buffer.from(content)
-
-  const request = api
-    .post('/api/files')
-    .attach('file', buffer, {
-      filename,
-      contentType
-    })
-
-  if (token) {
-    request.set('Authorization', `bearer ${token}`)
-  }
-
-  return request
-}
+}, 15000)
 
 describe('User API', () => {
   test('creates new user with valid data', async () => {
@@ -158,6 +115,96 @@ describe('User API', () => {
       .expect(400)
 
     expect(response.body.error).toBe('Password must be at least 12 characters long')
+  })
+
+  test('rejects user with too long password', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'Test User',
+      password: 'a'.repeat(129)
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Password must be at most 128 characters long')
+  })
+
+  test('rejects user with empty name', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: '',
+      password: 'validpassword123'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Name is required')
+  })
+
+  test('rejects user with too long name', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'a'.repeat(101),
+      password: 'validpassword123'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Name must be between 1 and 100 characters')
+  })
+
+  test('rejects user with non-string name', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 123,
+      password: 'validpassword123'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Name is required')
+  })
+
+  test('rejects user with non-string password', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'Test User',
+      password: 12345678901234
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Password is required')
+  })
+
+  test('rejects user with empty password', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'Test User',
+      password: ''
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Password is required')
   })
 })
 
@@ -304,7 +351,7 @@ describe('File API', () => {
       })
 
       // Small delay to ensure different timestamps
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise(resolve => setTimeout(resolve, 50))
 
       await File.create({
         filename: 'file2.xlsx',
@@ -325,7 +372,7 @@ describe('File API', () => {
       expect(response.body[1].originalName).toBe('First-File.xlsx')
       expect(response.body[0].fileSize).toBe(2048)
       expect(response.body[1].fileSize).toBe(1024)
-    })
+    }, 15000)
 
     test('only returns files belonging to authenticated user', async () => {
       const username1 = generateUniqueUsername('user1')
