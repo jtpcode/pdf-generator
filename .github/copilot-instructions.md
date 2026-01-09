@@ -193,6 +193,44 @@ cd frontend && npm run dev
 - JWT-based authentication stored in session table
 - File uploads go to `uploads/` (production) or `test-uploads/` (test mode)
 
+### Error Handling Guidelines
+
+When developing new features or adding new error scenarios, **ALWAYS** evaluate whether a specific error handler should be added to `backend/utils/middleware.js` errorHandler function.
+
+**Decision Process for Adding Specific Error Handlers:**
+
+1. **Can the user fix this error?**
+   - ✅ YES → Consider specific handling with clear message
+   - ❌ NO → Generic 500 "Internal server error" is sufficient
+
+2. **Is this error common and recurring?**
+   - ✅ YES → Consider specific handling
+   - ❌ NO (rare edge case) → Generic handling is sufficient
+
+3. **Does this error require a specific HTTP status code?**
+   - ✅ YES (e.g., validation = 400, auth = 401) → Add specific handler
+   - ❌ NO (all use 500) → Generic handling is sufficient
+
+4. **Does the error come from a library/framework with stable structure?**
+   - ✅ YES (e.g., Sequelize errors, JWT errors) → Safe to handle specifically
+   - ❌ NO (custom errors with changing messages) → Avoid brittle pattern matching
+
+5. **Would exposing error details create a security risk?**
+   - ✅ YES → Wrap in generic message, log details server-side only
+   - ❌ NO → Can provide specific user-facing message
+
+**Examples of errors that SHOULD have specific handlers:**
+- Sequelize validation errors (user can fix input, common, 400 status)
+- JWT errors (common, requires 401 status, user can re-authenticate)
+- File upload errors (user can fix file, common, 400 status)
+
+**Examples of errors that should NOT have specific handlers:**
+- Database connection failures (user cannot fix, server issue)
+- File system permission errors (user cannot fix, server issue)
+- Rare edge cases that happen once (not worth the code complexity)
+
+**Rule of thumb**: When in doubt, do NOT add specific handling. The generic error handler is a safe default. Only add specific handlers when you see the same error recurring in production AND users would benefit from a clearer message.
+
 ### Frontend-Specific
 - React ^19.2 with functional components and hooks
 - Material-UI (@mui/material) for UI components

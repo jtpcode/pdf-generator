@@ -151,5 +151,4 @@ playwright/.auth/
 # Uploaded files
 uploads/
 test-uploads/
-.github/instructions/
 .github/prompts/
