@@ -8,13 +8,14 @@ vi.mock('../../services/authService')
 
 describe('Login Component', () => {
   const mockOnLogin = vi.fn()
+  const mockOnSwitchToRegister = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('renders login form with all elements', () => {
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     expect(screen.getByText('PDF Generator Login')).toBeInTheDocument()
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument()
@@ -24,7 +25,7 @@ describe('Login Component', () => {
 
   it('updates username input when user types', async () => {
     const user = userEvent.setup()
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     await user.type(usernameInput, 'testuser')
@@ -34,7 +35,7 @@ describe('Login Component', () => {
 
   it('updates password input when user types', async () => {
     const user = userEvent.setup()
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const passwordInput = screen.getByLabelText(/password/i)
     await user.type(passwordInput, 'testpass123')
@@ -48,7 +49,7 @@ describe('Login Component', () => {
     authService.login.mockResolvedValue(mockUserData)
     authService.saveUser.mockImplementation(() => {})
 
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -70,7 +71,7 @@ describe('Login Component', () => {
     const errorMessage = 'Invalid credentials'
     authService.login.mockRejectedValue(new Error(errorMessage))
 
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -89,7 +90,7 @@ describe('Login Component', () => {
     const user = userEvent.setup()
     authService.login.mockRejectedValue(new Error())
 
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -108,7 +109,7 @@ describe('Login Component', () => {
     const user = userEvent.setup()
     authService.login.mockRejectedValueOnce(new Error('First error'))
 
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -141,7 +142,7 @@ describe('Login Component', () => {
     const mockUserData = { username: 'testuser' } // No token
     authService.login.mockResolvedValue(mockUserData)
 
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -160,7 +161,7 @@ describe('Login Component', () => {
   })
 
   it('has required attribute on username and password fields', () => {
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -170,7 +171,7 @@ describe('Login Component', () => {
   })
 
   it('password field has correct type attribute', () => {
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const passwordInput = screen.getByLabelText(/password/i)
     expect(passwordInput).toHaveAttribute('type', 'password')
@@ -181,7 +182,7 @@ describe('Login Component', () => {
     // Mock login to never resolve to simulate loading state
     authService.login.mockImplementation(() => new Promise(() => {}))
 
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -200,7 +201,7 @@ describe('Login Component', () => {
     const user = userEvent.setup()
     authService.login.mockImplementation(() => new Promise(() => {}))
 
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -221,7 +222,7 @@ describe('Login Component', () => {
     const user = userEvent.setup()
     authService.login.mockRejectedValue(new Error('Login failed'))
 
-    render(<Login onLogin={mockOnLogin} />)
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     const usernameInput = screen.getByLabelText(/username/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -238,5 +239,22 @@ describe('Login Component', () => {
     expect(usernameInput).not.toBeDisabled()
     expect(passwordInput).not.toBeDisabled()
     expect(loginButton).not.toBeDisabled()
+  })
+
+  it('shows link to switch to register page', () => {
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
+
+    expect(screen.getByText(/don't have an account\?/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /register here/i })).toBeInTheDocument()
+  })
+
+  it('calls onSwitchToRegister when register link is clicked', async () => {
+    const user = userEvent.setup()
+    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
+
+    const registerLink = screen.getByRole('button', { name: /register here/i })
+    await user.click(registerLink)
+
+    expect(mockOnSwitchToRegister).toHaveBeenCalledTimes(1)
   })
 })

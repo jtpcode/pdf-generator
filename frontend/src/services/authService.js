@@ -1,3 +1,28 @@
+const register = async (username, name, password) => {
+  if (!username || !name || !password) {
+    throw new Error('All fields are required')
+  }
+
+  if (typeof username !== 'string' || typeof name !== 'string' || typeof password !== 'string') {
+    throw new Error('Invalid input format')
+  }
+
+  const response = await fetch('/api/users', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, name, password }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.error || 'Registration failed')
+  }
+
+  return response.json()
+}
+
 const login = async (username, password) => {
   if (!username || !password) {
     throw new Error('Username and password are required')
@@ -57,4 +82,4 @@ const saveUser = (userData) => {
   localStorage.setItem('user', JSON.stringify(userData))
 }
 
-export default { login, logout, getStoredUser, getToken, saveUser }
+export default { register, login, logout, getStoredUser, getToken, saveUser }

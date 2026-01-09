@@ -1,0 +1,213 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import Register from '../../components/Register'
+import authService from '../../services/authService'
+
+vi.mock('../../services/authService', () => ({
+  default: {
+    register: vi.fn(),
+    login: vi.fn(),
+    saveUser: vi.fn(),
+  }
+}))
+
+describe('Register Component', () => {
+  const mockOnRegisterSuccess = vi.fn()
+  const mockOnSwitchToLogin = vi.fn()
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('renders registration form with all fields', () => {
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    expect(screen.getByRole('heading', { name: /create account/i })).toBeInTheDocument()
+    expect(screen.getByLabelText(/username/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/full name/i)).toBeInTheDocument()
+    expect(screen.getAllByLabelText(/password/i)[0]).toBeInTheDocument()
+    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument()
+  })
+
+  it('displays helper text for username and password fields', () => {
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    expect(screen.getByText(/3-50 characters, letters, numbers, hyphens and underscores only/i)).toBeInTheDocument()
+    expect(screen.getByText(/12-128 characters/i)).toBeInTheDocument()
+  })
+
+  it('shows error when passwords do not match', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'differentpassword')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
+  it('shows error when password is too short', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'short')
+    await user.type(screen.getByLabelText(/confirm password/i), 'short')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/password must be between 12 and 128 characters long/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
+  it('successfully registers and logs in user', async () => {
+    const user = userEvent.setup()
+    const mockUserData = { token: 'test-token', username: 'testuser', name: 'Test User' }
+
+    authService.register.mockResolvedValue({ username: 'testuser', name: 'Test User' })
+    authService.login.mockResolvedValue(mockUserData)
+
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(authService.register).toHaveBeenCalledWith('testuser', 'Test User', 'validpassword123')
+      expect(authService.login).toHaveBeenCalledWith('testuser', 'validpassword123')
+      expect(authService.saveUser).toHaveBeenCalledWith(mockUserData)
+      expect(mockOnRegisterSuccess).toHaveBeenCalledWith(mockUserData)
+    })
+  })
+
+  it('shows error message when registration fails', async () => {
+    const user = userEvent.setup()
+    const errorMessage = 'Username already exists'
+
+    authService.register.mockRejectedValue(new Error(errorMessage))
+
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'existinguser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(errorMessage)).toBeInTheDocument()
+    })
+
+    expect(mockOnRegisterSuccess).not.toHaveBeenCalled()
+  })
+
+  it('shows loading state during registration', async () => {
+    const user = userEvent.setup()
+    let resolveRegister
+
+    authService.register.mockImplementation(() => new Promise((resolve) => {
+      resolveRegister = resolve
+    }))
+
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/creating account.../i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/username/i)).toBeDisabled()
+      expect(screen.getByLabelText(/full name/i)).toBeDisabled()
+    })
+
+    resolveRegister({ username: 'testuser', name: 'Test User' })
+  })
+
+  it('disables form fields during submission', async () => {
+    const user = userEvent.setup()
+    authService.register.mockImplementation(() => new Promise(() => {}))
+
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/username/i)).toBeDisabled()
+      expect(screen.getByLabelText(/full name/i)).toBeDisabled()
+      expect(screen.getAllByLabelText(/password/i)[0]).toBeDisabled()
+      expect(screen.getByLabelText(/confirm password/i)).toBeDisabled()
+      expect(screen.getByRole('button', { name: /creating account.../i })).toBeDisabled()
+    })
+  })
+
+  it('shows link to switch to login page', () => {
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    expect(screen.getByText(/already have an account\?/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /login here/i })).toBeInTheDocument()
+  })
+
+  it('calls onSwitchToLogin when login link is clicked', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    const loginLink = screen.getByRole('button', { name: /login here/i })
+    await user.click(loginLink)
+
+    expect(mockOnSwitchToLogin).toHaveBeenCalledTimes(1)
+  })
+
+  it('clears error message when resubmitting form', async () => {
+    const user = userEvent.setup()
+    authService.register.mockRejectedValueOnce(new Error('First error'))
+      .mockResolvedValueOnce({ username: 'testuser', name: 'Test User' })
+    authService.login.mockResolvedValue({ token: 'test-token', username: 'testuser', name: 'Test User' })
+
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/first error/i)).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.queryByText(/first error/i)).not.toBeInTheDocument()
+    })
+  })
+})

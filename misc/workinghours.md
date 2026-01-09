@@ -30,4 +30,5 @@ Working hours:
 | 8.1 | 4 | Update login.js, files.js, testing.js, change User-model's username length and copilot instructions. |
 |     | 4 | Review frontend code and tests, also services. Improve error handling. Add tests for frontend login loading state. |
 | 9.1 | 3 | Refactor API tests: helper functions into helpers.js, enhance user validation tests, and improve file upload error handling. |
-| Total   | 80 |
+|     | 3 | Implement registration flow with validation and error handling; add Register component and update Login component for navigation. Add unit and e2e tests. |
+| Total   | 83 |

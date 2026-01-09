@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import Login from './components/Login'
+import Register from './components/Register'
 import Welcome from './components/Welcome'
 import authService from './services/authService'
 
@@ -15,13 +16,29 @@ const App = () => {
       return null
     }
   })
+  const [showRegister, setShowRegister] = useState(false)
 
   const handleLogin = (userData) => {
     setUser(userData)
+    setShowRegister(false)
+  }
+
+  const handleRegisterSuccess = (userData) => {
+    setUser(userData)
+    setShowRegister(false)
   }
 
   const handleLogout = () => {
     setUser(null)
+    setShowRegister(false)
+  }
+
+  const handleSwitchToRegister = () => {
+    setShowRegister(true)
+  }
+
+  const handleSwitchToLogin = () => {
+    setShowRegister(false)
   }
 
   return (
@@ -29,8 +46,16 @@ const App = () => {
       <CssBaseline />
       {user ? (
         <Welcome user={user} onLogout={handleLogout} />
+      ) : showRegister ? (
+        <Register
+          onRegisterSuccess={handleRegisterSuccess}
+          onSwitchToLogin={handleSwitchToLogin}
+        />
       ) : (
-        <Login onLogin={handleLogin} />
+        <Login
+          onLogin={handleLogin}
+          onSwitchToRegister={handleSwitchToRegister}
+        />
       )}
     </ThemeProvider>
   )
