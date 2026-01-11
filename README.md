@@ -5,7 +5,7 @@
 
 ## Project Name and Description
 
-**pdf-generator** is a full-stack web application for secure PDF file management, featuring user authentication, file upload, and download capabilities. The project is designed with modern security, testing, and development best practices.
+**pdf-generator** (in progress) is a full-stack web application for transforming technical datasheets into PDF format. Functionality currently features login with user authentication and file upload. The project is designed with modern security, testing, and development best practices.
 
 ## Technology Stack
 
@@ -55,7 +55,7 @@
 ## Key Features
 
 - User authentication (JWT, bcrypt)
-- Secure file upload/download (Multer, Express)
+- Secure file upload (Multer, Express)
 - Role-based access control
 - RESTful API (Express, Sequelize)
 - React SPA with MUI design
