@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { navigateToRegisterPage, resetDatabase, fillRegistrationForm } from './helpers.js'
 
 test.describe('Registration Flow', () => {
   test('should display registration form when clicking register link', async ({ page }) => {
@@ -18,9 +19,7 @@ test.describe('Registration Flow', () => {
   })
 
   test('should navigate back to login from registration', async ({ page }) => {
-    await page.goto('http://localhost:5173')
-
-    await page.getByRole('button', { name: /register here/i }).click()
+    await navigateToRegisterPage(page)
     await expect(page.getByRole('heading', { name: /Create Account/i })).toBeVisible()
 
     await page.getByRole('button', { name: /login here/i }).click()
@@ -28,13 +27,14 @@ test.describe('Registration Flow', () => {
   })
 
   test('should show error when passwords do not match', async ({ page }) => {
-    await page.goto('http://localhost:5173')
-    await page.getByRole('button', { name: /register here/i }).click()
+    await navigateToRegisterPage(page)
 
-    await page.getByLabel(/username/i).fill('newuser123')
-    await page.getByLabel(/full name/i).fill('New User')
-    await page.locator('input[type="password"]').first().fill('validpassword123')
-    await page.getByLabel(/confirm password/i).fill('differentpassword')
+    await fillRegistrationForm(page, {
+      username: 'newuser123',
+      name: 'New User',
+      password: 'validpassword123',
+      confirmPassword: 'differentpassword'
+    })
 
     await page.getByRole('button', { name: /register/i }).click()
 
@@ -42,13 +42,13 @@ test.describe('Registration Flow', () => {
   })
 
   test('should show error when password is too short', async ({ page }) => {
-    await page.goto('http://localhost:5173')
-    await page.getByRole('button', { name: /register here/i }).click()
+    await navigateToRegisterPage(page)
 
-    await page.getByLabel(/username/i).fill('newuser123')
-    await page.getByLabel(/full name/i).fill('New User')
-    await page.locator('input[type="password"]').first().fill('short')
-    await page.getByLabel(/confirm password/i).fill('short')
+    await fillRegistrationForm(page, {
+      username: 'newuser123',
+      name: 'New User',
+      password: 'short'
+    })
 
     await page.getByRole('button', { name: /register/i }).click()
 
@@ -56,16 +56,16 @@ test.describe('Registration Flow', () => {
   })
 
   test('should register new user and login successfully', async ({ page, request }) => {
-    await request.post('http://localhost:3001/api/testing/resetDb')
+    await resetDatabase(request)
 
-    await page.goto('http://localhost:5173')
-    await page.getByRole('button', { name: /register here/i }).click()
+    await navigateToRegisterPage(page)
 
     const username = `testuser_${Date.now()}`
-    await page.getByLabel(/username/i).fill(username)
-    await page.getByLabel(/full name/i).fill('Test User')
-    await page.locator('input[type="password"]').first().fill('validpassword123')
-    await page.getByLabel(/confirm password/i).fill('validpassword123')
+    await fillRegistrationForm(page, {
+      username,
+      name: 'Test User',
+      password: 'validpassword123'
+    })
 
     await page.getByRole('button', { name: /register/i }).click()
 
@@ -74,7 +74,7 @@ test.describe('Registration Flow', () => {
   })
 
   test('should show error when username already exists', async ({ page, request }) => {
-    await request.post('http://localhost:3001/api/testing/resetDb')
+    await resetDatabase(request)
 
     await request.post('http://localhost:3001/api/users', {
       data: {
@@ -84,13 +84,13 @@ test.describe('Registration Flow', () => {
       }
     })
 
-    await page.goto('http://localhost:5173')
-    await page.getByRole('button', { name: /register here/i }).click()
+    await navigateToRegisterPage(page)
 
-    await page.getByLabel(/username/i).fill('existinguser')
-    await page.getByLabel(/full name/i).fill('Another User')
-    await page.locator('input[type="password"]').first().fill('validpassword123')
-    await page.getByLabel(/confirm password/i).fill('validpassword123')
+    await fillRegistrationForm(page, {
+      username: 'existinguser',
+      name: 'Another User',
+      password: 'validpassword123'
+    })
 
     await page.getByRole('button', { name: /register/i }).click()
 

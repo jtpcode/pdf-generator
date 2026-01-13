@@ -52,6 +52,7 @@ const Welcome = ({ user, onLogout }) => {
     // Validate both MIME type and extension to prevent MIME type spoofing
     if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
       setError('Only Excel files (.xls, .xlsx) are allowed')
+      setTimeout(() => setError(null), 5000)
       return
     }
 
@@ -61,7 +62,7 @@ const Welcome = ({ user, onLogout }) => {
       await fileService.uploadFile(file)
       setSuccess('File uploaded successfully!')
       await fetchFiles()
-      setTimeout(() => setSuccess(null), 3000)
+      setTimeout(() => setSuccess(null), 5000)
     } catch (err) {
       setError(err.message)
     } finally {

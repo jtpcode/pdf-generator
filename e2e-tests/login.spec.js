@@ -1,27 +1,9 @@
 import { test, expect } from '@playwright/test'
-
-// Helper functions
-const createMockExcelFile = (filename, content = 'mock excel file content', fileExtension = 'xlsx') => {
-  const mimeTypes = {
-    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    xls: 'application/vnd.ms-excel'
-  }
-
-  return {
-    name: filename,
-    mimeType: mimeTypes[fileExtension] || mimeTypes.xlsx,
-    buffer: Buffer.from(content)
-  }
-}
-
-const uploadFile = async (page, fileConfig) => {
-  await page.setInputFiles('input[type="file"]', fileConfig)
-}
+import { createMockExcelFile, uploadFile, resetDatabase } from './helpers.js'
 
 test.describe('Login functionality', () => {
   test.beforeEach(async ({ page, request }) => {
-    await request.post('http://localhost:3001/api/testing/resetDb')
-
+    await resetDatabase(request)
     await request.post('http://localhost:3001/api/users', {
       data: {
         username: 'testuser',

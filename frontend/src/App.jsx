@@ -18,26 +18,13 @@ const App = () => {
   })
   const [showRegister, setShowRegister] = useState(false)
 
-  const handleLogin = (userData) => {
-    setUser(userData)
-    setShowRegister(false)
-  }
-
-  const handleRegisterSuccess = (userData) => {
+  const handleAuthSuccess = (userData) => {
     setUser(userData)
     setShowRegister(false)
   }
 
   const handleLogout = () => {
     setUser(null)
-    setShowRegister(false)
-  }
-
-  const handleSwitchToRegister = () => {
-    setShowRegister(true)
-  }
-
-  const handleSwitchToLogin = () => {
     setShowRegister(false)
   }
 
@@ -48,13 +35,13 @@ const App = () => {
         <Welcome user={user} onLogout={handleLogout} />
       ) : showRegister ? (
         <Register
-          onRegisterSuccess={handleRegisterSuccess}
-          onSwitchToLogin={handleSwitchToLogin}
+          onRegisterSuccess={handleAuthSuccess}
+          onSwitchToLogin={() => setShowRegister(false)}
         />
       ) : (
         <Login
-          onLogin={handleLogin}
-          onSwitchToRegister={handleSwitchToRegister}
+          onLogin={handleAuthSuccess}
+          onSwitchToRegister={() => setShowRegister(true)}
         />
       )}
     </ThemeProvider>
