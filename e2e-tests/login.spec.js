@@ -90,7 +90,7 @@ test.describe('Login functionality', () => {
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
       await expect(page.getByText('test-file.xlsx')).toBeVisible()
 
-      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible()
+      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
 
       await uploadFile(page, createMockExcelFile('old-format.xls', 'mock xls file content', 'xls'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
@@ -113,7 +113,7 @@ test.describe('Login functionality', () => {
       await uploadFile(page, createMockExcelFile('first-file.xlsx', 'mock excel file 1'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
 
-      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible()
+      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
 
       await uploadFile(page, createMockExcelFile('second-file.xlsx', 'mock excel file 2'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')

@@ -56,6 +56,8 @@ describe('File validation security', () => {
 
       const uploadsDir = path.join(process.cwd(), UPLOADS_DIR, String(user.id))
 
+      // This is testing code, so it's acceptable to use non-literal paths here
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
       const filesBefore = await fs.readdir(uploadsDir).catch(() => [])
 
       await uploadFile(
@@ -64,6 +66,8 @@ describe('File validation security', () => {
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       ).expect(500)
 
+      // This is testing code, so it's acceptable to use non-literal paths here
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
       const filesAfter = await fs.readdir(uploadsDir).catch(() => [])
 
       expect(filesAfter.length).toBe(filesBefore.length)
