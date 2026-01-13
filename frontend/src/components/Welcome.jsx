@@ -38,6 +38,12 @@ const Welcome = ({ user, onLogout }) => {
   }
 
   const handleFileUpload = async (event) => {
+    if (files.length >= 3) {
+      setError('File limit reached. You can only upload up to 3 files.')
+      setTimeout(() => setError(null), 5000)
+      return
+    }
+
     const file = event.target.files[0]
     if (!file) return
 

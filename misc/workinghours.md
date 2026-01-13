@@ -31,4 +31,5 @@ Working hours:
 |     | 4 | Review frontend code and tests, also services. Improve error handling. Add tests for frontend login loading state. |
 | 9.1 | 3 | Refactor API tests: helper functions into helpers.js, enhance user validation tests, and improve file upload error handling. |
 |     | 3 | Implement registration flow with validation and error handling; add Register component and update Login component for navigation. Add unit and e2e tests. |
-| Total   | 83 |
+| 13.1 | 4 | Study MUI, refactor e2e tests, add 3 file upload limit + tests.  |
+| Total   | 87 |

@@ -16,10 +16,10 @@
 │   ├── models/        # Sequelize models (User, Session, File)
 │   ├── migrations/    # Database migrations (Umzug)
 │   ├── utils/         # Config, DB connection, middleware
-│   └── tests/         # Backend integration tests
+│   └── tests/         # Backend integration and unit tests
 ├── frontend/          # React + Vite SPA
 │   └── src/
-│       ├── components/  # Login.jsx, Welcome.jsx
+│       ├── components/  # Login.jsx, Register.jsx, Welcome.jsx
 │       ├── services/    # API service layers
 │       └── tests/unit/  # Frontend unit tests
 ├── e2e-tests/         # Playwright end-to-end tests
@@ -50,7 +50,15 @@ TEST_DATABASE_URL=postgres://postgres:dummypassword1234@localhost:5432/test_db
 
 ### PostgreSQL Setup for Tests
 
-**CRITICAL**: Backend tests will FAIL without a running PostgreSQL instance. To set up:
+**CRITICAL**: Backend tests will FAIL without a running PostgreSQL instance. Two options:
+
+**Option 1: Docker Compose (recommended for development)**:
+```bash
+# Start PostgreSQL in Docker (from project root)
+docker compose -f docker-compose.dev.yml up -d
+```
+
+**Option 2: Local PostgreSQL service**:
 ```bash
 # Start PostgreSQL service (if not running)
 sudo service postgresql start
@@ -255,12 +263,14 @@ When developing new features or adding new error scenarios, **ALWAYS** evaluate 
 - **Middleware**: `backend/utils/middleware.js` (helmet, auth, error handling)
 - **Frontend entry**: `frontend/src/main.jsx`
 - **Frontend app**: `frontend/src/App.jsx`
-- **Components**: `frontend/src/components/{Login,Welcome}.jsx`
+- **Components**: `frontend/src/components/{Login,Register,Welcome}.jsx`
 
 ### Test Files
-- **Backend tests**: `backend/tests/integration/api.test.js`
-- **Frontend tests**: `frontend/src/tests/unit/{Login,Welcome}.test.jsx`
-- **E2E tests**: `e2e-tests/login.spec.js`
+- **Backend tests**: 
+  - Integration: `backend/tests/integration/api.test.js`
+  - Unit: `backend/tests/unit/files.test.js`
+- **Frontend tests**: `frontend/src/tests/unit/{Login,Register,Welcome}.test.jsx`
+- **E2E tests**: `e2e-tests/{login,register}.spec.js`
 
 ## Important Notes
 
@@ -272,6 +282,7 @@ When developing new features or adding new error scenarios, **ALWAYS** evaluate 
 6. **Coverage is tracked** via Codecov (badge in README)
 7. **Dependencies use `npm ci`** for reproducible installs - ALWAYS use `npm ci`, not `npm install`
 8. **Express.js 5** is used (not 4) - ensure middleware and routing follow v5 conventions
+9. **Update these instructions** if any setup, commands, or structure changes. Also check .github/instruction folder for related files.
 
 ## Validation Checklist Before PR
 

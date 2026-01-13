@@ -279,5 +279,34 @@ describe('Welcome Component', () => {
         expect(fileService.uploadFile).not.toHaveBeenCalled()
       })
     })
+
+    it('prevents uploading when file limit of 3 is reached', async () => {
+      const user = userEvent.setup()
+      const threeFiles = [
+        createMockFileData(1, 'file1.xlsx', 1024),
+        createMockFileData(2, 'file2.xlsx', 2048),
+        createMockFileData(3, 'file3.xlsx', 3072)
+      ]
+      fileService.getAllFiles.mockResolvedValue(threeFiles)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('file1.xlsx')).toBeInTheDocument()
+      })
+
+      const mockFile = new File(['mock content'], 'file4.xlsx', {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
+
+      const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
+      await user.upload(fileInput, mockFile)
+
+      await waitFor(() => {
+        expect(screen.getByText(/File limit reached\. You can only upload up to 3 files\./i)).toBeInTheDocument()
+      })
+
+      expect(fileService.uploadFile).not.toHaveBeenCalled()
+    })
   })
 })

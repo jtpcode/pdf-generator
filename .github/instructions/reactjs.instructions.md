@@ -9,10 +9,10 @@ Instructions for building high-quality ReactJS applications with modern patterns
 
 ## Project Context
 - Latest React version (React 19+)
-- TypeScript for type safety (when applicable)
+- JavaScript with JSX (no TypeScript in this project)
 - Functional components with hooks as default
 - Follow React's official style guide and best practices
-- Use modern build tools (Vite, Create React App, or custom Webpack setup)
+- Use Vite as the build tool
 - Implement proper component composition and reusability patterns
 
 ## Development Standards
@@ -25,18 +25,10 @@ Instructions for building high-quality ReactJS applications with modern patterns
 - Use custom hooks for reusable stateful logic
 - Implement proper component hierarchies with clear data flow
 
-### TypeScript Integration
-- Use TypeScript interfaces for props, state, and component definitions
-- Define proper types for event handlers and refs
-- Implement generic components where appropriate
-- Use strict mode in `tsconfig.json` for type safety
-- Leverage React's built-in types (`React.FC`, `React.ComponentProps`, etc.)
-- Create union types for component variants and states
-
 ### Component Design
 - Follow the single responsibility principle for components
 - Use descriptive and consistent naming conventions
-- Implement proper prop validation with TypeScript or PropTypes
+- Implement proper prop validation with PropTypes when needed
 - Design components to be testable and reusable
 - Keep components small and focused on a single concern
 - Use composition patterns (render props, children as functions)
