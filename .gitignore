@@ -152,3 +152,6 @@ playwright/.auth/
 uploads/
 test-uploads/
 .github/prompts/
+
+# Scripts
+scripts/test.sh
