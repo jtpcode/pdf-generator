@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Check if we should deploy (main branch push without #skip in commit message)
-  OK_TO_DEPLOY: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+  # Check if we should deploy (main branch push with #deploy in commit message)
+  OK_TO_DEPLOY: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && contains(join(github.event.commits.*.message, ' '), '#deploy') }}
   # Run Playwright tests if commit contains #play or it's a pull request
   RUN_PLAYWRIGHT: ${{ contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
 
@@ -109,5 +109,9 @@ jobs:
           path: playwright-report/
           retention-days: 30
       
-      # - name: Build application
-      #   run: npm run build
+      - name: Deploy
+        if: ${{ env.OK_TO_DEPLOY == 'true' }}
+        env:
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl "$deploy_url"
