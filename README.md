@@ -3,6 +3,11 @@
 [![CI](https://github.com/jtpcode/pdf-generator/actions/workflows/pipeline.yml/badge.svg)](https://github.com/jtpcode/pdf-generator/actions/workflows/pipeline.yml)
 [![codecov](https://codecov.io/gh/jtpcode/pdf-generator/graph/badge.svg?token=UWIU8TU9D3)](https://codecov.io/gh/jtpcode/pdf-generator)
 
+## Live demo
+
+The current test version of the app is running at:
+https://pdf-generator-3ucg.onrender.com/
+
 ## Project Name and Description
 
 **pdf-generator** (in progress) is a full-stack web application for transforming technical datasheets into PDF format. Functionality currently features login with user authentication and file upload. The project is designed with modern security, testing, and development best practices.
