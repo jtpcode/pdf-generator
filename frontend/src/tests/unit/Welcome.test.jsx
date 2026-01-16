@@ -308,5 +308,30 @@ describe('Welcome Component', () => {
 
       expect(fileService.uploadFile).not.toHaveBeenCalled()
     })
+
+    it('prevents uploading a file with a duplicate name', async () => {
+      const user = userEvent.setup()
+      const existingFile = createMockFileData(1, 'duplicate.xlsx', 1024)
+      fileService.getAllFiles.mockResolvedValue([existingFile])
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('duplicate.xlsx')).toBeInTheDocument()
+      })
+
+      const mockFile = new File(['mock content'], 'duplicate.xlsx', {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
+
+      const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
+      await user.upload(fileInput, mockFile)
+
+      await waitFor(() => {
+        expect(screen.getByText(/A file with the same name already exists\./i)).toBeInTheDocument()
+      })
+
+      expect(fileService.uploadFile).not.toHaveBeenCalled()
+    })
   })
 })
