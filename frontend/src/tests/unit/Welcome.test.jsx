@@ -334,4 +334,134 @@ describe('Welcome Component', () => {
       expect(fileService.uploadFile).not.toHaveBeenCalled()
     })
   })
+
+  describe('File Deletion', () => {
+    const createMockFileData = (id, originalName, fileSize, timeOffset = 0) => ({
+      id,
+      originalName,
+      fileSize,
+      createdAt: new Date(new Date('2025-12-17T10:00:00.000Z').getTime() + timeOffset * 60 * 60 * 1000).toISOString()
+    })
+
+    beforeEach(() => {
+      window.confirm = vi.fn()
+    })
+
+    it('renders delete button for each file', async () => {
+      const mockFiles = [
+        createMockFileData(1, 'test-file.xlsx', 512),
+        createMockFileData(2, 'another-file.xlsx', 2048)
+      ]
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        const deleteButtons = screen.getAllByLabelText('delete')
+        expect(deleteButtons).toHaveLength(2)
+      })
+    })
+
+    it('deletes file when delete button is clicked and confirmed', async () => {
+      const user = userEvent.setup()
+      const mockFiles = [createMockFileData(1, 'test-file.xlsx', 512)]
+      fileService.getAllFiles.mockResolvedValueOnce(mockFiles).mockResolvedValueOnce([])
+      fileService.deleteFile.mockResolvedValue()
+      window.confirm.mockReturnValue(true)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
+      })
+
+      const deleteButton = screen.getByLabelText('delete')
+      await user.click(deleteButton)
+
+      expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete test-file.xlsx?')
+
+      await waitFor(() => {
+        expect(screen.getByText(/File deleted successfully!/i)).toBeInTheDocument()
+      })
+
+      expect(fileService.deleteFile).toHaveBeenCalledWith(1)
+      expect(fileService.getAllFiles).toHaveBeenCalledTimes(2)
+    })
+
+    it('does not delete file when user cancels confirmation', async () => {
+      const user = userEvent.setup()
+      const mockFiles = [createMockFileData(1, 'test-file.xlsx', 512)]
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+      window.confirm.mockReturnValue(false)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
+      })
+
+      const deleteButton = screen.getByLabelText('delete')
+      await user.click(deleteButton)
+
+      expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete test-file.xlsx?')
+      expect(fileService.deleteFile).not.toHaveBeenCalled()
+    })
+
+    it('shows error when file deletion fails', async () => {
+      const user = userEvent.setup()
+      const mockFiles = [createMockFileData(1, 'test-file.xlsx', 512)]
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+      fileService.deleteFile.mockRejectedValue(new Error('Delete failed'))
+      window.confirm.mockReturnValue(true)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
+      })
+
+      const deleteButton = screen.getByLabelText('delete')
+      await user.click(deleteButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Delete failed/i)).toBeInTheDocument()
+      })
+
+      expect(fileService.deleteFile).toHaveBeenCalledWith(1)
+    })
+
+    it('deletes correct file when multiple files exist', async () => {
+      const user = userEvent.setup()
+      const mockFiles = [
+        createMockFileData(1, 'first-file.xlsx', 512),
+        createMockFileData(2, 'second-file.xlsx', 1024),
+        createMockFileData(3, 'third-file.xlsx', 2048)
+      ]
+      const filesAfterDeletion = [
+        createMockFileData(1, 'first-file.xlsx', 512),
+        createMockFileData(3, 'third-file.xlsx', 2048)
+      ]
+      fileService.getAllFiles.mockResolvedValueOnce(mockFiles).mockResolvedValueOnce(filesAfterDeletion)
+      fileService.deleteFile.mockResolvedValue()
+      window.confirm.mockReturnValue(true)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('second-file.xlsx')).toBeInTheDocument()
+      })
+
+      const deleteButtons = screen.getAllByLabelText('delete')
+      await user.click(deleteButtons[1])
+
+      expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete second-file.xlsx?')
+      expect(fileService.deleteFile).toHaveBeenCalledWith(2)
+
+      await waitFor(() => {
+        expect(screen.queryByText('second-file.xlsx')).not.toBeInTheDocument()
+        expect(screen.getByText('first-file.xlsx')).toBeInTheDocument()
+        expect(screen.getByText('third-file.xlsx')).toBeInTheDocument()
+      })
+    })
+  })
 })

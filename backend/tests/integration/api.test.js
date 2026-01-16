@@ -308,9 +308,7 @@ describe('Logout API', () => {
   })
 
   test('rejects logout with expired/non-existent session', async () => {
-    const username = generateUniqueUsername()
-    const user = await createUser(username)
-    const token = await loginUser(username)
+    const { token, user } = await createAndLoginUser()
 
     await Session.destroy({ where: { userId: user.id } })
 
@@ -336,9 +334,7 @@ describe('File API', () => {
     })
 
     test('returns user files in descending order by creation date', async () => {
-      const username = generateUniqueUsername()
-      const user = await createUser(username)
-      const token = await loginUser(username)
+      const { token, user } = await createAndLoginUser()
 
       // Create test files with different timestamps
       await File.create({
@@ -504,5 +500,75 @@ describe('File API', () => {
       ).expect(401)
         .expect({ error: 'token invalid' })
     })
+  })
+})
+
+describe('DELETE /api/files/:id', () => {
+  test('deletes own file successfully', async () => {
+    const { token } = await createAndLoginUser()
+
+    const uploadResponse = await uploadFile(
+      token,
+      'test.xlsx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    const fileId = uploadResponse.body.id
+
+    await api
+      .delete(`/api/files/${fileId}`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(204)
+
+    const getResponse = await api
+      .get('/api/files')
+      .set('Authorization', `bearer ${token}`)
+      .expect(200)
+
+    expect(getResponse.body).toHaveLength(0)
+  })
+
+  test('returns 404 when deleting non-existent file', async () => {
+    const { token } = await createAndLoginUser()
+
+    const response = await api
+      .delete('/api/files/99999')
+      .set('Authorization', `bearer ${token}`)
+      .expect(404)
+
+    expect(response.body.error).toBe('File not found')
+  })
+
+  test('returns 403 when trying to delete another user\'s file', async () => {
+    const { token: token1 } = await createAndLoginUser(
+      generateUniqueUsername('user1'),
+      'Test User 1'
+    )
+    const { token: token2 } = await createAndLoginUser(
+      generateUniqueUsername('user2'),
+      'Test User 2'
+    )
+
+    const uploadResponse = await uploadFile(
+      token1,
+      'test.xlsx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    const fileId = uploadResponse.body.id
+
+    const response = await api
+      .delete(`/api/files/${fileId}`)
+      .set('Authorization', `bearer ${token2}`)
+      .expect(403)
+
+    expect(response.body.error).toBe('Access denied')
+  })
+
+  test('returns 401 when not authenticated', async () => {
+    await api
+      .delete('/api/files/1')
+      .expect(401)
+      .expect({ error: 'token missing' })
   })
 })

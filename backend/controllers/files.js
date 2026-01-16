@@ -142,4 +142,40 @@ router.post('/', tokenExtractor, upload.single('file'), async (req, res, next) =
   }
 })
 
+router.delete('/:id', tokenExtractor, async (req, res, next) => {
+  try {
+    const fileId = parseInt(req.params.id)
+
+    if (isNaN(fileId)) {
+      return res.status(400).json({ error: 'Invalid file ID' })
+    }
+
+    const file = await File.findByPk(fileId)
+
+    if (!file) {
+      return res.status(404).json({ error: 'File not found' })
+    }
+
+    if (file.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' })
+    }
+
+    const filePath = path.resolve(file.filePath)
+    const userDir = getUserUploadDir(req.user.id)
+
+    if (!filePath.startsWith(path.resolve(userDir))) {
+      return res.status(400).json({ error: 'Invalid file path' })
+    }
+
+    // SAFE: file.filePath is from database and validated above
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    await fs.unlink(filePath)
+    await file.destroy()
+
+    res.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+})
+
 export default router

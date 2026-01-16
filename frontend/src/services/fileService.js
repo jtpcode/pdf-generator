@@ -56,4 +56,22 @@ const uploadFile = async (file) => {
   return response.json()
 }
 
-export default { getAllFiles, uploadFile }
+const deleteFile = async (fileId) => {
+  const response = await fetch(`${baseUrl}/${fileId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  })
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to delete file'
+    try {
+      const errorData = await response.json()
+      errorMessage = errorData.error || errorMessage
+    } catch {
+      errorMessage = `${errorMessage} (${response.status})`
+    }
+    throw new Error(errorMessage)
+  }
+}
+
+export default { getAllFiles, uploadFile, deleteFile }

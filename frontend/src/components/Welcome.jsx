@@ -9,9 +9,11 @@ import {
   ListItem,
   ListItemText,
   Alert,
-  CircularProgress
+  CircularProgress,
+  IconButton
 } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import DeleteIcon from '@mui/icons-material/Delete'
 import authService from '../services/authService'
 import fileService from '../services/fileService'
 
@@ -80,6 +82,25 @@ const Welcome = ({ user, onLogout }) => {
     } finally {
       setLoading(false)
       event.target.value = ''
+    }
+  }
+
+  const handleFileDelete = async (fileId, fileName) => {
+    if (!window.confirm(`Are you sure you want to delete ${fileName}?`)) {
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+      await fileService.deleteFile(fileId)
+      setSuccess('File deleted successfully!')
+      await fetchFiles()
+      setTimeout(() => setSuccess(null), 5000)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -161,7 +182,20 @@ const Welcome = ({ user, onLogout }) => {
           ) : (
             <List>
               {files.map((file) => (
-                <ListItem key={file.id} divider>
+                <ListItem
+                  key={file.id}
+                  divider
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleFileDelete(file.id, file.originalName)}
+                      disabled={loading}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  }
+                >
                   <ListItemText
                     primary={file.originalName}
                     secondary={`${formatFileSize(file.fileSize)} • ${formatDate(file.createdAt)}`}
