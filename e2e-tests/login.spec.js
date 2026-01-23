@@ -86,13 +86,13 @@ test.describe('Login functionality', () => {
     })
 
     test('should upload Excel files successfully (.xlsx and .xls)', async ({ page }) => {
-      await uploadFile(page, createMockExcelFile('test-file.xlsx'))
+      await uploadFile(page, await createMockExcelFile('test-file.xlsx'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
       await expect(page.getByText('test-file.xlsx')).toBeVisible()
 
       await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
 
-      await uploadFile(page, createMockExcelFile('old-format.xls', 'mock xls file content', 'xls'))
+      await uploadFile(page, await createMockExcelFile('old-format.xls', null, 'xls'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
       await expect(page.getByText('old-format.xls')).toBeVisible()
     })
@@ -110,12 +110,12 @@ test.describe('Login functionality', () => {
     })
 
     test('should display multiple uploaded files', async ({ page }) => {
-      await uploadFile(page, createMockExcelFile('first-file.xlsx', 'mock excel file 1'))
+      await uploadFile(page, await createMockExcelFile('first-file.xlsx'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
 
       await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
 
-      await uploadFile(page, createMockExcelFile('second-file.xlsx', 'mock excel file 2'))
+      await uploadFile(page, await createMockExcelFile('second-file.xlsx'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
 
       await expect(page.getByText('first-file.xlsx')).toBeVisible()
@@ -123,7 +123,7 @@ test.describe('Login functionality', () => {
     })
 
     test('should show file size and upload date', async ({ page }) => {
-      await uploadFile(page, createMockExcelFile('sized-file.xlsx', 'mock excel content with some size'))
+      await uploadFile(page, await createMockExcelFile('sized-file.xlsx'))
 
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
 
@@ -133,6 +133,66 @@ test.describe('Login functionality', () => {
       await expect(listItem).toContainText(/B|KB|MB/)
 
       await expect(listItem).toContainText(/\d{1,2}[./-]\d{1,2}[./-]\d{2,4}|\d{4}-\d{2}-\d{2}/)
+    })
+
+    test('should display PDF generation button for uploaded files', async ({ page }) => {
+      await uploadFile(page, await createMockExcelFile('test-pdf.xlsx'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      const listItem = page.locator('li', { has: page.getByText('test-pdf.xlsx') })
+      await expect(listItem).toBeVisible()
+
+      const pdfButton = listItem.getByRole('button', { name: 'generate pdf' })
+      await expect(pdfButton).toBeVisible()
+    })
+
+    test('should generate PDF from uploaded Excel file', async ({ page }) => {
+      await uploadFile(page, await createMockExcelFile('generate-pdf-test.xlsx'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
+
+      const listItem = page.locator('li', { has: page.getByText('generate-pdf-test.xlsx') })
+      const pdfButton = listItem.getByRole('button', { name: 'generate pdf' })
+
+      await pdfButton.click()
+
+      await expect(page.getByRole('alert')).toContainText('PDF generated successfully!')
+    })
+
+    test('should delete uploaded file', async ({ page }) => {
+      await uploadFile(page, await createMockExcelFile('file-to-delete.xlsx'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      await expect(page.getByText('file-to-delete.xlsx')).toBeVisible()
+
+      const listItem = page.locator('li', { has: page.getByText('file-to-delete.xlsx') })
+      const deleteButton = listItem.getByRole('button', { name: 'delete' })
+
+      page.on('dialog', dialog => dialog.accept())
+      await deleteButton.click()
+
+      await expect(page.getByRole('alert')).toContainText('File deleted successfully!')
+      await expect(page.getByText('file-to-delete.xlsx')).not.toBeVisible()
+    })
+
+    test('should display multiple files with individual action buttons', async ({ page }) => {
+      await uploadFile(page, await createMockExcelFile('first.xlsx'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
+
+      await uploadFile(page, await createMockExcelFile('second.xlsx'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      const firstFileItem = page.locator('li', { has: page.getByText('first.xlsx') })
+      const secondFileItem = page.locator('li', { has: page.getByText('second.xlsx') })
+
+      await expect(firstFileItem.getByRole('button', { name: 'generate pdf' })).toBeVisible()
+      await expect(firstFileItem.getByRole('button', { name: 'delete' })).toBeVisible()
+
+      await expect(secondFileItem.getByRole('button', { name: 'generate pdf' })).toBeVisible()
+      await expect(secondFileItem.getByRole('button', { name: 'delete' })).toBeVisible()
     })
   })
 })

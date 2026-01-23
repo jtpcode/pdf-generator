@@ -74,4 +74,23 @@ const deleteFile = async (fileId) => {
   }
 }
 
-export default { getAllFiles, uploadFile, deleteFile }
+const generatePdf = async (fileId) => {
+  const response = await fetch(`${baseUrl}/${fileId}/pdf`, {
+    headers: getAuthHeaders()
+  })
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to generate PDF'
+    try {
+      const errorData = await response.json()
+      errorMessage = errorData.error || errorMessage
+    } catch {
+      errorMessage = `${errorMessage} (${response.status})`
+    }
+    throw new Error(errorMessage)
+  }
+
+  return await response.blob()
+}
+
+export default { getAllFiles, uploadFile, deleteFile, generatePdf }

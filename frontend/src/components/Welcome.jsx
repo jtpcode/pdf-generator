@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import DeleteIcon from '@mui/icons-material/Delete'
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import authService from '../services/authService'
 import fileService from '../services/fileService'
 
@@ -104,6 +105,34 @@ const Welcome = ({ user, onLogout }) => {
     }
   }
 
+  const handlePdfGeneration = async (fileId) => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const pdfBlob = await fileService.generatePdf(fileId)
+
+      // Create an invisible link and download the PDF
+      const url = window.URL.createObjectURL(pdfBlob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'Product Name.pdf'
+      link.target = '_blank'
+      link.rel = 'noopener noreferrer'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      setSuccess('PDF generated successfully!')
+      setTimeout(() => setSuccess(null), 5000)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleLogout = () => {
     authService.logout()
     onLogout()
@@ -186,14 +215,24 @@ const Welcome = ({ user, onLogout }) => {
                   key={file.id}
                   divider
                   secondaryAction={
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => handleFileDelete(file.id, file.originalName)}
-                      disabled={loading}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <IconButton
+                        edge="end"
+                        aria-label="generate pdf"
+                        onClick={() => handlePdfGeneration(file.id)}
+                        disabled={loading}
+                      >
+                        <PictureAsPdfIcon />
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleFileDelete(file.id, file.originalName)}
+                        disabled={loading}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
                   }
                 >
                   <ListItemText

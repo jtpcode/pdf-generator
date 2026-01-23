@@ -429,7 +429,8 @@ describe('File API', () => {
         token,
         'test.xlsx',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ).expect(201)
+      )
+      expect(response.status).toBe(201)
 
       expect(response.body.originalName).toBe('test.xlsx')
       expect(response.body.fileSize).toBeGreaterThan(0)
@@ -444,7 +445,8 @@ describe('File API', () => {
         token,
         'test.xls',
         'application/vnd.ms-excel'
-      ).expect(201)
+      )
+      expect(response.status).toBe(201)
 
       expect(response.body.originalName).toBe('test.xls')
       expect(response.body.fileSize).toBeGreaterThan(0)
@@ -455,21 +457,23 @@ describe('File API', () => {
     test('rejects non-Excel file', async () => {
       const { token } = await createAndLoginUser()
 
-      await uploadFile(
+      const response = await uploadFile(
         token,
         'test.pdf',
         'application/pdf'
-      ).expect(400)
+      )
+      expect(response.status).toBe(400)
     })
 
     test('handles file with empty filename', async () => {
       const { token } = await createAndLoginUser()
 
-      await uploadFile(
+      const response = await uploadFile(
         token,
         '',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ).expect(400)
+      )
+      expect(response.status).toBe(400)
     })
 
     test('rejects request without file', async () => {
@@ -484,21 +488,23 @@ describe('File API', () => {
     })
 
     test('rejects request without token', async () => {
-      await uploadFile(
+      const response = await uploadFile(
         null,
         'test.xlsx',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ).expect(401)
-        .expect({ error: 'token missing' })
+      )
+      expect(response.status).toBe(401)
+      expect(response.body).toEqual({ error: 'token missing' })
     })
 
     test('rejects request with invalid token', async () => {
-      await uploadFile(
+      const response = await uploadFile(
         'invalidtoken123',
         'test.xlsx',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ).expect(401)
-        .expect({ error: 'token invalid' })
+      )
+      expect(response.status).toBe(401)
+      expect(response.body).toEqual({ error: 'token invalid' })
     })
   })
 })
@@ -570,5 +576,108 @@ describe('DELETE /api/files/:id', () => {
       .delete('/api/files/1')
       .expect(401)
       .expect({ error: 'token missing' })
+  })
+})
+
+describe('PDF Generation API', () => {
+  test('generates PDF successfully for valid Excel file', async () => {
+    const { token } = await createAndLoginUser()
+
+    const uploadResponse = await uploadFile(
+      token,
+      'test.xlsx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    const fileId = uploadResponse.body.id
+
+    const response = await api
+      .get(`/api/files/${fileId}/pdf`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /pdf/)
+
+    expect(response.header['content-disposition']).toMatch(/inline/)
+    expect(response.header['content-disposition']).toMatch(/filename="Product Name\.pdf"/)
+    expect(response.body).toBeDefined()
+  })
+
+  test('returns 404 for non-existent file', async () => {
+    const { token } = await createAndLoginUser()
+
+    const response = await api
+      .get('/api/files/99999/pdf')
+      .set('Authorization', `bearer ${token}`)
+      .expect(404)
+
+    expect(response.body.error).toBe('File not found')
+  })
+
+  test('returns 403 for other user\'s file', async () => {
+    const { token: token1 } = await createAndLoginUser(
+      generateUniqueUsername('user1'),
+      'Test User 1'
+    )
+    const { token: token2 } = await createAndLoginUser(
+      generateUniqueUsername('user2'),
+      'Test User 2'
+    )
+
+    const uploadResponse = await uploadFile(
+      token1,
+      'test.xlsx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    const fileId = uploadResponse.body.id
+
+    const response = await api
+      .get(`/api/files/${fileId}/pdf`)
+      .set('Authorization', `bearer ${token2}`)
+      .expect(403)
+
+    expect(response.body.error).toBe('Access denied')
+  })
+
+  test('returns 401 without authentication token', async () => {
+    await api
+      .get('/api/files/1/pdf')
+      .expect(401)
+      .expect({ error: 'token missing' })
+  })
+
+  test('returns 400 for invalid file ID', async () => {
+    const { token } = await createAndLoginUser()
+
+    const response = await api
+      .get('/api/files/invalid/pdf')
+      .set('Authorization', `bearer ${token}`)
+      .expect(400)
+
+    expect(response.body.error).toBe('Invalid file ID')
+  })
+
+  test('returns 400 for corrupted Excel file', async () => {
+    const { token } = await createAndLoginUser()
+
+    const corruptedBuffer = Buffer.from('PK\x03\x04' + 'corrupted Excel data')
+
+    const uploadResponse = await api
+      .post('/api/files')
+      .attach('file', corruptedBuffer, {
+        filename: 'corrupted.xlsx',
+        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
+      .set('Authorization', `bearer ${token}`)
+      .expect(201)
+
+    const fileId = uploadResponse.body.id
+
+    const response = await api
+      .get(`/api/files/${fileId}/pdf`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(400)
+
+    expect(response.body.error).toBe('Failed to parse Excel file. File may be corrupted.')
   })
 })

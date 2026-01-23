@@ -60,11 +60,12 @@ describe('File validation security', () => {
       // eslint-disable-next-line security/detect-non-literal-fs-filename
       const filesBefore = await fs.readdir(uploadsDir).catch(() => [])
 
-      await uploadFile(
+      const response = await uploadFile(
         token,
         'test.xlsx',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ).expect(500)
+      )
+      expect(response.status).toBe(500)
 
       // This is testing code, so it's acceptable to use non-literal paths here
       // eslint-disable-next-line security/detect-non-literal-fs-filename
@@ -82,11 +83,12 @@ describe('File validation security', () => {
       const unlinkSpy = vi.spyOn(fs, 'unlink')
       unlinkSpy.mockRejectedValueOnce(new Error('Unlink failed'))
 
-      await uploadFile(
+      const response = await uploadFile(
         token,
         'test.xlsx',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ).expect(500)
+      )
+      expect(response.status).toBe(500)
     })
 
     test('handles multer destination error gracefully', async () => {
@@ -95,11 +97,12 @@ describe('File validation security', () => {
       const mkdirSpy = vi.spyOn(fs, 'mkdir')
       mkdirSpy.mockRejectedValueOnce(new Error('Permission denied'))
 
-      await uploadFile(
+      const response = await uploadFile(
         token,
         'test.xlsx',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      ).expect(500)
+      )
+      expect(response.status).toBe(500)
     })
   })
 })

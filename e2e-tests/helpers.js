@@ -1,4 +1,21 @@
-export const createMockExcelFile = (filename, content = 'mock excel file content', fileExtension = 'xlsx') => {
+import ExcelJS from 'exceljs'
+
+export const createMockExcelFile = async (filename, data = null, fileExtension = 'xlsx') => {
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet('Sheet1')
+
+  if (data && Array.isArray(data)) {
+    data.forEach(row => {
+      worksheet.addRow(row)
+    })
+  } else {
+    worksheet.addRow(['Header 1', 'Header 2', 'Header 3'])
+    worksheet.addRow(['Data 1', 'Data 2', 'Data 3'])
+    worksheet.addRow(['Data 4', 'Data 5', 'Data 6'])
+  }
+
+  const buffer = await workbook.xlsx.writeBuffer()
+
   const mimeTypes = {
     xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     xls: 'application/vnd.ms-excel'
@@ -7,7 +24,7 @@ export const createMockExcelFile = (filename, content = 'mock excel file content
   return {
     name: filename,
     mimeType: mimeTypes[fileExtension] || mimeTypes.xlsx,
-    buffer: Buffer.from(content)
+    buffer: Buffer.from(buffer)
   }
 }
 

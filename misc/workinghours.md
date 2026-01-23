@@ -33,4 +33,7 @@ Working hours:
 |     | 3 | Implement registration flow with validation and error handling; add Register component and update Login component for navigation. Add unit and e2e tests. |
 | 13.1 | 6 | Study MUI, refactor e2e tests, add 3 file upload limit + tests. Study Render webservice + Postgres integration.  |
 | 15.1 | 5 | Study Render webservice with postgres and persistent disk. Complete CICD pipeline, publish app in Render. |
-| Total   | 94 |
+| 20.1 | 2 | Study Pdf generation: PDFkit vs. Puppeteer |
+| 22.1 | 5 | Study Pdf generation: choose PDFkit for implementation. |
+| 23.1 | 4 | Implement PDFkit to generate preliminary PDFs. |
+| Total   | 105 |

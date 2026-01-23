@@ -1,5 +1,6 @@
 import supertest from 'supertest'
 import bcrypt from 'bcrypt'
+import ExcelJS from 'exceljs'
 import app from '../app.js'
 import { User } from '../models/index.js'
 
@@ -32,8 +33,27 @@ const createAndLoginUser = async (username = generateUniqueUsername(), name = 'T
   return { token: await loginUser(username), user }
 }
 
-const uploadFile = (token, filename, contentType, content = 'mock file content') => {
-  const buffer = Buffer.from(content)
+const createValidExcelBuffer = async () => {
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet('Sheet1')
+
+  worksheet.addRow(['Name', 'Age', 'City'])
+  worksheet.addRow(['John', 30, 'London'])
+  worksheet.addRow(['Jane', 25, 'Paris'])
+
+  const buffer = await workbook.xlsx.writeBuffer()
+  return buffer
+}
+
+const uploadFile = async (token, filename, contentType, content = 'mock file content') => {
+  let buffer
+
+  if (contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+    contentType === 'application/vnd.ms-excel') {
+    buffer = await createValidExcelBuffer()
+  } else {
+    buffer = Buffer.from(content)
+  }
 
   const request = api
     .post('/api/files')
@@ -55,5 +75,6 @@ export {
   createUser,
   loginUser,
   createAndLoginUser,
-  uploadFile
+  uploadFile,
+  createValidExcelBuffer
 }

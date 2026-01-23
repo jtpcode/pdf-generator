@@ -464,4 +464,143 @@ describe('Welcome Component', () => {
       })
     })
   })
+
+  describe('PDF Generation', () => {
+    let mockLink
+    let originalCreateElement
+    let originalAppendChild
+    let originalRemoveChild
+    let appendChildSpy
+    let removeChildSpy
+
+    beforeEach(() => {
+      originalCreateElement = document.createElement
+      originalAppendChild = document.body.appendChild
+      originalRemoveChild = document.body.removeChild
+
+      mockLink = {
+        href: '',
+        download: '',
+        target: '',
+        rel: '',
+        click: vi.fn()
+      }
+
+      document.createElement = vi.fn((tagName) => {
+        if (tagName === 'a') {
+          return mockLink
+        }
+        return originalCreateElement.call(document, tagName)
+      })
+
+      appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation((node) => {
+        if (node === mockLink) {
+          return node
+        }
+        return originalAppendChild.call(document.body, node)
+      })
+
+      removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation((node) => {
+        if (node === mockLink) {
+          return node
+        }
+        return originalRemoveChild.call(document.body, node)
+      })
+
+      window.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+      window.URL.revokeObjectURL = vi.fn()
+    })
+
+    afterEach(() => {
+      document.createElement = originalCreateElement
+      appendChildSpy.mockRestore()
+      removeChildSpy.mockRestore()
+    })
+
+    it('renders generate PDF button for one file', async () => {
+      const mockFiles = [
+        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
+      ]
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('generate pdf')).toBeInTheDocument()
+      })
+    })
+
+    it('generates PDF and downloads with correct filename on button click', async () => {
+      const user = userEvent.setup()
+      const mockFiles = [
+        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
+      ]
+      const mockBlob = new Blob(['pdf content'], { type: 'application/pdf' })
+
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+      fileService.generatePdf.mockResolvedValue(mockBlob)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('test.xlsx')).toBeInTheDocument()
+      })
+
+      const pdfButton = screen.getByLabelText('generate pdf')
+      await user.click(pdfButton)
+
+      await waitFor(() => {
+        expect(fileService.generatePdf).toHaveBeenCalledWith(1)
+        expect(window.URL.createObjectURL).toHaveBeenCalledWith(mockBlob)
+        expect(document.createElement).toHaveBeenCalledWith('a')
+        expect(mockLink.href).toBe('blob:mock-url')
+        expect(mockLink.download).toBe('Product Name.pdf')
+        expect(mockLink.target).toBe('_blank')
+        expect(mockLink.rel).toBe('noopener noreferrer')
+        expect(appendChildSpy).toHaveBeenCalledWith(mockLink)
+        expect(mockLink.click).toHaveBeenCalled()
+        expect(removeChildSpy).toHaveBeenCalledWith(mockLink)
+        expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
+        expect(screen.getByText(/PDF generated successfully!/i)).toBeInTheDocument()
+      })
+    })
+
+    it('shows error when PDF generation fails', async () => {
+      const user = userEvent.setup()
+      const mockFiles = [
+        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
+      ]
+
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+      fileService.generatePdf.mockRejectedValue(new Error('PDF generation failed'))
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('test.xlsx')).toBeInTheDocument()
+      })
+
+      const pdfButton = screen.getByLabelText('generate pdf')
+      await user.click(pdfButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/PDF generation failed/i)).toBeInTheDocument()
+      })
+    })
+
+    it('has separate PDF buttons for multiple files', async () => {
+      const mockFiles = [
+        { id: 1, originalName: 'first.xlsx', fileSize: 512, createdAt: new Date().toISOString() },
+        { id: 2, originalName: 'second.xlsx', fileSize: 1024, createdAt: new Date().toISOString() }
+      ]
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        const pdfButtons = screen.getAllByLabelText('generate pdf')
+        expect(pdfButtons).toHaveLength(2)
+      })
+    })
+  })
 })

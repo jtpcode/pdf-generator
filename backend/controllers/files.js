@@ -3,6 +3,8 @@ import multer from 'multer'
 import path from 'path'
 import { promises as fs } from 'fs'
 import { fileURLToPath } from 'url'
+import PDFDocument from 'pdfkit'
+import ExcelJS from 'exceljs'
 import { File } from '../models/index.js'
 import { tokenExtractor } from '../utils/middleware.js'
 import { UPLOADS_DIR } from '../utils/config.js'
@@ -173,6 +175,127 @@ router.delete('/:id', tokenExtractor, async (req, res, next) => {
     await file.destroy()
 
     res.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/:id/pdf', tokenExtractor, async (req, res, next) => {
+  try {
+    const fileId = parseInt(req.params.id)
+
+    if (isNaN(fileId)) {
+      return res.status(400).json({ error: 'Invalid file ID' })
+    }
+
+    const file = await File.findByPk(fileId)
+
+    if (!file) {
+      return res.status(404).json({ error: 'File not found' })
+    }
+
+    if (file.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied' })
+    }
+
+    const filePath = path.resolve(file.filePath)
+    const userDir = getUserUploadDir(req.user.id)
+
+    if (!filePath.startsWith(path.resolve(userDir))) {
+      return res.status(400).json({ error: 'Invalid file path' })
+    }
+
+    let data = []
+    try {
+      const workbook = new ExcelJS.Workbook()
+      await workbook.xlsx.readFile(filePath)
+
+      const worksheet = workbook.worksheets[0]
+
+      if (!worksheet) {
+        return res.status(400).json({ error: 'Excel file contains no worksheets' })
+      }
+
+      worksheet.eachRow((row) => {
+        data.push(row.values.slice(1))
+      })
+    } catch {
+      return res.status(400).json({ error: 'Failed to parse Excel file. File may be corrupted.' })
+    }
+
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename="Product Name.pdf"')
+
+    const doc = new PDFDocument({
+      margins: {
+        top: 0,
+        bottom: 0,
+        left: 50,
+        right: 50
+      },
+      size: 'A4'
+    })
+
+    doc.pipe(res)
+
+    const addHeader = (doc) => {
+      doc.fontSize(14)
+        .font('Helvetica-Bold')
+        .text('Product Name', 50, 20)
+
+      doc.fontSize(10)
+        .font('Helvetica')
+        .text('[Logo placeholder]', 50, 20, { align: 'right' })
+
+      doc.moveDown(2)
+    }
+
+    const addFooter = (doc, pageNumber, totalPages) => {
+      const footerY = doc.page.height - 30
+
+      doc.fontSize(7)
+        .font('Helvetica')
+        .text('Helvar Components | Helvar Components Oy Ab, Yrittäjäntie 23, ' +
+          'FI-03600 Karkkila, Finland. www.helvarcomponents.com', 50, footerY, { align: 'left' })
+        .text(`Version: ${new Date().toISOString().split('T')[0]}    ` +
+          `Page ${pageNumber} of ${totalPages}`, 50, footerY, { align: 'right' })
+        .moveDown(0)
+        .font('Helvetica-Oblique')
+        .text('Data is subject to change without notice.', { align: 'left' })
+    }
+
+    addHeader(doc)
+
+    doc.fontSize(16)
+      .font('Helvetica-Bold')
+      .text('Technical Data Sheet', { align: 'left' })
+      .moveDown(2)
+
+    doc.fontSize(10)
+      .font('Helvetica')
+
+    data.forEach((row, rowIndex) => {
+      if (rowIndex === 0) {
+        doc.font('Helvetica-Bold')
+      } else {
+        doc.font('Helvetica')
+      }
+
+      const rowText = row.map(cell => cell ?? '').join(' | ')
+      doc.text(rowText)
+      doc.moveDown(0.5)
+    })
+
+    addFooter(doc, 1, 1)
+
+    // // Add footers with page numbers to all pages
+    // const range = doc.bufferedPageRange()
+    // for (let i = 0; i < range.count; i++) {
+    //   doc.switchToPage(i)
+    //   addFooter(doc, i + 1, range.count)
+    // }
+
+    doc.end()
   } catch (error) {
     next(error)
   }

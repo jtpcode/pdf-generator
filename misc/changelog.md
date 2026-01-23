@@ -18,4 +18,5 @@ Changelog:
 | 8.1 | Change User-model's username length, sanitize filename in file upload. Minor changes in frontend code, improve error handling. |
 | 9.1 | Implement user registration. |
 | 13.1 | Add 3 file upload limit. |
+| 23.1 | Add first version of PDF creation/download. |
 
