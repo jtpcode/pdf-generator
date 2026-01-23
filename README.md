@@ -10,7 +10,7 @@ https://pdf-generator-3ucg.onrender.com/
 
 ## Project Name and Description
 
-**pdf-generator** (in progress) is a full-stack web application for transforming technical datasheets into PDF format. Functionality currently features login with user authentication and file upload. The project is designed with modern security, testing, and development best practices.
+**pdf-generator** (in progress) is a full-stack web application for transforming technical datasheets into PDF format. Functionality currently features login with user authentication, file upload and preliminary PDF creation. The project is designed with modern security, testing, and development best practices.
 
 ## Technology Stack
 
