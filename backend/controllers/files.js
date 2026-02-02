@@ -3,11 +3,11 @@ import multer from 'multer'
 import path from 'path'
 import { promises as fs } from 'fs'
 import { fileURLToPath } from 'url'
-import PDFDocument from 'pdfkit'
 import ExcelJS from 'exceljs'
 import { File } from '../models/index.js'
 import { tokenExtractor } from '../utils/middleware.js'
 import { UPLOADS_DIR } from '../utils/config.js'
+import { generateProductDataSheetPdf } from '../utils/pdfGenerator.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -205,7 +205,7 @@ router.get('/:id/pdf', tokenExtractor, async (req, res, next) => {
       return res.status(400).json({ error: 'Invalid file path' })
     }
 
-    let data = []
+    let excelData = []
     try {
       const workbook = new ExcelJS.Workbook()
       await workbook.xlsx.readFile(filePath)
@@ -217,7 +217,7 @@ router.get('/:id/pdf', tokenExtractor, async (req, res, next) => {
       }
 
       worksheet.eachRow((row) => {
-        data.push(row.values.slice(1))
+        excelData.push(row.values.slice(1))
       })
     } catch {
       return res.status(400).json({ error: 'Failed to parse Excel file. File may be corrupted.' })
@@ -226,76 +226,7 @@ router.get('/:id/pdf', tokenExtractor, async (req, res, next) => {
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'inline; filename="Product Name.pdf"')
 
-    const doc = new PDFDocument({
-      margins: {
-        top: 0,
-        bottom: 0,
-        left: 50,
-        right: 50
-      },
-      size: 'A4'
-    })
-
-    doc.pipe(res)
-
-    const addHeader = (doc) => {
-      doc.fontSize(14)
-        .font('Helvetica-Bold')
-        .text('Product Name', 50, 20)
-
-      doc.fontSize(10)
-        .font('Helvetica')
-        .text('[Logo placeholder]', 50, 20, { align: 'right' })
-
-      doc.moveDown(2)
-    }
-
-    const addFooter = (doc, pageNumber, totalPages) => {
-      const footerY = doc.page.height - 30
-
-      doc.fontSize(7)
-        .font('Helvetica')
-        .text('Helvar Components | Helvar Components Oy Ab, Yrittäjäntie 23, ' +
-          'FI-03600 Karkkila, Finland. www.helvarcomponents.com', 50, footerY, { align: 'left' })
-        .text(`Version: ${new Date().toISOString().split('T')[0]}    ` +
-          `Page ${pageNumber} of ${totalPages}`, 50, footerY, { align: 'right' })
-        .moveDown(0)
-        .font('Helvetica-Oblique')
-        .text('Data is subject to change without notice.', { align: 'left' })
-    }
-
-    addHeader(doc)
-
-    doc.fontSize(16)
-      .font('Helvetica-Bold')
-      .text('Technical Data Sheet', { align: 'left' })
-      .moveDown(2)
-
-    doc.fontSize(10)
-      .font('Helvetica')
-
-    data.forEach((row, rowIndex) => {
-      if (rowIndex === 0) {
-        doc.font('Helvetica-Bold')
-      } else {
-        doc.font('Helvetica')
-      }
-
-      const rowText = row.map(cell => cell ?? '').join(' | ')
-      doc.text(rowText)
-      doc.moveDown(0.5)
-    })
-
-    addFooter(doc, 1, 1)
-
-    // // Add footers with page numbers to all pages
-    // const range = doc.bufferedPageRange()
-    // for (let i = 0; i < range.count; i++) {
-    //   doc.switchToPage(i)
-    //   addFooter(doc, i + 1, range.count)
-    // }
-
-    doc.end()
+    await generateProductDataSheetPdf(excelData, res)
   } catch (error) {
     next(error)
   }
