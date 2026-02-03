@@ -8,32 +8,39 @@
 The current test version of the app is running at:
 https://pdf-generator-3ucg.onrender.com/
 
-## Project Name and Description
+## Project name and description
 
-**pdf-generator** (in progress) is a full-stack web application for transforming technical datasheets into PDF format. Functionality currently features login with user authentication, file upload and preliminary PDF creation. The project is designed with modern security, testing, and development best practices.
+**pdf-generator** is aimed for demonstrating technical datasheet creation in PDF format. The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be achieved. The application accepts Excel and .png files, and their naming/content has to be in a specific form to comply with the code. Example files can be asked directly from the developer. The application is by no means a ready made product for general use.
 
-## Technology Stack
+## How to use
+- Create credentials for login
+- Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
+  - Example files can be asked directly from the developer
+- Click the 'Pdf' icon to generate the PDF
+- To delete a file, click the trashcan icon
+
+## Technology stack
 
 - **Frontend:** React 19, Vite, MUI, Emotion, ESLint, Vitest, React Testing Library
-- **Backend:** Node.js 20+, Express 5, Sequelize (PostgreSQL), JWT, Helmet, Multer, bcrypt
+- **Backend:** Node.js 24, Express 5, Sequelize (PostgreSQL), JWT, Helmet, Multer, bcrypt
 - **Database:** PostgreSQL (Dockerized for development)
 - **Testing:** Vitest, Playwright, Supertest
 - **CI/CD:** GitHub Actions, Codecov
 - **Other:** Docker Compose (for local development)
 
-## Project Architecture
+## Project architecture
 
 - **Monorepo**: Contains both frontend and backend in a single repository
 - **Frontend**: SPA built with React, communicates with backend via REST API
 - **Backend**: RESTful API with authentication, file handling, and user/session management
 - **Database**: PostgreSQL, managed via Sequelize migrations
-- **CI/CD**: Automated pipeline for linting, testing, and coverage reporting
+- **CI/CD**: Automated pipeline for linting, testing and deploying
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
-- Node.js 20+
-- npm 9+
+- Node.js 24+
+- npm 11+
 - Docker & Docker Compose (for local PostgeSQL DB)
 
 ### Installation
@@ -44,12 +51,19 @@ https://pdf-generator-3ucg.onrender.com/
 	npm --prefix frontend ci
 	npm --prefix backend ci
 	```
-3. Configure environment variables in `.env` files:
-	- PostgreSQL: include `.env` in project root for PostgreSQL password, see docker-compose.dev.yml
-	- Backend: include `.env` in /backend, see backend/utils/config.js
+3. Configure environment variables:
+	- For PostgreSQL, include `.env` in project root:
+	  - POSTGRES_PASSWORD=[YOUR_PASSWORD]
+	- For backend, include `.env` in /backend:
+	  - DATABASE_URL=[YOUR_DATABASE_URL]
+	  - TEST_DATABASE_URL=[TEST_DATABASE_URL]
+	  - JWT_SECRET=[YOUR_JWT_SECRET]
+	- NOTE:
+	  - You must create a test database if you're going to use tests.
+	  - DATABASE_URL: postgres://[POSTGRES_USER]:[YOUR_PASSWORD]@localhost:5432/[DATABASE_NAME]
 4. Start PostgreSQL with Docker Compose:
 	```sh
-	docker compose -f docker-compose.dev.yml up -d
+	docker compose -f docker-compose.dev.yml up
 	```
 5. Start development servers:
 	```sh
@@ -57,11 +71,10 @@ https://pdf-generator-3ucg.onrender.com/
 	npm --prefix frontend run dev
 	```
 
-## Key Features
+## Key features
 
 - User authentication (JWT, bcrypt)
 - Secure file upload (Multer, Express)
-- Role-based access control
 - RESTful API (Express, Sequelize)
 - React SPA with MUI design
 - Unit testing: Vitest
@@ -70,14 +83,13 @@ https://pdf-generator-3ucg.onrender.com/
 - Security best practices (Helmet, OWASP guidelines)
 - CI/CD with GitHub Actions and Codecov
 
-## Development Workflow
+## Development workflow
 
-- Pull requests trigger CI pipeline (lint, test, coverage)
-- Main branch protected by CI
 - Automated Playwright and Vitest tests
 - Coverage uploaded to Codecov
+- Automated deployment to Render
 
-## Coding Standards
+## Coding standards
 
 - JavaScript (ES2022+), Node.js ESM modules
 - React functional components with hooks
