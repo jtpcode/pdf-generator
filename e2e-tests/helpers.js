@@ -28,6 +28,15 @@ export const createMockExcelFile = async (filename, data = null, fileExtension =
   }
 }
 
+export const createMockPngFile = (filename = 'test.png') => {
+  const base64Png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+  return {
+    name: filename,
+    mimeType: 'image/png',
+    buffer: Buffer.from(base64Png, 'base64')
+  }
+}
+
 export const uploadFile = async (page, fileConfig) => {
   await page.setInputFiles('input[type="file"]', fileConfig)
 }

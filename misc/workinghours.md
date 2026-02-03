@@ -36,4 +36,7 @@ Working hours:
 | 20.1 | 2 | Study Pdf generation: PDFkit vs. Puppeteer |
 | 22.1 | 5 | Study Pdf generation: choose PDFkit for implementation. |
 | 23.1 | 4 | Implement PDFkit to generate preliminary PDFs. |
-| Total   | 105 |
+| 26.1 | 6 | Continue: Implement PDFkit to generate preliminary PDFs. |
+| 2.2 | 6 | Finetune PDFkit, study alternative way to generate pdf: html -> puppeteer -> pdf. |
+| 2.2 | x | Finetune PDFkit, study html -> puppeteer. Add png-file upload. |
+| Total   | 117 |

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { createMockExcelFile, uploadFile, resetDatabase } from './helpers.js'
+import { createMockExcelFile, createMockPngFile, uploadFile, resetDatabase } from './helpers.js'
 
 test.describe('Login functionality', () => {
   test.beforeEach(async ({ page, request }) => {
@@ -76,7 +76,7 @@ test.describe('Login functionality', () => {
     })
 
     test('should display file upload section', async ({ page }) => {
-      await expect(page.getByRole('heading', { name: 'Upload Excel File' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Upload File' })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Choose File' })).toBeVisible()
     })
 
@@ -104,9 +104,15 @@ test.describe('Login functionality', () => {
         buffer: Buffer.from('mock pdf content')
       })
 
-      await expect(page.getByRole('alert')).toContainText('Only Excel files (.xls, .xlsx) are allowed')
+      await expect(page.getByRole('alert')).toContainText('Only Excel files (.xls, .xlsx) and PNG images (.png) are allowed')
 
       await expect(page.getByText('test-file.pdf')).not.toBeVisible()
+    })
+
+    test('should upload PNG file successfully', async ({ page }) => {
+      await uploadFile(page, createMockPngFile('test-image.png'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+      await expect(page.getByText('test-image.png')).toBeVisible()
     })
 
     test('should display multiple uploaded files', async ({ page }) => {

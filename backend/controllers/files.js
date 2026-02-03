@@ -69,7 +69,8 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const allowedMimeTypes = [
       'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'image/png'
     ]
 
     if (!isValidFilename(file.originalname)) {
@@ -80,7 +81,7 @@ const upload = multer({
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true)
     } else {
-      cb(new Error('Only Excel files (.xls, .xlsx) are allowed'))
+      cb(new Error('Only Excel files (.xls, .xlsx) and PNG images (.png) are allowed'))
     }
   }
 })

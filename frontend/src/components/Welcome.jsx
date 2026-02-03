@@ -58,15 +58,16 @@ const Welcome = ({ user, onLogout }) => {
 
     const allowedTypes = [
       'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'image/png'
     ]
-    const allowedExtensions = ['.xls', '.xlsx']
+    const allowedExtensions = ['.xls', '.xlsx', '.png']
 
     const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
 
     // Validate both MIME type and extension to prevent MIME type spoofing
     if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
-      setError('Only Excel files (.xls, .xlsx) are allowed')
+      setError('Only Excel files (.xls, .xlsx) and PNG images (.png) are allowed')
       setTimeout(() => setError(null), 5000)
       return
     }
@@ -178,7 +179,7 @@ const Welcome = ({ user, onLogout }) => {
 
         <Paper sx={{ p: 3, mb: 4 }}>
           <Typography variant="h5" component="h5" gutterBottom>
-            Upload Excel File
+            Upload File
           </Typography>
           <Button
             component="label"

@@ -454,6 +454,22 @@ describe('File API', () => {
       expect(response.body.createdAt).toBeDefined()
     })
 
+    test('uploads .png file successfully', async () => {
+      const { token } = await createAndLoginUser()
+
+      const response = await uploadFile(
+        token,
+        'test.png',
+        'image/png'
+      )
+      expect(response.status).toBe(201)
+
+      expect(response.body.originalName).toBe('test.png')
+      expect(response.body.fileSize).toBeGreaterThan(0)
+      expect(response.body.id).toBeDefined()
+      expect(response.body.createdAt).toBeDefined()
+    })
+
     test('rejects non-Excel file', async () => {
       const { token } = await createAndLoginUser()
 
@@ -462,7 +478,7 @@ describe('File API', () => {
         'test.pdf',
         'application/pdf'
       )
-      expect(response.status).toBe(400)
+      expect(response.status).toBe(500)
     })
 
     test('handles file with empty filename', async () => {

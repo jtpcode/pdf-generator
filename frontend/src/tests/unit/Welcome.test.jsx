@@ -110,7 +110,7 @@ describe('Welcome Component', () => {
       render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: /Upload Excel File/i })).toBeInTheDocument()
+        expect(screen.getByRole('heading', { name: /Upload File/i })).toBeInTheDocument()
         expect(screen.getByRole('button', { name: /Choose File/i })).toBeInTheDocument()
       })
     })
@@ -180,10 +180,33 @@ describe('Welcome Component', () => {
       await user.upload(fileInput, mockFile)
 
       await waitFor(() => {
-        expect(screen.getByText(/Only Excel files \(\.xls, \.xlsx\) are allowed/i)).toBeInTheDocument()
+        expect(screen.getByText(/Only Excel files \(\.xls, \.xlsx\) and PNG images \(\.png\) are allowed/i)).toBeInTheDocument()
       })
 
       expect(fileService.uploadFile).not.toHaveBeenCalled()
+    })
+
+    it('uploads PNG file successfully', async () => {
+      const user = userEvent.setup()
+      const mockFile = new File(['mock content'], 'test.png', {
+        type: 'image/png'
+      })
+
+      const uploadedFile = createMockFileData(1, 'test.png', 2048)
+      fileService.uploadFile.mockResolvedValue(uploadedFile)
+      fileService.getAllFiles.mockResolvedValueOnce([]).mockResolvedValueOnce([uploadedFile])
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
+      await user.upload(fileInput, mockFile)
+
+      await waitFor(() => {
+        expect(screen.getByText(/File uploaded successfully!/i)).toBeInTheDocument()
+      })
+
+      expect(fileService.uploadFile).toHaveBeenCalledWith(mockFile)
+      expect(fileService.getAllFiles).toHaveBeenCalledTimes(2)
     })
 
     it('shows error when file upload fails', async () => {

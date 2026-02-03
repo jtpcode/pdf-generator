@@ -19,4 +19,6 @@ Changelog:
 | 9.1 | Implement user registration. |
 | 13.1 | Add 3 file upload limit. |
 | 23.1 | Add first version of PDF creation/download. |
+| 2.2 | Add second version of PDF creation/download. |
+| 3.2 | Add png-file upload. |
 

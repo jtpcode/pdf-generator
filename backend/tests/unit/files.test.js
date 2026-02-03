@@ -45,6 +45,19 @@ describe('File validation security', () => {
 
       expect([400, 500]).toContain(response.status)
     })
+
+    test('accepts valid .png filename', async () => {
+      const { token } = await createAndLoginUser()
+
+      const response = await uploadFile(
+        token,
+        'test.png',
+        'image/png'
+      )
+
+      expect(response.status).toBe(201)
+      expect(response.body.originalName).toBe('test.png')
+    })
   })
 
   describe('Error handling and cleanup', () => {

@@ -45,12 +45,21 @@ const createValidExcelBuffer = async () => {
   return buffer
 }
 
+const createValidPngBuffer = () => {
+  return Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+    'base64'
+  )
+}
+
 const uploadFile = async (token, filename, contentType, content = 'mock file content') => {
   let buffer
 
   if (contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
     contentType === 'application/vnd.ms-excel') {
     buffer = await createValidExcelBuffer()
+  } else if (contentType === 'image/png') {
+    buffer = createValidPngBuffer()
   } else {
     buffer = Buffer.from(content)
   }
@@ -76,5 +85,6 @@ export {
   loginUser,
   createAndLoginUser,
   uploadFile,
-  createValidExcelBuffer
+  createValidExcelBuffer,
+  createValidPngBuffer
 }
