@@ -200,6 +200,11 @@ cd frontend && npm run dev
 - Database models use Sequelize with snake_case fields (`underscored: true`)
 - JWT-based authentication stored in session table
 - File uploads go to `uploads/` (production) or `test-uploads/` (test mode)
+  - **CRITICAL**: `UPLOADS_DIR` in `backend/utils/config.js` dynamically switches based on `NODE_ENV`
+  - Test mode uses `test-uploads/` to isolate test files from production uploads
+  - Production mode uses `uploads/` directory
+  - Both directories are gitignored to prevent committing uploaded files
+  - Test uploads are cleaned between test runs to ensure test isolation
 
 ### Error Handling Guidelines
 

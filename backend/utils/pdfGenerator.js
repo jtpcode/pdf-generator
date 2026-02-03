@@ -1,20 +1,82 @@
+// Path (uploadsDir) is constructed from module directory and config constant, not user input
+/* eslint-disable security/detect-non-literal-fs-filename */
 import PDFDocument from 'pdfkit'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
+import { UPLOADS_DIR } from './config.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+const findLogoFile = () => {
+  const uploadsDir = path.join(__dirname, '..', UPLOADS_DIR)
+  if (!fs.existsSync(uploadsDir)) {
+    return undefined
+  }
+
+  const files = fs.readdirSync(uploadsDir, { recursive: true })
+  const logoFile = files.find(file =>
+    typeof file === 'string' &&
+    file.toLowerCase().includes('logo') &&
+    file.toLowerCase().endsWith('.png')
+  )
+
+  return logoFile ? path.join(uploadsDir, logoFile) : undefined
+}
+
+const findProductImageFile = (productName) => {
+  if (!productName || typeof productName !== 'string') {
+    return undefined
+  }
+
+  const uploadsDir = path.join(__dirname, '..', UPLOADS_DIR)
+  if (!fs.existsSync(uploadsDir)) {
+    return undefined
+  }
+
+  const cleanProductName = productName.toLowerCase().replace(/\s+/g, '')
+  const files = fs.readdirSync(uploadsDir, { recursive: true })
+  const productImageFile = files.find(file =>
+    typeof file === 'string' &&
+    file.toLowerCase().replace(/\s+/g, '').includes(cleanProductName) &&
+    file.toLowerCase().endsWith('.png')
+  )
+
+  return productImageFile ? path.join(uploadsDir, productImageFile) : undefined
+}
+
 const addHeader = (doc, productName = 'Product Name') => {
   doc.fontSize(14)
     .font('DejaVuSans-Bold')
-    .fillColor('red')
-    .text(productName, 50, 20)
+    .fillColor('#c91e42')
+    .text(productName, 50, 30)
     .fillColor('black')
 
-  doc.fontSize(10)
-    .font('DejaVuSans')
-    .text('[Logo placeholder]', 50, 20, { align: 'right' })
+  const logoPath = findLogoFile()
+  if (logoPath) {
+    try {
+      const logoWidth = 80
+      const logoHeight = 30
+      const pageWidth = doc.page.width
+      const logoX = pageWidth - 50 - logoWidth
+
+      doc.image(logoPath, logoX, 20, {
+        width: logoWidth,
+        height: logoHeight,
+        fit: [logoWidth, logoHeight],
+        align: 'right'
+      })
+    } catch {
+      doc.fontSize(10)
+        .font('DejaVuSans')
+        .text('[Logo placeholder]', 50, 20, { align: 'right' })
+    }
+  } else {
+    doc.fontSize(10)
+      .font('DejaVuSans')
+      .text('[Logo placeholder]', 50, 20, { align: 'right' })
+  }
 
   doc.moveDown(2)
 }
@@ -148,12 +210,14 @@ const parseStructuredData = (excelData) => {
   return result
 }
 
-const renderBulletList = (doc, items) => {
-  doc.list(items, {
+const renderBulletList = (doc, items, options = {}) => {
+  const listOptions = {
     bulletRadius: 2,
     textIndent: 20,
-    bulletIndent: 10
-  })
+    bulletIndent: 10,
+    ...options
+  }
+  doc.list(items, listOptions)
   doc.moveDown(0.3)
 }
 
@@ -226,6 +290,13 @@ const renderStripedTable = (doc, dataRows) => {
   doc.moveDown(0.3)
 }
 
+// For testing purposes
+export {
+  findLogoFile,
+  findProductImageFile,
+  parseStructuredData
+}
+
 export const generateProductDataSheetPdf = (excelData, outputStream) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
@@ -258,13 +329,34 @@ export const generateProductDataSheetPdf = (excelData, outputStream) => {
 
     doc.fontSize(10)
       .font('DejaVuSans')
-      .text(parsedData.code)
+      .text(parsedData.code, { align: 'right' })
     doc.moveDown(0.2)
 
-    doc.text(parsedData.powerSupply)
-    doc.moveDown(0.5)
+    doc.text(parsedData.powerSupply, { align: 'right' })
+    doc.moveDown(0.2)
 
-    parsedData.sections.forEach(section => {
+    const productImagePath = findProductImageFile(parsedData.header)
+    if (productImagePath) {
+      try {
+        const imageWidth = 150
+        const imageHeight = 150
+        const pageWidth = doc.page.width
+        const imageX = pageWidth - 50 - imageWidth
+        const imageY = doc.y + 10
+
+        doc.image(productImagePath, imageX, imageY, {
+          fit: [imageWidth, imageHeight]
+        })
+      } catch {
+        doc.fontSize(10)
+          .font('DejaVuSans')
+          .text('[Product image placeholder]', doc.x, doc.y)
+      }
+    }
+
+    doc.moveDown(0.3)
+
+    parsedData.sections.forEach((section, index) => {
       if (section.subtitle) {
         doc.fontSize(11)
           .font('DejaVuSans-Bold')
@@ -275,7 +367,13 @@ export const generateProductDataSheetPdf = (excelData, outputStream) => {
       }
 
       if (section.type === 'list') {
-        renderBulletList(doc, section.data)
+        const isFirstList = index === 0
+        if (isFirstList) {
+          const pageWidth = doc.page.width - 100
+          renderBulletList(doc, section.data, { width: pageWidth * 0.6 })
+        } else {
+          renderBulletList(doc, section.data)
+        }
         doc.moveDown(0.3)
       } else if (section.type === 'invisible_table') {
         renderKeyValueTable(doc, section.data)

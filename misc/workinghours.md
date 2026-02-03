@@ -38,5 +38,5 @@ Working hours:
 | 23.1 | 4 | Implement PDFkit to generate preliminary PDFs. |
 | 26.1 | 6 | Continue: Implement PDFkit to generate preliminary PDFs. |
 | 2.2 | 6 | Finetune PDFkit, study alternative way to generate pdf: html -> puppeteer -> pdf. |
-| 2.2 | x | Finetune PDFkit, study html -> puppeteer. Add png-file upload. |
-| Total   | 117 |
+| 3.2 | 4 | Finetune PDFkit, study html -> puppeteer. Add png-file upload. Add unit tests for pdf generation. |
+| Total   | 121 |
