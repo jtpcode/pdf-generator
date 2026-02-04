@@ -113,6 +113,10 @@ test.describe('Login functionality', () => {
       await uploadFile(page, createMockPngFile('test-image.png'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
       await expect(page.getByText('test-image.png')).toBeVisible()
+
+      const listItem = page.locator('li', { has: page.getByText('test-image.png') })
+      await expect(listItem.getByRole('button', { name: 'generate pdf' })).not.toBeVisible()
+      await expect(listItem.getByRole('button', { name: 'delete' })).toBeVisible()
     })
 
     test('should display multiple uploaded files', async ({ page }) => {
@@ -199,6 +203,25 @@ test.describe('Login functionality', () => {
 
       await expect(secondFileItem.getByRole('button', { name: 'generate pdf' })).toBeVisible()
       await expect(secondFileItem.getByRole('button', { name: 'delete' })).toBeVisible()
+    })
+
+    test('should show PDF button only for Excel files, not for PNG', async ({ page }) => {
+      await uploadFile(page, await createMockExcelFile('document.xlsx'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
+
+      await uploadFile(page, createMockPngFile('image.png'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      const excelFileItem = page.locator('li', { has: page.getByText('document.xlsx') })
+      const pngFileItem = page.locator('li', { has: page.getByText('image.png') })
+
+      await expect(excelFileItem.getByRole('button', { name: 'generate pdf' })).toBeVisible()
+      await expect(excelFileItem.getByRole('button', { name: 'delete' })).toBeVisible()
+
+      await expect(pngFileItem.getByRole('button', { name: 'generate pdf' })).not.toBeVisible()
+      await expect(pngFileItem.getByRole('button', { name: 'delete' })).toBeVisible()
     })
   })
 })

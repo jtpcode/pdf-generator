@@ -540,7 +540,7 @@ describe('Welcome Component', () => {
       removeChildSpy.mockRestore()
     })
 
-    it('renders generate PDF button for one file', async () => {
+    it('renders generate PDF button for Excel files', async () => {
       const mockFiles = [
         { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
       ]
@@ -551,6 +551,22 @@ describe('Welcome Component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('generate pdf')).toBeInTheDocument()
       })
+    })
+
+    it('does not render generate PDF button for PNG files', async () => {
+      const mockFiles = [
+        { id: 1, originalName: 'image.png', fileSize: 1024, createdAt: new Date().toISOString() }
+      ]
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('image.png')).toBeInTheDocument()
+      })
+
+      expect(screen.queryByLabelText('generate pdf')).not.toBeInTheDocument()
+      expect(screen.getByLabelText('delete')).toBeInTheDocument()
     })
 
     it('generates PDF and downloads with correct filename on button click', async () => {
@@ -611,7 +627,7 @@ describe('Welcome Component', () => {
       })
     })
 
-    it('has separate PDF buttons for multiple files', async () => {
+    it('has separate PDF buttons for multiple Excel files', async () => {
       const mockFiles = [
         { id: 1, originalName: 'first.xlsx', fileSize: 512, createdAt: new Date().toISOString() },
         { id: 2, originalName: 'second.xlsx', fileSize: 1024, createdAt: new Date().toISOString() }
@@ -624,6 +640,29 @@ describe('Welcome Component', () => {
         const pdfButtons = screen.getAllByLabelText('generate pdf')
         expect(pdfButtons).toHaveLength(2)
       })
+    })
+
+    it('shows PDF button only for Excel files when mixed with PNG', async () => {
+      const mockFiles = [
+        { id: 1, originalName: 'document.xlsx', fileSize: 512, createdAt: new Date().toISOString() },
+        { id: 2, originalName: 'image.png', fileSize: 1024, createdAt: new Date().toISOString() },
+        { id: 3, originalName: 'spreadsheet.xls', fileSize: 2048, createdAt: new Date().toISOString() }
+      ]
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('document.xlsx')).toBeInTheDocument()
+        expect(screen.getByText('image.png')).toBeInTheDocument()
+        expect(screen.getByText('spreadsheet.xls')).toBeInTheDocument()
+      })
+
+      const pdfButtons = screen.getAllByLabelText('generate pdf')
+      expect(pdfButtons).toHaveLength(2)
+
+      const deleteButtons = screen.getAllByLabelText('delete')
+      expect(deleteButtons).toHaveLength(3)
     })
   })
 })

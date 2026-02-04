@@ -211,37 +211,44 @@ const Welcome = ({ user, onLogout }) => {
             </Typography>
           ) : (
             <List>
-              {files.map((file) => (
-                <ListItem
-                  key={file.id}
-                  divider
-                  secondaryAction={
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <IconButton
-                        edge="end"
-                        aria-label="generate pdf"
-                        onClick={() => handlePdfGeneration(file.id)}
-                        disabled={loading}
-                      >
-                        <PictureAsPdfIcon />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleFileDelete(file.id, file.originalName)}
-                        disabled={loading}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  }
-                >
-                  <ListItemText
-                    primary={file.originalName}
-                    secondary={`${formatFileSize(file.fileSize)} • ${formatDate(file.createdAt)}`}
-                  />
-                </ListItem>
-              ))}
+              {files.map((file) => {
+                const isExcelFile = file.originalName.toLowerCase().endsWith('.xls') ||
+                                   file.originalName.toLowerCase().endsWith('.xlsx')
+
+                return (
+                  <ListItem
+                    key={file.id}
+                    divider
+                    secondaryAction={
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        {isExcelFile && (
+                          <IconButton
+                            edge="end"
+                            aria-label="generate pdf"
+                            onClick={() => handlePdfGeneration(file.id)}
+                            disabled={loading}
+                          >
+                            <PictureAsPdfIcon />
+                          </IconButton>
+                        )}
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleFileDelete(file.id, file.originalName)}
+                          disabled={loading}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    }
+                  >
+                    <ListItemText
+                      primary={file.originalName}
+                      secondary={`${formatFileSize(file.fileSize)} • ${formatDate(file.createdAt)}`}
+                    />
+                  </ListItem>
+                )
+              })}
             </List>
           )}
         </Paper>
