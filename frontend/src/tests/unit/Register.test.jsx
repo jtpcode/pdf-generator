@@ -27,7 +27,7 @@ describe('Register Component', () => {
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument()
     expect(screen.getAllByLabelText(/password/i)[0]).toBeInTheDocument()
-    expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/confirm password/i, { selector: 'input' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument()
   })
 
@@ -51,7 +51,7 @@ describe('Register Component', () => {
     expect(screen.queryByText(/1-100 characters/i)).not.toBeInTheDocument()
     expect(screen.getByText(/12-128 characters/i)).toBeInTheDocument()
 
-    await user.click(screen.getByLabelText(/confirm password/i))
+    await user.click(screen.getByLabelText(/confirm password/i, { selector: 'input' }))
     expect(screen.queryByText(/12-128 characters/i)).not.toBeInTheDocument()
     expect(screen.getByText(/must match password above/i)).toBeInTheDocument()
   })
@@ -63,7 +63,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'differentpassword')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'differentpassword')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -81,7 +81,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'short')
-    await user.type(screen.getByLabelText(/confirm password/i), 'short')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'short')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -100,7 +100,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], longPassword)
-    await user.type(screen.getByLabelText(/confirm password/i), longPassword)
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), longPassword)
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -118,7 +118,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'ab')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -137,7 +137,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), longUsername)
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -155,7 +155,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'user@invalid')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -178,7 +178,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -201,7 +201,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'existinguser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -225,7 +225,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -247,7 +247,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -255,7 +255,7 @@ describe('Register Component', () => {
       expect(screen.getByLabelText(/username/i)).toBeDisabled()
       expect(screen.getByLabelText(/full name/i)).toBeDisabled()
       expect(screen.getAllByLabelText(/password/i)[0]).toBeDisabled()
-      expect(screen.getByLabelText(/confirm password/i)).toBeDisabled()
+      expect(screen.getByLabelText(/confirm password/i, { selector: 'input' })).toBeDisabled()
       expect(screen.getByRole('button', { name: /creating account.../i })).toBeDisabled()
     })
   })
@@ -288,7 +288,7 @@ describe('Register Component', () => {
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
     await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
