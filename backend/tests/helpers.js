@@ -11,7 +11,7 @@ const generateUniqueUsername = (base = 'testuser') => {
 }
 
 const createUser = async (username = generateUniqueUsername(), name = 'Test User') => {
-  const passwordHash = await bcrypt.hash('testpassword123', 1)
+  const passwordHash = await bcrypt.hash('TestPassword123!', 1)
   return await User.create({
     username,
     name,
@@ -22,7 +22,7 @@ const createUser = async (username = generateUniqueUsername(), name = 'Test User
 const loginUser = async (username = 'testuser') => {
   const response = await api
     .post('/api/login')
-    .send({ username, password: 'testpassword123' })
+    .send({ username, password: 'TestPassword123!' })
     .expect(200)
 
   return response.body.token

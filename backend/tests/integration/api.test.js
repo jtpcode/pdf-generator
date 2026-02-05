@@ -22,12 +22,12 @@ afterAll(async () => {
 }, 15000)
 
 describe('User API', () => {
-  test('creates new user with valid data', async () => {
+  test('creates user with valid data', async () => {
     const username = generateUniqueUsername()
     const newUser = {
       username,
       name: 'Test User',
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     }
 
     const response = await api
@@ -38,13 +38,18 @@ describe('User API', () => {
     expect(response.body.username).toBe(username)
     expect(response.body.name).toBe('Test User')
     expect(response.body.passwordHash).toBeUndefined()
+
+    const user = await User.findOne({ where: { username } })
+    expect(user).not.toBeNull()
+    const passwordCorrect = await bcrypt.compare('ValidPassword123!', user.passwordHash)
+    expect(passwordCorrect).toBe(true)
   })
 
   test('rejects user with short username', async () => {
     const newUser = {
       username: 'ab',
       name: 'Test User',
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     }
 
     const response = await api
@@ -59,7 +64,7 @@ describe('User API', () => {
     const newUser = {
       username: '',
       name: 'Test User',
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     }
 
     await api
@@ -72,7 +77,7 @@ describe('User API', () => {
     const newUser = {
       username: 'test<script>alert(1)</script>',
       name: 'Test User',
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     }
 
     await api
@@ -86,7 +91,7 @@ describe('User API', () => {
     const newUser = {
       username,
       name: 'Test User',
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     }
 
     await api
@@ -136,7 +141,7 @@ describe('User API', () => {
     const newUser = {
       username: generateUniqueUsername(),
       name: '',
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     }
 
     const response = await api
@@ -151,7 +156,7 @@ describe('User API', () => {
     const newUser = {
       username: generateUniqueUsername(),
       name: 'a'.repeat(101),
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     }
 
     const response = await api
@@ -166,7 +171,7 @@ describe('User API', () => {
     const newUser = {
       username: generateUniqueUsername(),
       name: 123,
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     }
 
     const response = await api
@@ -206,6 +211,66 @@ describe('User API', () => {
 
     expect(response.body.error).toBe('Password is required')
   })
+
+  test('rejects password without lowercase letter', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'Test User',
+      password: 'VALIDPASSWORD123!'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Password must contain at least one lowercase letter')
+  })
+
+  test('rejects password without uppercase letter', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'Test User',
+      password: 'validpassword123!'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Password must contain at least one uppercase letter')
+  })
+
+  test('rejects password without number', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'Test User',
+      password: 'ValidPassword!'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Password must contain at least one number')
+  })
+
+  test('rejects password without special character', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'Test User',
+      password: 'ValidPassword123'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toContain('Password must contain at least one special character')
+  })
 })
 
 describe('Login API', () => {
@@ -215,7 +280,7 @@ describe('Login API', () => {
 
     const response = await api
       .post('/api/login')
-      .send({ username, password: 'testpassword123' })
+      .send({ username, password: 'TestPassword123!' })
       .expect(200)
 
     expect(response.body.username).toBe(username)

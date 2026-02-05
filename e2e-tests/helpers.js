@@ -54,5 +54,5 @@ export const fillRegistrationForm = async (page, { username, name, password, con
   await page.getByLabel(/username/i).fill(username)
   await page.getByLabel(/full name/i).fill(name)
   await page.locator('input[type="password"]').first().fill(password)
-  await page.getByLabel(/confirm password/i).fill(confirmPassword || password)
+  await page.locator('input[type="password"]').last().fill(confirmPassword || password)
 }

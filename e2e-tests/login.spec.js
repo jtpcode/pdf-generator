@@ -8,7 +8,7 @@ test.describe('Login functionality', () => {
       data: {
         username: 'testuser',
         name: 'Test User',
-        password: 'testpassword123'
+        password: 'ValidPassword123!'
       }
     })
 
@@ -28,7 +28,7 @@ test.describe('Login functionality', () => {
 
   test('should login successfully with valid credentials', async ({ page }) => {
     await page.getByLabel('Username').fill('testuser')
-    await page.getByLabel('Password').fill('testpassword123')
+    await page.getByLabel('Password').fill('ValidPassword123!')
     await page.getByRole('button', { name: 'Login' }).click()
 
     await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible()
@@ -47,7 +47,7 @@ test.describe('Login functionality', () => {
   test.describe('When logged in', () => {
     test.beforeEach(async ({ page }) => {
       await page.getByLabel('Username').fill('testuser')
-      await page.getByLabel('Password').fill('testpassword123')
+      await page.getByLabel('Password').fill('ValidPassword123!')
       await page.getByRole('button', { name: 'Login' }).click()
       await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible()
     })

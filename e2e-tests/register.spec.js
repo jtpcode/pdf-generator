@@ -15,7 +15,7 @@ test.describe('Registration Flow', () => {
     await expect(page.getByLabel(/username/i)).toBeVisible()
     await expect(page.getByLabel(/full name/i)).toBeVisible()
     await expect(page.locator('input[type="password"]').first()).toBeVisible()
-    await expect(page.getByLabel(/confirm password/i)).toBeVisible()
+    await expect(page.locator('input[type="password"]').last()).toBeVisible()
   })
 
   test('should navigate back to login from registration', async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe('Registration Flow', () => {
     await fillRegistrationForm(page, {
       username,
       name: 'Test User',
-      password: 'validpassword123'
+      password: 'ValidPassword123!'
     })
 
     await page.getByRole('button', { name: /register/i }).click()

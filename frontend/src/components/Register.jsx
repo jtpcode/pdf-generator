@@ -47,6 +47,26 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
       return
     }
 
+    if (!/[a-z]/.test(password)) {
+      setError('Password must contain at least one lowercase letter')
+      return
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter')
+      return
+    }
+
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least one number')
+      return
+    }
+
+    if (!/[!@#$%^&*()_+={}[\];'"\\|,.<>/?-]/.test(password)) {
+      setError('Password must contain at least one special character (!@#$%^&*()_+={}[];\':"\\|,.<>/?-)')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -112,7 +132,7 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
               onFocus={() => setPasswordOnFocus(true)}
               onBlur={() => setPasswordOnFocus(false)}
               disabled={isLoading}
-              helperText={passwordOnFocus ? '12-128 characters' : ''}
+              helperText={passwordOnFocus ? 'Min 12 chars: uppercase, lowercase, number, special char (!@#$%...)' : ''}
               required
               slotProps={{
                 input: {
@@ -169,6 +189,7 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
               type="submit"
               sx={{ mt: 3 }}
               disabled={isLoading}
+              onMouseDown={(e) => e.preventDefault()}
             >
               {isLoading ? (
                 <>

@@ -37,7 +37,7 @@ describe('Register Component', () => {
 
     expect(screen.queryByText(/3-50 characters, letters, numbers, hyphens\(-\) and underscores\(_\) only/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/1-100 characters/i)).not.toBeInTheDocument()
-    expect(screen.queryByText(/12-128 characters/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Min 12 chars: uppercase, lowercase, number, special char/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/must match password above/i)).not.toBeInTheDocument()
 
     await user.click(screen.getByLabelText(/username/i))
@@ -49,10 +49,10 @@ describe('Register Component', () => {
 
     await user.click(screen.getAllByLabelText(/password/i)[0])
     expect(screen.queryByText(/1-100 characters/i)).not.toBeInTheDocument()
-    expect(screen.getByText(/12-128 characters/i)).toBeInTheDocument()
+    expect(screen.getByText(/Min 12 chars: uppercase, lowercase, number, special char/i)).toBeInTheDocument()
 
     await user.click(screen.getByLabelText(/confirm password/i, { selector: 'input' }))
-    expect(screen.queryByText(/12-128 characters/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Min 12 chars: uppercase, lowercase, number, special char/i)).not.toBeInTheDocument()
     expect(screen.getByText(/must match password above/i)).toBeInTheDocument()
   })
 
@@ -62,8 +62,8 @@ describe('Register Component', () => {
 
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'differentpassword')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'DifferentPass1!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -117,8 +117,8 @@ describe('Register Component', () => {
 
     await user.type(screen.getByLabelText(/username/i), 'ab')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -136,8 +136,8 @@ describe('Register Component', () => {
     const longUsername = 'a'.repeat(51)
     await user.type(screen.getByLabelText(/username/i), longUsername)
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -154,8 +154,8 @@ describe('Register Component', () => {
 
     await user.type(screen.getByLabelText(/username/i), 'user@invalid')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -177,17 +177,89 @@ describe('Register Component', () => {
 
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
     await waitFor(() => {
-      expect(authService.register).toHaveBeenCalledWith('testuser', 'Test User', 'validpassword123')
-      expect(authService.login).toHaveBeenCalledWith('testuser', 'validpassword123')
+      expect(authService.register).toHaveBeenCalledWith('testuser', 'Test User', 'ValidPassword123!')
+      expect(authService.login).toHaveBeenCalledWith('testuser', 'ValidPassword123!')
       expect(authService.saveUser).toHaveBeenCalledWith(mockUserData)
       expect(mockOnRegisterSuccess).toHaveBeenCalledWith(mockUserData)
     })
+  })
+
+  it('shows error when password is missing lowercase letter', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'VALIDPASSWORD123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'VALIDPASSWORD123!')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Password must contain at least one lowercase letter/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
+  it('shows error when password is missing uppercase letter', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123!')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Password must contain at least one uppercase letter/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
+  it('shows error when password is missing number', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword!')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Password must contain at least one number/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
+  it('shows error when password is missing special character', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Password must contain at least one special character/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
   })
 
   it('shows error message when registration fails', async () => {
@@ -200,8 +272,8 @@ describe('Register Component', () => {
 
     await user.type(screen.getByLabelText(/username/i), 'existinguser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -224,8 +296,8 @@ describe('Register Component', () => {
 
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -246,8 +318,8 @@ describe('Register Component', () => {
 
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
@@ -287,8 +359,8 @@ describe('Register Component', () => {
 
     await user.type(screen.getByLabelText(/username/i), 'testuser')
     await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'validpassword123')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
 
     await user.click(screen.getByRole('button', { name: /register/i }))
 
