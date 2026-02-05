@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
-import { Container, TextField, Button, Box, Typography, Paper, Alert, CircularProgress, Link } from '@mui/material'
+import { Container, TextField, Button, Box, Typography, Paper, Alert, CircularProgress, Link, InputAdornment, IconButton } from '@mui/material'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 import authService from '../services/authService'
 
 const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
@@ -10,6 +11,12 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [usernameOnFocus, setUsernameOnFocus] = useState(false)
+  const [nameOnFocus, setNameOnFocus] = useState(false)
+  const [passwordOnFocus, setPasswordOnFocus] = useState(false)
+  const [confirmPasswordOnFocus, setConfirmPasswordOnFocus] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const handleRegister = async (e) => {
     e.preventDefault()
@@ -75,8 +82,10 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
               margin="normal"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              onFocus={() => setUsernameOnFocus(true)}
+              onBlur={() => setUsernameOnFocus(false)}
               disabled={isLoading}
-              helperText="3-50 characters, letters, numbers, hyphens(-) and underscores(_) only"
+              helperText={usernameOnFocus ? '3-50 characters, letters, numbers, hyphens(-) and underscores(_) only' : ''}
               required
             />
             <TextField
@@ -86,32 +95,73 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
               margin="normal"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onFocus={() => setNameOnFocus(true)}
+              onBlur={() => setNameOnFocus(false)}
               disabled={isLoading}
-              helperText="1-100 characters"
+              helperText={nameOnFocus ? '1-100 characters' : ''}
               required
             />
             <TextField
               fullWidth
               label="Password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               variant="outlined"
               margin="normal"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setPasswordOnFocus(true)}
+              onBlur={() => setPasswordOnFocus(false)}
               disabled={isLoading}
-              helperText="12-128 characters"
+              helperText={passwordOnFocus ? '12-128 characters' : ''}
               required
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                        disabled={isLoading}
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <TextField
               fullWidth
               label="Confirm Password"
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               variant="outlined"
               margin="normal"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              onFocus={() => setConfirmPasswordOnFocus(true)}
+              onBlur={() => setConfirmPasswordOnFocus(false)}
               disabled={isLoading}
+              helperText={confirmPasswordOnFocus ? 'Must match password above' : ''}
               required
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle confirm password visibility"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                        disabled={isLoading}
+                      >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <Button
               fullWidth

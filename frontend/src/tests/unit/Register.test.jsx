@@ -31,11 +31,29 @@ describe('Register Component', () => {
     expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument()
   })
 
-  it('displays helper text for username and password fields', () => {
+  it('displays helper text when fields are focused', async () => {
+    const user = userEvent.setup()
     render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
 
+    expect(screen.queryByText(/3-50 characters, letters, numbers, hyphens\(-\) and underscores\(_\) only/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/1-100 characters/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/12-128 characters/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/must match password above/i)).not.toBeInTheDocument()
+
+    await user.click(screen.getByLabelText(/username/i))
     expect(screen.getByText(/3-50 characters, letters, numbers, hyphens\(-\) and underscores\(_\) only/i)).toBeInTheDocument()
+
+    await user.click(screen.getByLabelText(/full name/i))
+    expect(screen.queryByText(/3-50 characters, letters, numbers, hyphens\(-\) and underscores\(_\) only/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/1-100 characters/i)).toBeInTheDocument()
+
+    await user.click(screen.getAllByLabelText(/password/i)[0])
+    expect(screen.queryByText(/1-100 characters/i)).not.toBeInTheDocument()
     expect(screen.getByText(/12-128 characters/i)).toBeInTheDocument()
+
+    await user.click(screen.getByLabelText(/confirm password/i))
+    expect(screen.queryByText(/12-128 characters/i)).not.toBeInTheDocument()
+    expect(screen.getByText(/must match password above/i)).toBeInTheDocument()
   })
 
   it('shows error when passwords do not match', async () => {
@@ -283,5 +301,67 @@ describe('Register Component', () => {
     await waitFor(() => {
       expect(screen.queryByText(/first error/i)).not.toBeInTheDocument()
     })
+  })
+
+  it('toggles password visibility when eye icon is clicked', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    const passwordField = screen.getAllByLabelText(/password/i)[0]
+    expect(passwordField).toHaveAttribute('type', 'password')
+
+    const toggleButton = screen.getByLabelText('toggle password visibility')
+    await user.click(toggleButton)
+
+    expect(passwordField).toHaveAttribute('type', 'text')
+
+    await user.click(toggleButton)
+
+    expect(passwordField).toHaveAttribute('type', 'password')
+  })
+
+  it('toggles confirm password visibility when eye icon is clicked', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    const confirmPasswordField = screen.getByLabelText(/confirm password/i, { selector: 'input' })
+    expect(confirmPasswordField).toHaveAttribute('type', 'password')
+
+    const toggleButton = screen.getByLabelText('toggle confirm password visibility')
+    await user.click(toggleButton)
+
+    expect(confirmPasswordField).toHaveAttribute('type', 'text')
+
+    await user.click(toggleButton)
+
+    expect(confirmPasswordField).toHaveAttribute('type', 'password')
+  })
+
+  it('password and confirm password visibility toggles work independently', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    const passwordField = screen.getAllByLabelText(/password/i, { selector: 'input' })[0]
+    const confirmPasswordField = screen.getByLabelText(/confirm password/i, { selector: 'input' })
+    const passwordToggle = screen.getByLabelText('toggle password visibility')
+    const confirmPasswordToggle = screen.getByLabelText('toggle confirm password visibility')
+
+    expect(passwordField).toHaveAttribute('type', 'password')
+    expect(confirmPasswordField).toHaveAttribute('type', 'password')
+
+    await user.click(passwordToggle)
+
+    expect(passwordField).toHaveAttribute('type', 'text')
+    expect(confirmPasswordField).toHaveAttribute('type', 'password')
+
+    await user.click(confirmPasswordToggle)
+
+    expect(passwordField).toHaveAttribute('type', 'text')
+    expect(confirmPasswordField).toHaveAttribute('type', 'text')
+
+    await user.click(passwordToggle)
+
+    expect(passwordField).toHaveAttribute('type', 'password')
+    expect(confirmPasswordField).toHaveAttribute('type', 'text')
   })
 })
