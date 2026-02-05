@@ -42,4 +42,5 @@ Working hours:
 |     | 3 | Study html -> puppeteer, plan for generating pdf's for multiple different products. Update README. |
 | 4.2 | 2 | Remove pdf button from other than Excel files, update tests. Plan demo for the end user. |
 | 5.2 | 3 | Refactor frontend and e2e tests. |
-| Total   | 128 |
+|     | 3 | Enhance UX for registration form: possible to show password, hide helper texts. Update password to require different kinds of characters. Update related tests. |
+| Total   | 131 |
