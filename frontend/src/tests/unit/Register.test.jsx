@@ -34,7 +34,7 @@ describe('Register Component', () => {
   it('displays helper text for username and password fields', () => {
     render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
 
-    expect(screen.getByText(/3-50 characters, letters, numbers, hyphens and underscores only/i)).toBeInTheDocument()
+    expect(screen.getByText(/3-50 characters, letters, numbers, hyphens\(-\) and underscores\(_\) only/i)).toBeInTheDocument()
     expect(screen.getByText(/12-128 characters/i)).toBeInTheDocument()
   })
 
@@ -74,6 +74,80 @@ describe('Register Component', () => {
     expect(authService.register).not.toHaveBeenCalled()
   })
 
+  it('shows error when password is too long', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    const longPassword = 'a'.repeat(129)
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], longPassword)
+    await user.type(screen.getByLabelText(/confirm password/i), longPassword)
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Password must be between 12 and 128 characters long/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  }, 10000)
+
+  it('shows error when username is too short', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'ab')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Username must be between 3 and 50 characters long/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  }, 10000)
+
+  it('shows error when username is too long', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    const longUsername = 'a'.repeat(51)
+    await user.type(screen.getByLabelText(/username/i), longUsername)
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Username must be between 3 and 50 characters/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
+  it('shows error when username contains invalid characters', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'user@invalid')
+    await user.type(screen.getByLabelText(/full name/i), 'Test User')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'validpassword123')
+    await user.type(screen.getByLabelText(/confirm password/i), 'validpassword123')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Username can only contain letters, numbers, hyphens\(-\) and underscores\(_\)/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
   it('successfully registers and logs in user', async () => {
     const user = userEvent.setup()
     const mockUserData = { token: 'test-token', username: 'testuser', name: 'Test User' }
@@ -100,7 +174,7 @@ describe('Register Component', () => {
 
   it('shows error message when registration fails', async () => {
     const user = userEvent.setup()
-    const errorMessage = 'Username already exists'
+    const errorMessage = 'Login failed'
 
     authService.register.mockRejectedValue(new Error(errorMessage))
 

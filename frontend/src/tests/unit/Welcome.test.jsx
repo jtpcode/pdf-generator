@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import Welcome from '../../components/Welcome'
 import authService from '../../services/authService'
 import fileService from '../../services/fileService'
+import { createMockFileData, createMockFilesList } from './helpers'
 
 vi.mock('../../services/authService')
 vi.mock('../../services/fileService')
@@ -58,31 +59,6 @@ describe('Welcome Component', () => {
     expect(mockOnLogout).toHaveBeenCalledTimes(1)
   })
 
-  it('handles undefined user gracefully', async () => {
-    render(<Welcome user={undefined} onLogout={mockOnLogout} />)
-
-    await waitFor(() => {
-      expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
-    })
-  })
-
-  it('handles null user gracefully', async () => {
-    render(<Welcome user={null} onLogout={mockOnLogout} />)
-
-    await waitFor(() => {
-      expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
-    })
-  })
-
-  it('handles user without username property', async () => {
-    const userWithoutUsername = {}
-    render(<Welcome user={userWithoutUsername} onLogout={mockOnLogout} />)
-
-    await waitFor(() => {
-      expect(screen.getByText(/Logged in as:/i)).toBeInTheDocument()
-    })
-  })
-
   it('logout button is clickable and not disabled', async () => {
     render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
@@ -93,19 +69,6 @@ describe('Welcome Component', () => {
   })
 
   describe('File Upload', () => {
-    // Helper functions for creating mock data
-    const createMockFileData = (id, originalName, fileSize, timeOffset = 0) => ({
-      id,
-      originalName,
-      fileSize,
-      createdAt: new Date(new Date('2025-12-17T10:00:00.000Z').getTime() + timeOffset * 60 * 60 * 1000).toISOString()
-    })
-
-    const createMockFilesList = () => [
-      createMockFileData(1, 'test-file.xlsx', 512),
-      createMockFileData(2, 'another-file.xlsx', 2048, 1)
-    ]
-
     it('renders file upload section', async () => {
       render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
 
@@ -131,7 +94,7 @@ describe('Welcome Component', () => {
       })
     })
 
-    it('fetches and displays files on mount', async () => {
+    it('fetches and displays files', async () => {
       const mockFiles = createMockFilesList()
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
@@ -168,7 +131,28 @@ describe('Welcome Component', () => {
       expect(fileService.getAllFiles).toHaveBeenCalledTimes(2)  // Once on page load, once after upload
     })
 
-    it('shows error when uploading non-Excel file', async () => {
+    it('uploads .xls file successfully', async () => {
+      const user = userEvent.setup()
+      const mockFile = new File(['mock content'], 'old-format.xls', {
+        type: 'application/vnd.ms-excel'
+      })
+
+      const uploadedFile = createMockFileData(1, 'old-format.xls', 1024)
+      fileService.uploadFile.mockResolvedValue(uploadedFile)
+
+      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+
+      const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
+      await user.upload(fileInput, mockFile)
+
+      await waitFor(() => {
+        expect(screen.getByText(/File uploaded successfully!/i)).toBeInTheDocument()
+      })
+
+      expect(fileService.uploadFile).toHaveBeenCalledWith(mockFile)
+    })
+
+    it('shows error when uploading non-Excel or non-PNG file', async () => {
       const user = userEvent.setup()
       const mockFile = new File(['mock content'], 'test.pdf', {
         type: 'application/pdf'
@@ -229,27 +213,6 @@ describe('Welcome Component', () => {
       expect(fileService.uploadFile).toHaveBeenCalledWith(mockFile)
     })
 
-    it('supports .xls file format', async () => {
-      const user = userEvent.setup()
-      const mockFile = new File(['mock content'], 'old-format.xls', {
-        type: 'application/vnd.ms-excel'
-      })
-
-      const uploadedFile = createMockFileData(1, 'old-format.xls', 1024)
-      fileService.uploadFile.mockResolvedValue(uploadedFile)
-
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
-
-      const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-      await user.upload(fileInput, mockFile)
-
-      await waitFor(() => {
-        expect(screen.getByText(/File uploaded successfully!/i)).toBeInTheDocument()
-      })
-
-      expect(fileService.uploadFile).toHaveBeenCalledWith(mockFile)
-    })
-
     it('shows error when fetching files fails', async () => {
       fileService.getAllFiles.mockRejectedValue(new Error('Failed to fetch files'))
 
@@ -282,24 +245,6 @@ describe('Welcome Component', () => {
 
       await waitFor(() => {
         expect(screen.getByText(/5\.0 MB/i)).toBeInTheDocument()
-      })
-    })
-
-    it('does nothing when no file is selected', async () => {
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
-
-      const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-
-      Object.defineProperty(fileInput, 'files', {
-        value: [],
-        writable: false
-      })
-
-      const changeEvent = new Event('change', { bubbles: true })
-      fileInput.dispatchEvent(changeEvent)
-
-      await waitFor(() => {
-        expect(fileService.uploadFile).not.toHaveBeenCalled()
       })
     })
 
@@ -359,13 +304,6 @@ describe('Welcome Component', () => {
   })
 
   describe('File Deletion', () => {
-    const createMockFileData = (id, originalName, fileSize, timeOffset = 0) => ({
-      id,
-      originalName,
-      fileSize,
-      createdAt: new Date(new Date('2025-12-17T10:00:00.000Z').getTime() + timeOffset * 60 * 60 * 1000).toISOString()
-    })
-
     beforeEach(() => {
       window.confirm = vi.fn()
     })

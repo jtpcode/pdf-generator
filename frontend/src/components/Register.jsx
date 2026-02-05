@@ -15,6 +15,21 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
     e.preventDefault()
     setError('')
 
+    if(username.length < 3 || username.length > 50) {
+      setError('Username must be between 3 and 50 characters long')
+      return
+    }
+
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      setError('Username can only contain letters, numbers, hyphens(-) and underscores(_)')
+      return
+    }
+
+    if(name.length < 1 || name.length > 100) {
+      setError('Name must be between 1 and 100 characters long')
+      return
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match')
       return
@@ -61,7 +76,7 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isLoading}
-              helperText="3-50 characters, letters, numbers, hyphens and underscores only"
+              helperText="3-50 characters, letters, numbers, hyphens(-) and underscores(_) only"
               required
             />
             <TextField
@@ -72,6 +87,7 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
+              helperText="1-100 characters"
               required
             />
             <TextField

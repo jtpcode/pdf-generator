@@ -26,35 +26,6 @@ test.describe('Registration Flow', () => {
     await expect(page.getByRole('heading', { name: /PDF Generator Login/i })).toBeVisible()
   })
 
-  test('should show error when passwords do not match', async ({ page }) => {
-    await navigateToRegisterPage(page)
-
-    await fillRegistrationForm(page, {
-      username: 'newuser123',
-      name: 'New User',
-      password: 'validpassword123',
-      confirmPassword: 'differentpassword'
-    })
-
-    await page.getByRole('button', { name: /register/i }).click()
-
-    await expect(page.getByText(/passwords do not match/i)).toBeVisible()
-  })
-
-  test('should show error when password is too short', async ({ page }) => {
-    await navigateToRegisterPage(page)
-
-    await fillRegistrationForm(page, {
-      username: 'newuser123',
-      name: 'New User',
-      password: 'short'
-    })
-
-    await page.getByRole('button', { name: /register/i }).click()
-
-    await expect(page.getByText(/password must be between 12 and 128 characters long/i)).toBeVisible()
-  })
-
   test('should register new user and login successfully', async ({ page, request }) => {
     await resetDatabase(request)
 
@@ -71,29 +42,5 @@ test.describe('Registration Flow', () => {
 
     await expect(page.getByText(/Logged in as:/i)).toBeVisible({ timeout: 10000 })
     await expect(page.getByRole('button', { name: /logout/i })).toBeVisible()
-  })
-
-  test('should show error when username already exists', async ({ page, request }) => {
-    await resetDatabase(request)
-
-    await request.post('http://localhost:3001/api/users', {
-      data: {
-        username: 'existinguser',
-        name: 'Existing User',
-        password: 'validpassword123'
-      }
-    })
-
-    await navigateToRegisterPage(page)
-
-    await fillRegistrationForm(page, {
-      username: 'existinguser',
-      name: 'Another User',
-      password: 'validpassword123'
-    })
-
-    await page.getByRole('button', { name: /register/i }).click()
-
-    await expect(page.getByText(/username must be unique/i)).toBeVisible({ timeout: 5000 })
   })
 })

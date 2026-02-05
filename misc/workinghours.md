@@ -40,4 +40,6 @@ Working hours:
 | 2.2 | 6 | Finetune PDFkit, study alternative way to generate pdf: html -> puppeteer -> pdf. |
 | 3.2 | 3 | Finetune PDFkit, study html -> puppeteer. Add png-file upload. Add unit tests for pdf generation. |
 |     | 3 | Study html -> puppeteer, plan for generating pdf's for multiple different products. Update README. |
-| Total   | 123 |
+| 4.2 | 2 | Remove pdf button from other than Excel files, update tests. Plan demo for the end user. |
+| 5.2 | 3 | Refactor frontend and e2e tests. |
+| Total   | 128 |

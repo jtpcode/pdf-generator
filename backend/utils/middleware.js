@@ -110,13 +110,6 @@ const errorHandler = (error, req, res, _next) => {  // eslint-disable-line no-un
     })
   }
 
-  if (error.message === 'Only Excel files (.xls, .xlsx) are allowed') {
-    return res.status(400).json({
-      error: error.message,
-      type: 'file_type_error'
-    })
-  }
-
   if (error.name === 'MulterError') {
     return res.status(400).json({
       error: error.message,
