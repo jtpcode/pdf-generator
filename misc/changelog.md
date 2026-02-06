@@ -22,4 +22,5 @@ Changelog:
 | 2.2 | Add second version of PDF creation/download. |
 | 3.2 | Add png-file upload. |
 | 5.2 | Enhance UX for registration form: possible to show password, hide helper texts. Update password to require different kinds of characters. |
+| 6.2 | Change Welcome.jsx (front page) into Dashboard.jsx |
 

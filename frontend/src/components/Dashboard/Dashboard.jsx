@@ -1,22 +1,16 @@
 import { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import {
   Container,
   Box,
   Typography,
   Button,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  Alert,
-  CircularProgress,
-  IconButton
+  Alert
 } from '@mui/material'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import DeleteIcon from '@mui/icons-material/Delete'
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import authService from '../services/authService'
-import fileService from '../services/fileService'
+import authService from '../../services/authService'
+import fileService from '../../services/fileService'
+import FileUpload from './FileUpload'
+import FileList from './FileList'
 
 const Dashboard = ({ user, onLogout }) => {
   const [files, setFiles] = useState([])
@@ -65,7 +59,6 @@ const Dashboard = ({ user, onLogout }) => {
 
     const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
 
-    // Validate both MIME type and extension to prevent MIME type spoofing
     if (!allowedTypes.includes(file.type) || !allowedExtensions.includes(fileExtension)) {
       setError('Only Excel files (.xls, .xlsx) and PNG images (.png) are allowed')
       setTimeout(() => setError(null), 5000)
@@ -113,7 +106,6 @@ const Dashboard = ({ user, onLogout }) => {
 
       const pdfBlob = await fileService.generatePdf(fileId)
 
-      // Create an invisible link and download the PDF
       const url = window.URL.createObjectURL(pdfBlob)
       const link = document.createElement('a')
       link.href = url
@@ -137,16 +129,6 @@ const Dashboard = ({ user, onLogout }) => {
   const handleLogout = () => {
     authService.logout()
     onLogout()
-  }
-
-  const formatFileSize = (bytes) => {
-    if (bytes < 1024) return bytes + ' B'
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
-    return (bytes / 1048576).toFixed(1) + ' MB'
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('fi-FI')
   }
 
   return (
@@ -177,84 +159,24 @@ const Dashboard = ({ user, onLogout }) => {
           </Alert>
         )}
 
-        <Paper sx={{ p: 3, mb: 4 }}>
-          <Typography variant="h5" component="h5" gutterBottom>
-            Upload File
-          </Typography>
-          <Button
-            component="label"
-            variant="contained"
-            startIcon={<CloudUploadIcon />}
-            disabled={loading}
-          >
-            Choose File
-            <input
-              type="file"
-              hidden
-              onChange={handleFileUpload}
-            />
-          </Button>
-        </Paper>
+        <FileUpload onFileUpload={handleFileUpload} loading={loading} />
 
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h5" component="h5" gutterBottom>
-            Your Files
-          </Typography>
-
-          {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-              <CircularProgress />
-            </Box>
-          ) : files.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              No files uploaded yet
-            </Typography>
-          ) : (
-            <List>
-              {files.map((file) => {
-                const isExcelFile = file.originalName.toLowerCase().endsWith('.xls') ||
-                                   file.originalName.toLowerCase().endsWith('.xlsx')
-
-                return (
-                  <ListItem
-                    key={file.id}
-                    divider
-                    secondaryAction={
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        {isExcelFile && (
-                          <IconButton
-                            edge="end"
-                            aria-label="generate pdf"
-                            onClick={() => handlePdfGeneration(file.id)}
-                            disabled={loading}
-                          >
-                            <PictureAsPdfIcon />
-                          </IconButton>
-                        )}
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={() => handleFileDelete(file.id, file.originalName)}
-                          disabled={loading}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    }
-                  >
-                    <ListItemText
-                      primary={file.originalName}
-                      secondary={`${formatFileSize(file.fileSize)} • ${formatDate(file.createdAt)}`}
-                    />
-                  </ListItem>
-                )
-              })}
-            </List>
-          )}
-        </Paper>
+        <FileList
+          files={files}
+          loading={loading}
+          onDelete={handleFileDelete}
+          onGeneratePdf={handlePdfGeneration}
+        />
       </Box>
     </Container>
   )
+}
+
+Dashboard.propTypes = {
+  user: PropTypes.shape({
+    username: PropTypes.string.isRequired
+  }),
+  onLogout: PropTypes.func.isRequired
 }
 
 export default Dashboard

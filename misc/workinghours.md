@@ -43,4 +43,5 @@ Working hours:
 | 4.2 | 2 | Remove pdf button from other than Excel files, update tests. Plan demo for the end user. |
 | 5.2 | 3 | Refactor frontend and e2e tests. |
 |     | 3 | Enhance UX for registration form: possible to show password, hide helper texts. Update password to require different kinds of characters. Update related tests. |
-| Total   | 131 |
+| 6.2 | 3 | Change Welcome.jsx (front page) into Dashboard.jsx. Also related tests etc. changed to comply. Refactor Dashboard.jsx into smaller components. |
+| Total   | 134 |
