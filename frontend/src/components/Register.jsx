@@ -211,6 +211,7 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
                     e.preventDefault()
                     onSwitchToLogin()
                   }}
+                  onMouseDown={(e) => e.preventDefault()}
                   sx={{ cursor: 'pointer' }}
                 >
                   Login here

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import Welcome from '../../components/Welcome'
+import Dashboard from '../../components/Dashboard'
 import authService from '../../services/authService'
 import fileService from '../../services/fileService'
 import { createMockFileData, createMockFilesList } from './helpers'
@@ -12,7 +12,7 @@ vi.mock('../../services/fileService')
 // NOTE: waitFor is used to handle async state updates (fetchFiles in useEffect)
 // instead of using act() directly.
 
-describe('Welcome Component', () => {
+describe('Dashboard Component', () => {
   const mockOnLogout = vi.fn()
   const mockUser = { username: 'testuser' }
 
@@ -22,15 +22,15 @@ describe('Welcome Component', () => {
   })
 
   it('renders welcome message', async () => {
-    render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     await waitFor(() => {
-      expect(screen.getByText('Welcome!')).toBeInTheDocument()
+      expect(screen.getByText('Dashboard')).toBeInTheDocument()
     })
   })
 
   it('displays username correctly', async () => {
-    render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     await waitFor(() => {
       expect(screen.getByText(/Logged in as: testuser/i)).toBeInTheDocument()
@@ -38,7 +38,7 @@ describe('Welcome Component', () => {
   })
 
   it('renders logout button', async () => {
-    render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     await waitFor(() => {
       const logoutButton = screen.getByRole('button', { name: /logout/i })
@@ -50,7 +50,7 @@ describe('Welcome Component', () => {
     const user = userEvent.setup()
     authService.logout.mockImplementation(() => {})
 
-    render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     const logoutButton = screen.getByRole('button', { name: /logout/i })
     await user.click(logoutButton)
@@ -60,7 +60,7 @@ describe('Welcome Component', () => {
   })
 
   it('logout button is clickable and not disabled', async () => {
-    render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     await waitFor(() => {
       const logoutButton = screen.getByRole('button', { name: /logout/i })
@@ -70,7 +70,7 @@ describe('Welcome Component', () => {
 
   describe('File Upload', () => {
     it('renders file upload section', async () => {
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /Upload File/i })).toBeInTheDocument()
@@ -79,7 +79,7 @@ describe('Welcome Component', () => {
     })
 
     it('renders user files section', async () => {
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /Your Files/i })).toBeInTheDocument()
@@ -87,7 +87,7 @@ describe('Welcome Component', () => {
     })
 
     it('displays "No files uploaded yet" when there are no files', async () => {
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText(/No files uploaded yet/i)).toBeInTheDocument()
@@ -98,7 +98,7 @@ describe('Welcome Component', () => {
       const mockFiles = createMockFilesList()
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
@@ -118,7 +118,7 @@ describe('Welcome Component', () => {
       fileService.uploadFile.mockResolvedValue(uploadedFile)
       fileService.getAllFiles.mockResolvedValueOnce([]).mockResolvedValueOnce([uploadedFile])
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -140,7 +140,7 @@ describe('Welcome Component', () => {
       const uploadedFile = createMockFileData(1, 'old-format.xls', 1024)
       fileService.uploadFile.mockResolvedValue(uploadedFile)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -158,7 +158,7 @@ describe('Welcome Component', () => {
         type: 'application/pdf'
       })
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -180,7 +180,7 @@ describe('Welcome Component', () => {
       fileService.uploadFile.mockResolvedValue(uploadedFile)
       fileService.getAllFiles.mockResolvedValueOnce([]).mockResolvedValueOnce([uploadedFile])
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -201,7 +201,7 @@ describe('Welcome Component', () => {
 
       fileService.uploadFile.mockRejectedValue(new Error('Upload failed'))
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -216,7 +216,7 @@ describe('Welcome Component', () => {
     it('shows error when fetching files fails', async () => {
       fileService.getAllFiles.mockRejectedValue(new Error('Failed to fetch files'))
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText(/Failed to fetch files/i)).toBeInTheDocument()
@@ -227,7 +227,7 @@ describe('Welcome Component', () => {
       const mockFiles = createMockFilesList()
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText(/512 B/i)).toBeInTheDocument()
@@ -241,7 +241,7 @@ describe('Welcome Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText(/5\.0 MB/i)).toBeInTheDocument()
@@ -257,7 +257,7 @@ describe('Welcome Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(threeFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('file1.xlsx')).toBeInTheDocument()
@@ -282,7 +282,7 @@ describe('Welcome Component', () => {
       const existingFile = createMockFileData(1, 'duplicate.xlsx', 1024)
       fileService.getAllFiles.mockResolvedValue([existingFile])
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('duplicate.xlsx')).toBeInTheDocument()
@@ -315,7 +315,7 @@ describe('Welcome Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         const deleteButtons = screen.getAllByLabelText('delete')
@@ -330,7 +330,7 @@ describe('Welcome Component', () => {
       fileService.deleteFile.mockResolvedValue()
       window.confirm.mockReturnValue(true)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
@@ -355,7 +355,7 @@ describe('Welcome Component', () => {
       fileService.getAllFiles.mockResolvedValue(mockFiles)
       window.confirm.mockReturnValue(false)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
@@ -375,7 +375,7 @@ describe('Welcome Component', () => {
       fileService.deleteFile.mockRejectedValue(new Error('Delete failed'))
       window.confirm.mockReturnValue(true)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
@@ -406,7 +406,7 @@ describe('Welcome Component', () => {
       fileService.deleteFile.mockResolvedValue()
       window.confirm.mockReturnValue(true)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('second-file.xlsx')).toBeInTheDocument()
@@ -484,7 +484,7 @@ describe('Welcome Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByLabelText('generate pdf')).toBeInTheDocument()
@@ -497,7 +497,7 @@ describe('Welcome Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('image.png')).toBeInTheDocument()
@@ -517,7 +517,7 @@ describe('Welcome Component', () => {
       fileService.getAllFiles.mockResolvedValue(mockFiles)
       fileService.generatePdf.mockResolvedValue(mockBlob)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test.xlsx')).toBeInTheDocument()
@@ -551,7 +551,7 @@ describe('Welcome Component', () => {
       fileService.getAllFiles.mockResolvedValue(mockFiles)
       fileService.generatePdf.mockRejectedValue(new Error('PDF generation failed'))
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test.xlsx')).toBeInTheDocument()
@@ -572,7 +572,7 @@ describe('Welcome Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         const pdfButtons = screen.getAllByLabelText('generate pdf')
@@ -588,7 +588,7 @@ describe('Welcome Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Welcome user={mockUser} onLogout={mockOnLogout} />)
+      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('document.xlsx')).toBeInTheDocument()

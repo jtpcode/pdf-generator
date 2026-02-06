@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import Login from './components/Login'
 import Register from './components/Register'
-import Welcome from './components/Welcome'
+import Dashboard from './components/Dashboard'
 import authService from './services/authService'
 
 const theme = createTheme()
@@ -32,7 +32,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {user ? (
-        <Welcome user={user} onLogout={handleLogout} />
+        <Dashboard user={user} onLogout={handleLogout} />
       ) : showRegister ? (
         <Register
           onRegisterSuccess={handleAuthSuccess}

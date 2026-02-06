@@ -31,7 +31,7 @@ test.describe('Login functionality', () => {
     await page.getByLabel('Password').fill('ValidPassword123!')
     await page.getByRole('button', { name: 'Login' }).click()
 
-    await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
     await expect(page.getByText(/Logged in as: testuser/)).toBeVisible()
     await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible()
   })
@@ -49,7 +49,7 @@ test.describe('Login functionality', () => {
       await page.getByLabel('Username').fill('testuser')
       await page.getByLabel('Password').fill('ValidPassword123!')
       await page.getByRole('button', { name: 'Login' }).click()
-      await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
     })
 
     test('should display user information', async ({ page }) => {
@@ -64,7 +64,7 @@ test.describe('Login functionality', () => {
     test('should persist session after page reload', async ({ page }) => {
       await page.reload()
 
-      await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
       await expect(page.getByText(/Logged in as: testuser/)).toBeVisible()
     })
 

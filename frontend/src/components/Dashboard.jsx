@@ -18,7 +18,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import authService from '../services/authService'
 import fileService from '../services/fileService'
 
-const Welcome = ({ user, onLogout }) => {
+const Dashboard = ({ user, onLogout }) => {
   const [files, setFiles] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -154,7 +154,7 @@ const Welcome = ({ user, onLogout }) => {
       <Box sx={{ mt: 8 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
           <Typography variant="h3" component="h3">
-            Welcome!
+            Dashboard
           </Typography>
           <Button variant="outlined" onClick={handleLogout}>
             Logout
@@ -257,4 +257,4 @@ const Welcome = ({ user, onLogout }) => {
   )
 }
 
-export default Welcome
+export default Dashboard

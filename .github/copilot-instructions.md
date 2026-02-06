@@ -19,7 +19,7 @@
 │   └── tests/         # Backend integration and unit tests
 ├── frontend/          # React + Vite SPA
 │   └── src/
-│       ├── components/  # Login.jsx, Register.jsx, Welcome.jsx
+│       ├── components/  # Login.jsx, Register.jsx, Dashboard.jsx
 │       ├── services/    # API service layers
 │       └── tests/unit/  # Frontend unit tests
 ├── e2e-tests/         # Playwright end-to-end tests
@@ -268,13 +268,13 @@ When developing new features or adding new error scenarios, **ALWAYS** evaluate 
 - **Middleware**: `backend/utils/middleware.js` (helmet, auth, error handling)
 - **Frontend entry**: `frontend/src/main.jsx`
 - **Frontend app**: `frontend/src/App.jsx`
-- **Components**: `frontend/src/components/{Login,Register,Welcome}.jsx`
+- **Components**: `frontend/src/components/{Login,Register,Dashboard}.jsx`
 
 ### Test Files
 - **Backend tests**: 
   - Integration: `backend/tests/integration/api.test.js`
   - Unit: `backend/tests/unit/files.test.js`
-- **Frontend tests**: `frontend/src/tests/unit/{Login,Register,Welcome}.test.jsx`
+- **Frontend tests**: `frontend/src/tests/unit/{Login,Register,Dashboard}.test.jsx`
 - **E2E tests**: `e2e-tests/{login,register}.spec.js`
 
 ## Important Notes

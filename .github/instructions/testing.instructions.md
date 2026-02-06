@@ -196,7 +196,7 @@ test.describe('Feature Name', () => {
   
   test('should perform expected behavior', async ({ page }) => {
     await page.getByLabel('Username').fill('testuser')
-    await expect(page.getByRole('heading', { name: 'Welcome!' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
   })
 })
 ```
@@ -207,7 +207,7 @@ In a separate file if they are needed, reduce duplication.
 **Locator priority** (prefer accessible selectors):
 1. `page.getByRole('button', { name: 'Login' })` - Best: Role-based, reflects accessibility
 2. `page.getByLabel('Username')` - Good: User-facing labels
-3. `page.getByText('Welcome!')` - OK: Visible text
+3. `page.getByText('Dashboard')` - OK: Visible text
 4. `page.getByTestId('login-form')` - Add `data-testid` when needed
 5. `page.locator('input[type="file"]')` - Last resort: CSS selectors
 
