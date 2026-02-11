@@ -31,16 +31,15 @@ test.describe('Registration Flow', () => {
 
     await navigateToRegisterPage(page)
 
-    const username = `testuser_${Date.now()}`
     await fillRegistrationForm(page, {
-      username,
+      username: 'testuser',
       name: 'Test User',
       password: 'ValidPassword123!'
     })
 
     await page.getByRole('button', { name: /register/i }).click()
 
-    await expect(page.getByText(/Logged in as:/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/Hello, testuser/i)).toBeVisible({ timeout: 10000 })
     await expect(page.getByRole('button', { name: /logout/i })).toBeVisible()
   })
 })

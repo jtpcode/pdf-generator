@@ -26,13 +26,13 @@ test.describe('Login functionality', () => {
     await expect(page.getByRole('button', { name: 'Login' })).toBeVisible()
   })
 
-  test('should login successfully with valid credentials', async ({ page }) => {
+  test('should login successfully to Dashboard with valid credentials', async ({ page }) => {
     await page.getByLabel('Username').fill('testuser')
     await page.getByLabel('Password').fill('ValidPassword123!')
     await page.getByRole('button', { name: 'Login' }).click()
 
-    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
-    await expect(page.getByText(/Logged in as: testuser/)).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Upload File' })).toBeVisible()
+    await expect(page.getByText(/Hello, testuser/)).toBeVisible()
     await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible()
   })
 
@@ -44,16 +44,16 @@ test.describe('Login functionality', () => {
     await expect(page.getByRole('alert')).toBeVisible()
   })
 
-  test.describe('When logged in', () => {
+  test.describe('When logged in and entered Dashboard', () => {
     test.beforeEach(async ({ page }) => {
       await page.getByLabel('Username').fill('testuser')
       await page.getByLabel('Password').fill('ValidPassword123!')
       await page.getByRole('button', { name: 'Login' }).click()
-      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Upload File' })).toBeVisible()
     })
 
     test('should display user information', async ({ page }) => {
-      await expect(page.getByText(/Logged in as: testuser/)).toBeVisible()
+      await expect(page.getByText(/Hello, testuser/)).toBeVisible()
     })
 
     test('should be able to logout', async ({ page }) => {
@@ -64,8 +64,8 @@ test.describe('Login functionality', () => {
     test('should persist session after page reload', async ({ page }) => {
       await page.reload()
 
-      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
-      await expect(page.getByText(/Logged in as: testuser/)).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Upload File' })).toBeVisible()
+      await expect(page.getByText(/Hello, testuser/)).toBeVisible()
     })
 
     test('should upload Excel files successfully (.xlsx and .xls)', async ({ page }) => {

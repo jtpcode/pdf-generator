@@ -44,4 +44,5 @@ Working hours:
 | 5.2 | 3 | Refactor frontend and e2e tests. |
 |     | 3 | Enhance UX for registration form: possible to show password, hide helper texts. Update password to require different kinds of characters. Update related tests. |
 | 6.2 | 3 | Change Welcome.jsx (front page) into Dashboard.jsx. Also related tests etc. changed to comply. Refactor Dashboard.jsx into smaller components. |
-| Total   | 134 |
+| 11.2 | 5 | Added React Router for navigation. Tests updated accordingly. Added unit tests for authService, fileService. Added integration tests for App.jsx. |
+| Total   | 139 |
