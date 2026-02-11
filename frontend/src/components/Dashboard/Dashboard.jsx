@@ -4,13 +4,12 @@ import {
   Container,
   Box,
   Typography,
-  Button,
   Alert
 } from '@mui/material'
-import authService from '../../services/authService'
 import fileService from '../../services/fileService'
 import FileUpload from './FileUpload'
 import FileList from './FileList'
+import Navigation from '../Navigation'
 
 const Dashboard = ({ user, onLogout }) => {
   const [files, setFiles] = useState([])
@@ -126,26 +125,10 @@ const Dashboard = ({ user, onLogout }) => {
     }
   }
 
-  const handleLogout = () => {
-    authService.logout()
-    onLogout()
-  }
-
   return (
     <Container maxWidth="md">
       <Box sx={{ mt: 8 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h3" component="h3">
-            Dashboard
-          </Typography>
-          <Button variant="outlined" onClick={handleLogout}>
-            Logout
-          </Button>
-        </Box>
-
-        <Typography variant="body1" sx={{ mb: 4 }}>
-          Logged in as: {user?.username}
-        </Typography>
+        <Navigation user={user} onLogout={onLogout} />
 
         {error && (
           <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>

@@ -1,3 +1,14 @@
+import { render } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+
+export const renderWithRouter = (component, { initialEntries = ['/dashboard'] } = {}) => {
+  return render(
+    <MemoryRouter initialEntries={initialEntries}>
+      {component}
+    </MemoryRouter>
+  )
+}
+
 export const createMockFileData = (id, originalName, fileSize, timeOffset = 0) => ({
   id,
   originalName,

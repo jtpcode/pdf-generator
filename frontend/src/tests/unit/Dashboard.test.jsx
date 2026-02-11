@@ -1,13 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Dashboard from '../../components/Dashboard'
-import authService from '../../services/authService'
 import fileService from '../../services/fileService'
-import { createMockFileData, createMockFilesList } from './helpers'
+import { renderWithRouter, createMockFileData, createMockFilesList } from './helpers.jsx'
 
-vi.mock('../../services/authService')
 vi.mock('../../services/fileService')
+vi.mock('../../components/Navigation', () => ({
+  default: ({ onLogout }) => (
+    <div>
+      <h3>Dashboard</h3>
+      <button onClick={onLogout}>Logout</button>
+    </div>
+  )
+}))
 
 // NOTE: waitFor is used to handle async state updates (fetchFiles in useEffect)
 // instead of using act() directly.
@@ -22,23 +28,15 @@ describe('Dashboard Component', () => {
   })
 
   it('renders welcome message', async () => {
-    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+    renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     await waitFor(() => {
-      expect(screen.getByText('Dashboard')).toBeInTheDocument()
-    })
-  })
-
-  it('displays username correctly', async () => {
-    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-    await waitFor(() => {
-      expect(screen.getByText(/Logged in as: testuser/i)).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     })
   })
 
   it('renders logout button', async () => {
-    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+    renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     await waitFor(() => {
       const logoutButton = screen.getByRole('button', { name: /logout/i })
@@ -46,21 +44,19 @@ describe('Dashboard Component', () => {
     })
   })
 
-  it('calls authService.logout and onLogout when logout button is clicked', async () => {
+  it('calls onLogout when logout button is clicked', async () => {
     const user = userEvent.setup()
-    authService.logout.mockImplementation(() => {})
 
-    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+    renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     const logoutButton = screen.getByRole('button', { name: /logout/i })
     await user.click(logoutButton)
 
-    expect(authService.logout).toHaveBeenCalledTimes(1)
     expect(mockOnLogout).toHaveBeenCalledTimes(1)
   })
 
   it('logout button is clickable and not disabled', async () => {
-    render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+    renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
     await waitFor(() => {
       const logoutButton = screen.getByRole('button', { name: /logout/i })
@@ -70,7 +66,7 @@ describe('Dashboard Component', () => {
 
   describe('File Upload', () => {
     it('renders file upload section', async () => {
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /Upload File/i })).toBeInTheDocument()
@@ -79,7 +75,7 @@ describe('Dashboard Component', () => {
     })
 
     it('renders user files section', async () => {
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: /Your Files/i })).toBeInTheDocument()
@@ -87,7 +83,7 @@ describe('Dashboard Component', () => {
     })
 
     it('displays "No files uploaded yet" when there are no files', async () => {
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText(/No files uploaded yet/i)).toBeInTheDocument()
@@ -98,7 +94,7 @@ describe('Dashboard Component', () => {
       const mockFiles = createMockFilesList()
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
@@ -118,7 +114,7 @@ describe('Dashboard Component', () => {
       fileService.uploadFile.mockResolvedValue(uploadedFile)
       fileService.getAllFiles.mockResolvedValueOnce([]).mockResolvedValueOnce([uploadedFile])
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -140,7 +136,7 @@ describe('Dashboard Component', () => {
       const uploadedFile = createMockFileData(1, 'old-format.xls', 1024)
       fileService.uploadFile.mockResolvedValue(uploadedFile)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -158,7 +154,7 @@ describe('Dashboard Component', () => {
         type: 'application/pdf'
       })
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -180,7 +176,7 @@ describe('Dashboard Component', () => {
       fileService.uploadFile.mockResolvedValue(uploadedFile)
       fileService.getAllFiles.mockResolvedValueOnce([]).mockResolvedValueOnce([uploadedFile])
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -201,7 +197,7 @@ describe('Dashboard Component', () => {
 
       fileService.uploadFile.mockRejectedValue(new Error('Upload failed'))
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
       await user.upload(fileInput, mockFile)
@@ -216,7 +212,7 @@ describe('Dashboard Component', () => {
     it('shows error when fetching files fails', async () => {
       fileService.getAllFiles.mockRejectedValue(new Error('Failed to fetch files'))
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText(/Failed to fetch files/i)).toBeInTheDocument()
@@ -227,7 +223,7 @@ describe('Dashboard Component', () => {
       const mockFiles = createMockFilesList()
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText(/512 B/i)).toBeInTheDocument()
@@ -241,7 +237,7 @@ describe('Dashboard Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText(/5\.0 MB/i)).toBeInTheDocument()
@@ -257,7 +253,7 @@ describe('Dashboard Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(threeFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('file1.xlsx')).toBeInTheDocument()
@@ -282,7 +278,7 @@ describe('Dashboard Component', () => {
       const existingFile = createMockFileData(1, 'duplicate.xlsx', 1024)
       fileService.getAllFiles.mockResolvedValue([existingFile])
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('duplicate.xlsx')).toBeInTheDocument()
@@ -315,7 +311,7 @@ describe('Dashboard Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         const deleteButtons = screen.getAllByLabelText('delete')
@@ -330,7 +326,7 @@ describe('Dashboard Component', () => {
       fileService.deleteFile.mockResolvedValue()
       window.confirm.mockReturnValue(true)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
@@ -355,7 +351,7 @@ describe('Dashboard Component', () => {
       fileService.getAllFiles.mockResolvedValue(mockFiles)
       window.confirm.mockReturnValue(false)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
@@ -375,7 +371,7 @@ describe('Dashboard Component', () => {
       fileService.deleteFile.mockRejectedValue(new Error('Delete failed'))
       window.confirm.mockReturnValue(true)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
@@ -406,7 +402,7 @@ describe('Dashboard Component', () => {
       fileService.deleteFile.mockResolvedValue()
       window.confirm.mockReturnValue(true)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('second-file.xlsx')).toBeInTheDocument()
@@ -484,7 +480,7 @@ describe('Dashboard Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByLabelText('generate pdf')).toBeInTheDocument()
@@ -497,7 +493,7 @@ describe('Dashboard Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('image.png')).toBeInTheDocument()
@@ -517,7 +513,7 @@ describe('Dashboard Component', () => {
       fileService.getAllFiles.mockResolvedValue(mockFiles)
       fileService.generatePdf.mockResolvedValue(mockBlob)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test.xlsx')).toBeInTheDocument()
@@ -551,7 +547,7 @@ describe('Dashboard Component', () => {
       fileService.getAllFiles.mockResolvedValue(mockFiles)
       fileService.generatePdf.mockRejectedValue(new Error('PDF generation failed'))
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('test.xlsx')).toBeInTheDocument()
@@ -572,7 +568,7 @@ describe('Dashboard Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         const pdfButtons = screen.getAllByLabelText('generate pdf')
@@ -588,7 +584,7 @@ describe('Dashboard Component', () => {
       ]
       fileService.getAllFiles.mockResolvedValue(mockFiles)
 
-      render(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       await waitFor(() => {
         expect(screen.getByText('document.xlsx')).toBeInTheDocument()
