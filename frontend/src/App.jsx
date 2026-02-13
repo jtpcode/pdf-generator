@@ -31,6 +31,10 @@ const App = () => {
     setShowRegister(false)
   }
 
+  const handleUserUpdate = (updatedUser) => {
+    setUser(updatedUser)
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -38,7 +42,7 @@ const App = () => {
         {user ? (
           <Routes>
             <Route path="/dashboard" element={<Dashboard user={user} onLogout={handleLogout} />} />
-            <Route path="/settings" element={<Settings user={user} onLogout={handleLogout} />} />
+            <Route path="/settings" element={<Settings user={user} onLogout={handleLogout} onUserUpdate={handleUserUpdate} />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         ) : showRegister ? (

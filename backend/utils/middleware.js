@@ -9,7 +9,13 @@ import { JWT_SECRET } from './config.js'
 morgan.token('body', (req) => {
   if (req.body) {
     const safeBody = { ...req.body }
-    if (safeBody.password) safeBody.password = '[REDACTED]'
+    Object.keys(safeBody).forEach(key => {
+      if (key.toLowerCase().includes('password')) {
+        // SAFE: This is only for logging purposes and does not affect the actual request body
+        // eslint-disable-next-line security/detect-object-injection
+        safeBody[key] = '[REDACTED]'
+      }
+    })
     return JSON.stringify(safeBody)
   }
   return ' '

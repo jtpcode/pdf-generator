@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { Router } from 'express'
 import { User } from '../models/index.js'
+import { tokenExtractor } from '../utils/middleware.js'
 
 const router = Router()
 
@@ -81,6 +82,65 @@ router.post('/', async (req, res) => {
 
   const { passwordHash: _, ...userWithoutPassword } = user.toJSON()
   res.status(201).json(userWithoutPassword)
+})
+
+router.put('/:id', tokenExtractor, async (req, res) => {
+  const userId = parseInt(req.params.id)
+  const { newName } = req.body
+
+  if (req.user.id !== userId) {
+    return res.status(403).json({ error: 'You can only update your own information' })
+  }
+
+  const user = await User.findByPk(userId)
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' })
+  }
+
+  const nameError = validateName(newName)
+  if (nameError) {
+    return res.status(400).json({ error: nameError })
+  }
+
+  user.name = newName
+  await user.save()
+
+  const { passwordHash: _, ...userWithoutPassword } = user.toJSON()
+  res.json(userWithoutPassword)
+})
+
+router.put('/:id/password', tokenExtractor, async (req, res) => {
+  const userId = parseInt(req.params.id)
+  const { currentPassword, newPassword } = req.body
+
+  if (req.user.id !== userId) {
+    return res.status(403).json({ error: 'You can only change your own password' })
+  }
+
+  const user = await User.findByPk(userId)
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' })
+  }
+
+  if (!currentPassword) {
+    return res.status(400).json({ error: 'Current password is required' })
+  }
+
+  const passwordCorrect = await bcrypt.compare(currentPassword, user.passwordHash)
+  if (!passwordCorrect) {
+    return res.status(401).json({ error: 'Current password is incorrect' })
+  }
+
+  const passwordError = validatePassword(newPassword)
+  if (passwordError) {
+    return res.status(400).json({ error: passwordError })
+  }
+
+  const saltRounds = 10
+  user.passwordHash = await bcrypt.hash(newPassword, saltRounds)
+  await user.save()
+
+  res.json({ message: 'Password updated successfully' })
 })
 
 export default router
