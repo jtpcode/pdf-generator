@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import Login from './components/Login'
 import Register from './components/Register'
@@ -9,7 +9,8 @@ import authService from './services/authService'
 
 const theme = createTheme()
 
-const App = () => {
+const AppContent = () => {
+  const navigate = useNavigate()
   const [user, setUser] = useState(() => {
     try {
       return authService.getStoredUser()
@@ -23,12 +24,14 @@ const App = () => {
   const handleAuthSuccess = (userData) => {
     setUser(userData)
     setShowRegister(false)
+    navigate('/dashboard')
   }
 
   const handleLogout = () => {
     authService.logout()
     setUser(null)
     setShowRegister(false)
+    navigate('/')
   }
 
   const handleUserUpdate = (updatedUser) => {
@@ -36,26 +39,34 @@ const App = () => {
   }
 
   return (
+    <>
+      {user ? (
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard user={user} onLogout={handleLogout} />} />
+          <Route path="/settings" element={<Settings user={user} onLogout={handleLogout} onUserUpdate={handleUserUpdate} />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      ) : showRegister ? (
+        <Register
+          onRegisterSuccess={handleAuthSuccess}
+          onSwitchToLogin={() => setShowRegister(false)}
+        />
+      ) : (
+        <Login
+          onLogin={handleAuthSuccess}
+          onSwitchToRegister={() => setShowRegister(true)}
+        />
+      )}
+    </>
+  )
+}
+
+const App = () => {
+  return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        {user ? (
-          <Routes>
-            <Route path="/dashboard" element={<Dashboard user={user} onLogout={handleLogout} />} />
-            <Route path="/settings" element={<Settings user={user} onLogout={handleLogout} onUserUpdate={handleUserUpdate} />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        ) : showRegister ? (
-          <Register
-            onRegisterSuccess={handleAuthSuccess}
-            onSwitchToLogin={() => setShowRegister(false)}
-          />
-        ) : (
-          <Login
-            onLogin={handleAuthSuccess}
-            onSwitchToRegister={() => setShowRegister(true)}
-          />
-        )}
+        <AppContent />
       </Router>
     </ThemeProvider>
   )

@@ -271,6 +271,130 @@ describe('User API', () => {
 
     expect(response.body.error).toContain('Password must contain at least one special character')
   })
+
+  test('updates user information with valid data', async () => {
+    const { user, token } = await createAndLoginUser()
+
+    const response = await api
+      .put(`/api/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ newName: 'Updated Name' })
+      .expect(200)
+
+    expect(response.body.username).toBe(user.username)
+    expect(response.body.name).toBe('Updated Name')
+  })
+
+  test('rejects user update without authentication', async () => {
+    const { user } = await createAndLoginUser()
+
+    await api
+      .put(`/api/users/${user.id}`)
+      .send({ newName: 'New Name' })
+      .expect(401)
+  })
+
+  test('rejects user update for different user', async () => {
+    const { token } = await createAndLoginUser()
+    const { user: otherUser } = await createAndLoginUser()
+
+    const response = await api
+      .put(`/api/users/${otherUser.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ newName: 'Hacked Name' })
+      .expect(403)
+
+    expect(response.body.error).toBe('You can only update your own information')
+  })
+
+  test('rejects user update with invalid name', async () => {
+    const { user, token } = await createAndLoginUser()
+
+    const response = await api
+      .put(`/api/users/${user.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ newName: '' })
+      .expect(400)
+
+    expect(response.body.error).toBe('Name is required')
+  })
+
+  test('changes password with valid data', async () => {
+    const { user, token } = await createAndLoginUser()
+
+    const response = await api
+      .put(`/api/users/${user.id}/password`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        currentPassword: 'TestPassword123!',
+        newPassword: 'NewValidPassword456@'
+      })
+      .expect(200)
+
+    expect(response.body.message).toBe('Password updated successfully')
+
+    const updatedUser = await User.findByPk(user.id)
+    const passwordCorrect = await bcrypt.compare('NewValidPassword456@', updatedUser.passwordHash)
+    expect(passwordCorrect).toBe(true)
+  })
+
+  test('rejects password change without authentication', async () => {
+    const { user } = await createAndLoginUser()
+
+    await api
+      .put(`/api/users/${user.id}/password`)
+      .send({
+        currentPassword: 'TestPassword123!',
+        newPassword: 'NewValidPassword456@'
+      })
+      .expect(401)
+  })
+
+  test('rejects password change for different user', async () => {
+    const { token } = await createAndLoginUser()
+    const { user: otherUser } = await createAndLoginUser()
+
+    const response = await api
+      .put(`/api/users/${otherUser.id}/password`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        currentPassword: 'TestPassword123!',
+        newPassword: 'NewValidPassword456@'
+      })
+      .expect(403)
+
+    expect(response.body.error).toBe('You can only change your own password')
+  })
+
+  test('rejects password change with incorrect current password', async () => {
+    const { user, token } = await createAndLoginUser()
+
+    const response = await api
+      .put(`/api/users/${user.id}/password`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        currentPassword: 'WrongPassword123!',
+        newPassword: 'NewValidPassword456@'
+      })
+      .expect(401)
+
+    expect(response.body.error).toBe('Current password is incorrect')
+  })
+
+  test('rejects password change with weak new password', async () => {
+    const { user, token } = await createAndLoginUser()
+
+    const response = await api
+      .put(`/api/users/${user.id}/password`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        currentPassword: 'TestPassword123!',
+        newPassword: 'weak'
+      })
+      .expect(400)
+
+    expect(response.body.error).toBe('Password must be at least 12 characters long')
+  })
 })
 
 describe('Login API', () => {

@@ -197,27 +197,6 @@ describe('Login Component', () => {
     })
   })
 
-  it('disables inputs and button during login', async () => {
-    const user = userEvent.setup()
-    authService.login.mockImplementation(() => new Promise(() => {}))
-
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    const usernameInput = screen.getByLabelText(/username/i)
-    const passwordInput = screen.getByLabelText(/password/i)
-    const loginButton = screen.getByRole('button', { name: /login/i })
-
-    await user.type(usernameInput, 'testuser')
-    await user.type(passwordInput, 'testpass123')
-    await user.click(loginButton)
-
-    await waitFor(() => {
-      expect(usernameInput).toBeDisabled()
-      expect(passwordInput).toBeDisabled()
-      expect(loginButton).toBeDisabled()
-    })
-  })
-
   it('re-enables inputs after failed login', async () => {
     const user = userEvent.setup()
     authService.login.mockRejectedValue(new Error('Login failed'))

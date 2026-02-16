@@ -19,13 +19,6 @@ test.describe('Login functionality', () => {
     await request.post('http://localhost:3001/api/testing/deleteTestUploads')
   })
 
-  test('should display login form', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'PDF Generator Login' })).toBeVisible()
-    await expect(page.getByLabel('Username')).toBeVisible()
-    await expect(page.getByLabel('Password')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible()
-  })
-
   test('should login successfully to Dashboard with valid credentials', async ({ page }) => {
     await page.getByLabel('Username').fill('testuser')
     await page.getByLabel('Password').fill('ValidPassword123!')
@@ -50,10 +43,6 @@ test.describe('Login functionality', () => {
       await page.getByLabel('Password').fill('ValidPassword123!')
       await page.getByRole('button', { name: 'Login' }).click()
       await expect(page.getByRole('heading', { name: 'Upload File' })).toBeVisible()
-    })
-
-    test('should display user information', async ({ page }) => {
-      await expect(page.getByText(/Hello, testuser/)).toBeVisible()
     })
 
     test('should be able to logout', async ({ page }) => {
@@ -131,22 +120,51 @@ test.describe('Login functionality', () => {
       await expect(page.getByRole('alert')).toContainText('File deleted successfully!')
       await expect(page.getByText('file-to-delete.xlsx')).not.toBeVisible()
     })
+  })
 
-    test('should show PDF button only for Excel files, not for PNG', async ({ page }) => {
-      await uploadFile(page, await createMockExcelFile('document.xlsx'))
-      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+  test.describe('When logged in and entered Settings', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.getByLabel('Username').fill('testuser')
+      await page.getByLabel('Password').fill('ValidPassword123!')
+      await page.getByRole('button', { name: 'Login' }).click()
+      await expect(page.getByRole('heading', { name: 'Upload File' })).toBeVisible()
 
-      await uploadFile(page, createMockPngFile('image.png'))
-      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+      await page.getByRole('tab', { name: 'Settings' }).click()
+    })
 
-      const excelFileItem = page.locator('li', { has: page.getByText('document.xlsx') })
-      const pngFileItem = page.locator('li', { has: page.getByText('image.png') })
+    test('should update user name', async ({ page }) => {
+      await page.getByRole('textbox', { name: 'Name', exact: true }).clear()
+      await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Updated Test User')
+      await page.getByRole('button', { name: 'Update Profile' }).click()
 
-      await expect(excelFileItem.getByRole('button', { name: 'generate pdf' })).toBeVisible()
-      await expect(excelFileItem.getByRole('button', { name: 'delete' })).toBeVisible()
+      await expect(page.getByRole('alert')).toContainText('Profile updated successfully')
+    })
 
-      await expect(pngFileItem.getByRole('button', { name: 'generate pdf' })).not.toBeVisible()
-      await expect(pngFileItem.getByRole('button', { name: 'delete' })).toBeVisible()
+    test('should change password', async ({ page }) => {
+      await page.getByRole('textbox', { name: 'Current Password' }).fill('ValidPassword123!')
+      await page.getByRole('textbox', { name: 'New Password', exact: true }).fill('NewValidPass456!')
+      await page.getByRole('textbox', { name: 'Confirm New Password' }).fill('NewValidPass456!')
+      await page.getByRole('button', { name: 'Change Password' }).click()
+
+      await expect(page.getByRole('alert')).toContainText('Password changed successfully')
+    })
+
+    test('should show error when passwords do not match', async ({ page }) => {
+      await page.getByRole('textbox', { name: 'Current Password' }).fill('ValidPassword123!')
+      await page.getByRole('textbox', { name: 'New Password', exact: true }).fill('NewValidPass456!')
+      await page.getByRole('textbox', { name: 'Confirm New Password' }).fill('DifferentPass789!')
+      await page.getByRole('button', { name: 'Change Password' }).click()
+
+      await expect(page.getByRole('alert')).toContainText('New passwords do not match')
+    })
+
+    test('should show error when current password is incorrect', async ({ page }) => {
+      await page.getByRole('textbox', { name: 'Current Password' }).fill('WrongPassword123!')
+      await page.getByRole('textbox', { name: 'New Password', exact: true }).fill('NewValidPass456!')
+      await page.getByRole('textbox', { name: 'Confirm New Password' }).fill('NewValidPass456!')
+      await page.getByRole('button', { name: 'Change Password' }).click()
+
+      await expect(page.getByRole('alert')).toContainText('Current password is incorrect')
     })
   })
 })

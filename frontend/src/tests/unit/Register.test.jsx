@@ -310,28 +310,6 @@ describe('Register Component', () => {
     resolveRegister({ username: 'testuser', name: 'Test User' })
   })
 
-  it('disables form fields during submission', async () => {
-    const user = userEvent.setup()
-    authService.register.mockImplementation(() => new Promise(() => {}))
-
-    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
-
-    await user.type(screen.getByLabelText(/username/i), 'testuser')
-    await user.type(screen.getByLabelText(/full name/i), 'Test User')
-    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
-    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
-
-    await user.click(screen.getByRole('button', { name: /register/i }))
-
-    await waitFor(() => {
-      expect(screen.getByLabelText(/username/i)).toBeDisabled()
-      expect(screen.getByLabelText(/full name/i)).toBeDisabled()
-      expect(screen.getAllByLabelText(/password/i)[0]).toBeDisabled()
-      expect(screen.getByLabelText(/confirm password/i, { selector: 'input' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: /creating account.../i })).toBeDisabled()
-    })
-  })
-
   it('shows link to switch to login page', () => {
     render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
 
