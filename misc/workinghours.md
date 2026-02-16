@@ -49,4 +49,5 @@ Working hours:
 | 13.2 | 5 | Implement 'Settings' page: user information, possibility to change name and password. |
 | 16.2 | 2 | Add tests for 'Settings' page. Fix navigation to Dashboard on login. |
 |      |   | Fix lining of "Login/Register here" links in Login and Register. Update tests accordingly. |
-| Total   | 148 |
+|      | 1 | Add password change validation to ensure new password differs from current password. Update related tests. Add Eye-icon to password fields in Register component.
+| Total   | 149 |

@@ -144,6 +144,7 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
                         onMouseDown={(e) => e.preventDefault()}
                         edge="end"
                         disabled={isLoading}
+                        tabIndex={-1}
                       >
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
@@ -175,6 +176,7 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
                         onMouseDown={(e) => e.preventDefault()}
                         edge="end"
                         disabled={isLoading}
+                        tabIndex={-1}
                       >
                         {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Container, Box, Typography, Paper, TextField, Button, Alert, Divider, CircularProgress } from '@mui/material'
+import { Container, Box, Typography, Paper, TextField, Button, Alert, Divider, CircularProgress, InputAdornment, IconButton } from '@mui/material'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
 import PropTypes from 'prop-types'
 import Navigation from './Navigation'
 import userService from '../services/userService'
@@ -9,6 +10,10 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [profileError, setProfileError] = useState('')
   const [profileSuccess, setProfileSuccess] = useState('')
@@ -44,6 +49,12 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
 
     if (newPassword !== confirmPassword) {
       setPasswordError('New passwords do not match')
+      setTimeout(() => setPasswordError(''), 5000)
+      return
+    }
+
+    if (currentPassword === newPassword) {
+      setPasswordError('New password must be different from current password')
       setTimeout(() => setPasswordError(''), 5000)
       return
     }
@@ -133,19 +144,37 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
             <TextField
               fullWidth
               label="Current Password"
-              type="password"
+              type={showCurrentPassword ? 'text' : 'password'}
               variant="outlined"
               margin="normal"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               disabled={passwordLoading}
               required
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle current password visibility"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                        disabled={passwordLoading}
+                        tabIndex={-1}
+                      >
+                        {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <Divider sx={{ my: 2 }} />
             <TextField
               fullWidth
               label="New Password"
-              type="password"
+              type={showNewPassword ? 'text' : 'password'}
               variant="outlined"
               margin="normal"
               value={newPassword}
@@ -153,17 +182,53 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
               disabled={passwordLoading}
               required
               helperText="At least 12 characters with uppercase, lowercase, number and special character"
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle new password visibility"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                        disabled={passwordLoading}
+                        tabIndex={-1}
+                      >
+                        {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <TextField
               fullWidth
               label="Confirm New Password"
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               variant="outlined"
               margin="normal"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={passwordLoading}
               required
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle confirm password visibility"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                        disabled={passwordLoading}
+                        tabIndex={-1}
+                      >
+                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <Button
               variant="contained"

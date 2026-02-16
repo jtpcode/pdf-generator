@@ -190,6 +190,29 @@ describe('Settings Component', () => {
         expect(screen.getByText('Current password is incorrect')).toBeInTheDocument()
       })
     })
+
+    it('shows error when new password is same as current password', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const passwordFields = screen.getAllByLabelText(/Password/i)
+      const currentPasswordField = passwordFields[0]
+      const newPasswordField = passwordFields[1]
+      const confirmPasswordField = passwordFields[2]
+      const changeButton = screen.getByRole('button', { name: /Change Password/i })
+
+      await user.type(currentPasswordField, 'SamePassword123!')
+      await user.type(newPasswordField, 'SamePassword123!')
+      await user.type(confirmPasswordField, 'SamePassword123!')
+      await user.click(changeButton)
+
+      await waitFor(() => {
+        expect(screen.getByText('New password must be different from current password')).toBeInTheDocument()
+      })
+
+      expect(userService.changePassword).not.toHaveBeenCalled()
+    })
   })
 
   it('calls onLogout when logout button is clicked', async () => {

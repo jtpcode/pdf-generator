@@ -395,6 +395,21 @@ describe('User API', () => {
 
     expect(response.body.error).toBe('Password must be at least 12 characters long')
   })
+
+  test('rejects password change when new password is same as current password', async () => {
+    const { user, token } = await createAndLoginUser()
+
+    const response = await api
+      .put(`/api/users/${user.id}/password`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        currentPassword: 'TestPassword123!',
+        newPassword: 'TestPassword123!'
+      })
+      .expect(400)
+
+    expect(response.body.error).toBe('New password must be different from current password')
+  })
 })
 
 describe('Login API', () => {

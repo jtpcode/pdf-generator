@@ -136,6 +136,11 @@ router.put('/:id/password', tokenExtractor, async (req, res) => {
     return res.status(400).json({ error: passwordError })
   }
 
+  const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash)
+  if (isSamePassword) {
+    return res.status(400).json({ error: 'New password must be different from current password' })
+  }
+
   const saltRounds = 10
   user.passwordHash = await bcrypt.hash(newPassword, saltRounds)
   await user.save()

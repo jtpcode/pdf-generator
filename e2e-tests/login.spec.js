@@ -166,5 +166,14 @@ test.describe('Login functionality', () => {
 
       await expect(page.getByRole('alert')).toContainText('Current password is incorrect')
     })
+
+    test('should show error when new password is same as current password', async ({ page }) => {
+      await page.getByRole('textbox', { name: 'Current Password' }).fill('ValidPassword123!')
+      await page.getByRole('textbox', { name: 'New Password', exact: true }).fill('ValidPassword123!')
+      await page.getByRole('textbox', { name: 'Confirm New Password' }).fill('ValidPassword123!')
+      await page.getByRole('button', { name: 'Change Password' }).click()
+
+      await expect(page.getByRole('alert')).toContainText('New password must be different from current password')
+    })
   })
 })
