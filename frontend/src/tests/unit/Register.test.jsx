@@ -314,14 +314,14 @@ describe('Register Component', () => {
     render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
 
     expect(screen.getByText(/already have an account\?/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /login here/i })).toBeInTheDocument()
+    expect(screen.getByText(/login here/i)).toBeInTheDocument()
   })
 
   it('calls onSwitchToLogin when login link is clicked', async () => {
     const user = userEvent.setup()
     render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
 
-    const loginLink = screen.getByRole('button', { name: /login here/i })
+    const loginLink = screen.getByText(/login here/i)
     await user.click(loginLink)
 
     expect(mockOnSwitchToLogin).toHaveBeenCalledTimes(1)

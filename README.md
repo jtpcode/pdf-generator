@@ -14,10 +14,14 @@ https://pdf-generator-3ucg.onrender.com/
 
 ## How to use
 - Create credentials for login
-- Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
+- Dashboard
+  - Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
   - Example files can be asked directly from the developer
-- Click the 'Pdf' icon to generate the PDF
-- To delete a file, click the trashcan icon
+  - Click the 'Pdf' icon to generate the PDF
+  - To delete a file, click the trashcan icon
+- Settings
+  - Update user name
+  - Update password
 
 ## Technology stack
 
@@ -25,7 +29,7 @@ https://pdf-generator-3ucg.onrender.com/
 - **Backend:** Node.js 24, Express 5, Sequelize (PostgreSQL), JWT, Helmet, Multer, bcrypt
 - **Database:** PostgreSQL (Dockerized for development)
 - **Testing:** Vitest, Playwright, Supertest
-- **CI/CD:** GitHub Actions, Codecov
+- **CI/CD:** GitHub Actions, Codecov, Continuous Deployment to Render platform (https://render.com/)
 - **Other:** Docker Compose (for local development)
 
 ## Project architecture
@@ -87,7 +91,7 @@ https://pdf-generator-3ucg.onrender.com/
 
 - Automated Playwright and Vitest tests
 - Coverage uploaded to Codecov
-- Automated deployment to Render
+- Continuous Deployment to Render platform (https://render.com/)
 
 ## Coding standards
 

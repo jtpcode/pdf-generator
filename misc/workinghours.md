@@ -47,4 +47,6 @@ Working hours:
 | 11.2 | 5 | Added React Router for navigation. Tests updated accordingly. Added unit tests for authService, fileService. Added integration tests for App.jsx. |
 | 12.2 | 2 | Study pdf generation with html -> Puppeteer. |
 | 13.2 | 5 | Implement 'Settings' page: user information, possibility to change name and password. |
-| Total   | 146 |
+| 16.2 | 2 | Add tests for 'Settings' page. Fix navigation to Dashboard on login. |
+|      |   | Fix lining of "Login/Register here" links in Login and Register. Update tests accordingly. |
+| Total   | 148 |

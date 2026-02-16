@@ -43,7 +43,7 @@ export const uploadFile = async (page, fileConfig) => {
 
 export const navigateToRegisterPage = async (page) => {
   await page.goto('http://localhost:5173')
-  await page.getByRole('button', { name: /register here/i }).click()
+  await page.getByText(/register here/i).click()
 }
 
 export const resetDatabase = async (request) => {

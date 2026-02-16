@@ -205,7 +205,7 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
               <Typography variant="body2">
                 Already have an account?{' '}
                 <Link
-                  component="button"
+                  component="span"
                   variant="body2"
                   onClick={(e) => {
                     e.preventDefault()

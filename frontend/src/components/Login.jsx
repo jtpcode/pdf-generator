@@ -81,7 +81,7 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
               <Typography variant="body2">
                 Don&apos;t have an account?{' '}
                 <Link
-                  component="button"
+                  component="span"
                   variant="body2"
                   onClick={(e) => {
                     e.preventDefault()

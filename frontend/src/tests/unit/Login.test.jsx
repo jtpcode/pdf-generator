@@ -224,14 +224,14 @@ describe('Login Component', () => {
     render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
     expect(screen.getByText(/don't have an account\?/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /register here/i })).toBeInTheDocument()
+    expect(screen.getByText(/register here/i)).toBeInTheDocument()
   })
 
   it('calls onSwitchToRegister when register link is clicked', async () => {
     const user = userEvent.setup()
     render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
-    const registerLink = screen.getByRole('button', { name: /register here/i })
+    const registerLink = screen.getByText(/register here/i)
     await user.click(registerLink)
 
     expect(mockOnSwitchToRegister).toHaveBeenCalledTimes(1)

@@ -7,7 +7,7 @@ test.describe('Registration Flow', () => {
 
     await expect(page.getByRole('heading', { name: /PDF Generator Login/i })).toBeVisible()
 
-    const registerLink = page.getByRole('button', { name: /register here/i })
+    const registerLink = page.getByText(/register here/i)
     await expect(registerLink).toBeVisible()
     await registerLink.click()
 
@@ -22,7 +22,7 @@ test.describe('Registration Flow', () => {
     await navigateToRegisterPage(page)
     await expect(page.getByRole('heading', { name: /Create Account/i })).toBeVisible()
 
-    await page.getByRole('button', { name: /login here/i }).click()
+    await page.getByText(/login here/i).click()
     await expect(page.getByRole('heading', { name: /PDF Generator Login/i })).toBeVisible()
   })
 
