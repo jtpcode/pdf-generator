@@ -46,8 +46,11 @@ describe('Settings Component', () => {
     renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
 
     expect(screen.getByRole('heading', { name: 'Change Password' })).toBeInTheDocument()
-    const passwordFields = screen.getAllByLabelText(/Password/i)
-    expect(passwordFields.length).toBe(3)
+
+    const passwordInputs = screen.getAllByLabelText(/Password/i, { selector: 'input' })
+    expect(passwordInputs).toHaveLength(3)
+
+    expect(screen.getByRole('button', { name: /Change Password/i })).toBeInTheDocument()
   })
 
   it('displays current user information in form fields', () => {
