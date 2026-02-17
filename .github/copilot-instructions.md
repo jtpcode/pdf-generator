@@ -236,7 +236,7 @@ Both implementations reuse:
 
 ### Frontend Toggle
 - **Component**: `frontend/src/components/Dashboard/Dashboard.jsx`
-- **UI**: Switch labeled "PDFKit / HTML/Puppeteer"
+- **UI**: Switch labeled "PDFKit / HTML + Puppeteer"
 - **Storage**: User selection in `localStorage` (`pdfGenerator` key)
 - **Service**: `frontend/src/services/fileService.js` routes to correct endpoint
 

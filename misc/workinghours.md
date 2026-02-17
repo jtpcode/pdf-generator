@@ -51,4 +51,5 @@ Working hours:
 |      | 1 | Fix lining of "Login/Register here" links in Login and Register. Update tests accordingly. |
 |      | 4 | Add password change validation to ensure new password differs from current password. Update related tests. Add Eye-icon to password fields in Register component. |
 | 17.2 | 5 | Add early version of html+puppeteer pdf generation and tests accordingly. |
-| Total   | 158 |
+|      | 2 | Refactor pdf generation code and finetune html+puppeteer pdf generation. |
+| Total | 160 |

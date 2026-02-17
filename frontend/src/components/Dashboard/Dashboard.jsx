@@ -167,7 +167,7 @@ const Dashboard = ({ user, onLogout }) => {
                 </Typography>
                 <Typography variant="body2">/</Typography>
                 <Typography variant="body2" color={usePuppeteer ? 'primary' : 'text.secondary'} fontWeight={usePuppeteer ? 'bold' : 'normal'}>
-                  HTML/Puppeteer
+                  HTML + Puppeteer
                 </Typography>
               </Box>
             }
