@@ -10,13 +10,16 @@ https://pdf-generator-3ucg.onrender.com/
 
 ## Project name and description
 
-**pdf-generator** is aimed for demonstrating technical datasheet creation in PDF format. The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be achieved. The application accepts Excel and .png files, and their naming/content has to be in a specific form to comply with the code. Example files can be asked directly from the developer. The application is by no means a ready made product for general use.
+**pdf-generator** is aimed for demonstrating technical datasheet generation in PDF format. There are two options on how to generate the document: PDFkit and html/css + puppeteer. Both produce almost identical documents and the difference is only in the technical implementation.
+
+The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be achieved. The application accepts Excel and .png files, and their naming/content has to be in a specific form to comply with the code. Example files can be asked directly from the developer. **The application is by no means a ready made product for general use**.
 
 ## How to use
 - Create credentials for login
 - Dashboard
   - Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
   - Example files can be asked directly from the developer
+  - Choose between PDFkit or html/css + puppeteer
   - Click the 'Pdf' icon to generate the PDF
   - To delete a file, click the trashcan icon
 - Settings
@@ -86,12 +89,6 @@ https://pdf-generator-3ucg.onrender.com/
 - End-to-end testing: Playwright
 - Security best practices (Helmet, OWASP guidelines)
 - CI/CD with GitHub Actions and Codecov
-
-## Development workflow
-
-- Automated Playwright and Vitest tests
-- Coverage uploaded to Codecov
-- Continuous Deployment to Render platform (https://render.com/)
 
 ## Coding standards
 

@@ -19,6 +19,7 @@ concurrency:
 env:
   # Check if we should deploy (main branch push with #deploy in commit message)
   OK_TO_DEPLOY: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && contains(join(github.event.commits.*.message, ' '), '#deploy') }}
+  
   # Run Playwright tests if commit contains #play or it's a pull request
   RUN_PLAYWRIGHT: ${{ contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
 
@@ -73,6 +74,8 @@ jobs:
       
       - name: Install backend dependencies
         run: npm --prefix backend ci
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
       
       - name: Lint frontend and backend code
         run: npm run lint
@@ -91,9 +94,17 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-chromium-
+
       - name: Install Playwright Browsers
         if: env.RUN_PLAYWRIGHT == 'true'
-        run: npx playwright install --with-deps
+        run: npx playwright install chromium --with-deps
       
       - name: Run Playwright tests
         if: env.RUN_PLAYWRIGHT == 'true'
