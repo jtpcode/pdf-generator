@@ -431,6 +431,7 @@ describe('Dashboard Component', () => {
     let removeChildSpy
 
     beforeEach(() => {
+      localStorage.clear()
       originalCreateElement = document.createElement
       originalAppendChild = document.body.appendChild
       originalRemoveChild = document.body.removeChild
@@ -474,6 +475,55 @@ describe('Dashboard Component', () => {
       removeChildSpy.mockRestore()
     })
 
+    it('renders PDF generator toggle switch', async () => {
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })).toBeInTheDocument()
+        expect(screen.getByText(/PDFKit/i)).toBeInTheDocument()
+        expect(screen.getByText(/HTML\/Puppeteer/i)).toBeInTheDocument()
+      })
+    })
+
+    it('toggle defaults to PDFKit (unchecked)', async () => {
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        const toggle = screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
+        expect(toggle).not.toBeChecked()
+      })
+    })
+
+    it('toggle reads initial state from localStorage', async () => {
+      localStorage.setItem('pdfGenerator', 'puppeteer')
+
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        const toggle = screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
+        expect(toggle).toBeChecked()
+      })
+    })
+
+    it('toggle changes localStorage value when clicked', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })).toBeInTheDocument()
+      })
+
+      const toggle = screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
+      expect(localStorage.getItem('pdfGenerator')).toBeNull()
+
+      await user.click(toggle)
+      expect(localStorage.getItem('pdfGenerator')).toBe('puppeteer')
+
+      await user.click(toggle)
+      expect(localStorage.getItem('pdfGenerator')).toBe('pdfkit')
+    })
+
     it('renders generate PDF button for Excel files', async () => {
       const mockFiles = [
         { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
@@ -503,7 +553,7 @@ describe('Dashboard Component', () => {
       expect(screen.getByLabelText('delete')).toBeInTheDocument()
     })
 
-    it('generates PDF and downloads with correct filename on button click', async () => {
+    it('generates PDF with PDFKit by default (toggle off)', async () => {
       const user = userEvent.setup()
       const mockFiles = [
         { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
@@ -523,7 +573,7 @@ describe('Dashboard Component', () => {
       await user.click(pdfButton)
 
       await waitFor(() => {
-        expect(fileService.generatePdf).toHaveBeenCalledWith(1)
+        expect(fileService.generatePdf).toHaveBeenCalledWith(1, false)
         expect(window.URL.createObjectURL).toHaveBeenCalledWith(mockBlob)
         expect(document.createElement).toHaveBeenCalledWith('a')
         expect(mockLink.href).toBe('blob:mock-url')
@@ -535,6 +585,60 @@ describe('Dashboard Component', () => {
         expect(removeChildSpy).toHaveBeenCalledWith(mockLink)
         expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
         expect(screen.getByText(/PDF generated successfully!/i)).toBeInTheDocument()
+      })
+    })
+
+    it('generates PDF with Puppeteer when toggle is on', async () => {
+      const user = userEvent.setup()
+      const mockFiles = [
+        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
+      ]
+      const mockBlob = new Blob(['pdf content'], { type: 'application/pdf' })
+
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+      fileService.generatePdf.mockResolvedValue(mockBlob)
+
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('test.xlsx')).toBeInTheDocument()
+      })
+
+      const toggle = screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
+      await user.click(toggle)
+
+      const pdfButton = screen.getByLabelText('generate pdf')
+      await user.click(pdfButton)
+
+      await waitFor(() => {
+        expect(fileService.generatePdf).toHaveBeenCalledWith(1, true)
+        expect(screen.getByText(/PDF generated successfully!/i)).toBeInTheDocument()
+      })
+    })
+
+    it('remembers Puppeteer selection from localStorage', async () => {
+      const user = userEvent.setup()
+      localStorage.setItem('pdfGenerator', 'puppeteer')
+
+      const mockFiles = [
+        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
+      ]
+      const mockBlob = new Blob(['pdf content'], { type: 'application/pdf' })
+
+      fileService.getAllFiles.mockResolvedValue(mockFiles)
+      fileService.generatePdf.mockResolvedValue(mockBlob)
+
+      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
+
+      await waitFor(() => {
+        expect(screen.getByText('test.xlsx')).toBeInTheDocument()
+      })
+
+      const pdfButton = screen.getByLabelText('generate pdf')
+      await user.click(pdfButton)
+
+      await waitFor(() => {
+        expect(fileService.generatePdf).toHaveBeenCalledWith(1, true)
       })
     })
 
@@ -557,6 +661,7 @@ describe('Dashboard Component', () => {
       await user.click(pdfButton)
 
       await waitFor(() => {
+        expect(fileService.generatePdf).toHaveBeenCalledWith(1, false)
         expect(screen.getByText(/PDF generation failed/i)).toBeInTheDocument()
       })
     })

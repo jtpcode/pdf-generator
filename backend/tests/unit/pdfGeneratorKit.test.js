@@ -6,11 +6,11 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { Writable } from 'stream'
 import {
-  generateProductDataSheetPdf,
+  generateProductDataSheetPdfKit,
   parseStructuredData,
   findLogoFile,
   findProductImageFile
-} from '../../utils/pdfGenerator.js'
+} from '../../utils/pdfGeneratorKit.js'
 import { UPLOADS_DIR } from '../../utils/config.js'
 
 const TEST_UPLOADS_DIR = path.join(process.cwd(), UPLOADS_DIR)
@@ -599,7 +599,7 @@ describe('findProductImageFile', () => {
   })
 })
 
-describe('generateProductDataSheetPdf', () => {
+describe('generateProductDataSheetPdfKit', () => {
   describe('basic functionality', () => {
     test('generates PDF successfully with valid data', async () => {
       const excelData = [
@@ -620,7 +620,7 @@ describe('generateProductDataSheetPdf', () => {
         }
       })
 
-      await generateProductDataSheetPdf(excelData, outputStream)
+      await generateProductDataSheetPdfKit(excelData, outputStream)
 
       const pdfBuffer = Buffer.concat(chunks)
       expect(pdfBuffer.length).toBeGreaterThan(0)
@@ -638,7 +638,7 @@ describe('generateProductDataSheetPdf', () => {
         }
       })
 
-      await generateProductDataSheetPdf(excelData, outputStream)
+      await generateProductDataSheetPdfKit(excelData, outputStream)
 
       const pdfBuffer = Buffer.concat(chunks)
       expect(pdfBuffer.length).toBeGreaterThan(0)
@@ -681,7 +681,7 @@ describe('generateProductDataSheetPdf', () => {
         }
       })
 
-      await generateProductDataSheetPdf(excelData, outputStream)
+      await generateProductDataSheetPdfKit(excelData, outputStream)
 
       const pdfBuffer = Buffer.concat(chunks)
       expect(pdfBuffer.length).toBeGreaterThan(0)
@@ -707,7 +707,7 @@ describe('generateProductDataSheetPdf', () => {
         }
       })
 
-      await generateProductDataSheetPdf(excelData, outputStream)
+      await generateProductDataSheetPdfKit(excelData, outputStream)
 
       const pdfBuffer = Buffer.concat(chunks)
       expect(pdfBuffer.length).toBeGreaterThan(0)

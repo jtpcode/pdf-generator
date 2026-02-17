@@ -25,4 +25,5 @@ Changelog:
 | 6.2 | Change Welcome.jsx (front page) into Dashboard.jsx |
 | 11.2 | Added React Router for navigation |
 | 13.2 | Added 'Settings' page: user information, possibility to change name and password. |
+| 17.2 | Added early version of html + puppeteer PDF generation option |
 

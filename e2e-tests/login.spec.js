@@ -91,13 +91,34 @@ test.describe('Login functionality', () => {
       await expect(listItem.getByRole('button', { name: 'delete' })).toBeVisible()
     })
 
-    test('should generate PDF from uploaded Excel file', async ({ page }) => {
-      await uploadFile(page, await createMockExcelFile('generate-pdf-test.xlsx'))
+    test('should generate PDF with PDFKit (default)', async ({ page }) => {
+      await uploadFile(page, await createMockExcelFile('pdfkit-test.xlsx'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
 
       await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
 
-      const listItem = page.locator('li', { has: page.getByText('generate-pdf-test.xlsx') })
+      const toggle = page.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
+      await expect(toggle).not.toBeChecked()
+
+      const listItem = page.locator('li', { has: page.getByText('pdfkit-test.xlsx') })
+      const pdfButton = listItem.getByRole('button', { name: 'generate pdf' })
+
+      await pdfButton.click()
+
+      await expect(page.getByRole('alert')).toContainText('PDF generated successfully!')
+    })
+
+    test('should generate PDF with Puppeteer when toggle is on', async ({ page }) => {
+      await uploadFile(page, await createMockExcelFile('puppeteer-test.xlsx'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
+
+      const toggle = page.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
+      await toggle.click()
+      await expect(toggle).toBeChecked()
+
+      const listItem = page.locator('li', { has: page.getByText('puppeteer-test.xlsx') })
       const pdfButton = listItem.getByRole('button', { name: 'generate pdf' })
 
       await pdfButton.click()

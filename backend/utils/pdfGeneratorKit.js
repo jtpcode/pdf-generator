@@ -297,7 +297,7 @@ export {
   parseStructuredData
 }
 
-export const generateProductDataSheetPdf = (excelData, outputStream) => {
+export const generateProductDataSheetPdfKit = (excelData, outputStream) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       margins: {

@@ -2,45 +2,20 @@ import express from 'express'
 import multer from 'multer'
 import path from 'path'
 import { promises as fs } from 'fs'
-import { fileURLToPath } from 'url'
-import ExcelJS from 'exceljs'
 import { File } from '../models/index.js'
 import { tokenExtractor } from '../utils/middleware.js'
-import { UPLOADS_DIR } from '../utils/config.js'
-import { generateProductDataSheetPdf } from '../utils/pdfGenerator.js'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+import { generateProductDataSheetPdfKit } from '../utils/pdfGeneratorKit.js'
+import { generateProductDataSheetPdfPuppeteer } from '../utils/pdfGeneratorPuppeteer.js'
+import {
+  initializeUploadsDir,
+  getUserUploadDir,
+  isValidFilename,
+  validateAndParseExcel
+} from '../utils/fileHelpers.js'
 
 const router = express.Router()
 
-// Base uploads directory - uses test-uploads in test environment
-const uploadsDir = path.join(__dirname, '..', UPLOADS_DIR)
-// SAFE: UPLOADS_DIR is controlled via config and not user input
-// eslint-disable-next-line security/detect-non-literal-fs-filename
-await fs.mkdir(uploadsDir, { recursive: true })
-
-// Helper function to get user-specific directory
-const getUserUploadDir = (userId) => {
-  return path.join(uploadsDir, String(userId))
-}
-
-// Validate filename to prevent path traversal attacks
-const isValidFilename = (filename) => {
-  if (!filename || filename.trim().length === 0) {
-    return false
-  }
-
-  const dangerousPatterns = [
-    /\.\./,     // Parent directory traversal
-    /\//,       // Unix path separator
-    /\\/,       // Windows path separator
-    /\0/,       // Null byte
-    /^\.+$/     // Only dots (., .., ...)
-  ]
-
-  return !dangerousPatterns.some(pattern => pattern.test(filename))
-}
+await initializeUploadsDir()
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -181,53 +156,29 @@ router.delete('/:id', tokenExtractor, async (req, res, next) => {
   }
 })
 
-router.get('/:id/pdf', tokenExtractor, async (req, res, next) => {
+router.get('/:id/pdf-kit', tokenExtractor, async (req, res, next) => {
   try {
-    const fileId = parseInt(req.params.id)
-
-    if (isNaN(fileId)) {
-      return res.status(400).json({ error: 'Invalid file ID' })
-    }
-
-    const file = await File.findByPk(fileId)
-
-    if (!file) {
-      return res.status(404).json({ error: 'File not found' })
-    }
-
-    if (file.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Access denied' })
-    }
-
-    const filePath = path.resolve(file.filePath)
-    const userDir = getUserUploadDir(req.user.id)
-
-    if (!filePath.startsWith(path.resolve(userDir))) {
-      return res.status(400).json({ error: 'Invalid file path' })
-    }
-
-    let excelData = []
-    try {
-      const workbook = new ExcelJS.Workbook()
-      await workbook.xlsx.readFile(filePath)
-
-      const worksheet = workbook.worksheets[0]
-
-      if (!worksheet) {
-        return res.status(400).json({ error: 'Excel file contains no worksheets' })
-      }
-
-      worksheet.eachRow((row) => {
-        excelData.push(row.values.slice(1))
-      })
-    } catch {
-      return res.status(400).json({ error: 'Failed to parse Excel file. File may be corrupted.' })
-    }
+    const excelData = await validateAndParseExcel(req, res)
+    if (!excelData) return
 
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'inline; filename="Product Name.pdf"')
 
-    await generateProductDataSheetPdf(excelData, res)
+    await generateProductDataSheetPdfKit(excelData, res)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/:id/pdf-puppeteer', tokenExtractor, async (req, res, next) => {
+  try {
+    const excelData = await validateAndParseExcel(req, res)
+    if (!excelData) return
+
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename="Product Name.pdf"')
+
+    await generateProductDataSheetPdfPuppeteer(excelData, res)
   } catch (error) {
     next(error)
   }

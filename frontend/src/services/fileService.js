@@ -74,8 +74,9 @@ const deleteFile = async (fileId) => {
   }
 }
 
-const generatePdf = async (fileId) => {
-  const response = await fetch(`${baseUrl}/${fileId}/pdf`, {
+const generatePdf = async (fileId, usePuppeteer = false) => {
+  const endpoint = usePuppeteer ? 'pdf-puppeteer' : 'pdf-kit'
+  const response = await fetch(`${baseUrl}/${fileId}/${endpoint}`, {
     headers: getAuthHeaders()
   })
 

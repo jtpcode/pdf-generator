@@ -812,7 +812,7 @@ describe('PDF Generation API', () => {
     const fileId = uploadResponse.body.id
 
     const response = await api
-      .get(`/api/files/${fileId}/pdf`)
+      .get(`/api/files/${fileId}/pdf-kit`)
       .set('Authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /pdf/)
@@ -826,7 +826,7 @@ describe('PDF Generation API', () => {
     const { token } = await createAndLoginUser()
 
     const response = await api
-      .get('/api/files/99999/pdf')
+      .get('/api/files/99999/pdf-kit')
       .set('Authorization', `bearer ${token}`)
       .expect(404)
 
@@ -852,7 +852,7 @@ describe('PDF Generation API', () => {
     const fileId = uploadResponse.body.id
 
     const response = await api
-      .get(`/api/files/${fileId}/pdf`)
+      .get(`/api/files/${fileId}/pdf-kit`)
       .set('Authorization', `bearer ${token2}`)
       .expect(403)
 
@@ -861,7 +861,7 @@ describe('PDF Generation API', () => {
 
   test('returns 401 without authentication token', async () => {
     await api
-      .get('/api/files/1/pdf')
+      .get('/api/files/1/pdf-kit')
       .expect(401)
       .expect({ error: 'token missing' })
   })
@@ -870,7 +870,7 @@ describe('PDF Generation API', () => {
     const { token } = await createAndLoginUser()
 
     const response = await api
-      .get('/api/files/invalid/pdf')
+      .get('/api/files/invalid/pdf-kit')
       .set('Authorization', `bearer ${token}`)
       .expect(400)
 
@@ -894,7 +894,7 @@ describe('PDF Generation API', () => {
     const fileId = uploadResponse.body.id
 
     const response = await api
-      .get(`/api/files/${fileId}/pdf`)
+      .get(`/api/files/${fileId}/pdf-kit`)
       .set('Authorization', `bearer ${token}`)
       .expect(400)
 

@@ -206,6 +206,40 @@ cd frontend && npm run dev
   - Both directories are gitignored to prevent committing uploaded files
   - Test uploads are cleaned between test runs to ensure test isolation
 
+## PDF Generation
+
+The application supports **two PDF generation approaches** for comparison:
+
+### 1. PDFKit Implementation
+- **File**: `backend/utils/pdfGeneratorKit.js`
+- **Endpoint**: `GET /api/files/:id/pdf-kit`
+- **Dependencies**: `pdfkit` (^0.17.2)
+- **Approach**: Direct PDF construction using PDFKit API
+- **Pros**: Lighter dependency (~1MB), no browser engine, faster startup
+- **Cons**: Less flexible layouts, custom table rendering
+
+### 2. Puppeteer Implementation
+- **File**: `backend/utils/pdfGeneratorPuppeteer.js`
+- **Template**: `backend/templates/datasheet.html`
+- **Endpoint**: `GET /api/files/:id/pdf-puppeteer`
+- **Dependencies**: `puppeteer` (^24.37.3, ~300MB with Chromium)
+- **Approach**: HTML/CSS template → Puppeteer headless Chrome → PDF
+- **Pros**: Standard HTML/CSS, easy table styling, template-based
+- **Cons**: Heavy dependency, slower generation, higher memory usage
+
+### Shared Logic
+Both implementations reuse:
+- `parseStructuredData(excelData)` - Excel parsing
+- `findLogoFile()`, `findProductImageFile()` - Image discovery
+- Excel parsing via ExcelJS in `backend/controllers/files.js`
+- Validation and security checks in `backend/utils/fileHelpers.js`
+
+### Frontend Toggle
+- **Component**: `frontend/src/components/Dashboard/Dashboard.jsx`
+- **UI**: Switch labeled "PDFKit / HTML/Puppeteer"
+- **Storage**: User selection in `localStorage` (`pdfGenerator` key)
+- **Service**: `frontend/src/services/fileService.js` routes to correct endpoint
+
 ### Error Handling Guidelines
 
 When developing new features or adding new error scenarios, **ALWAYS** evaluate whether a specific error handler should be added to `backend/utils/middleware.js` errorHandler function.

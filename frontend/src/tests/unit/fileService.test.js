@@ -180,7 +180,22 @@ describe('fileService', () => {
   })
 
   describe('generatePdf', () => {
-    it('sends GET request and returns blob response', async () => {
+    it('uses pdf-kit endpoint by default when usePuppeteer is false', async () => {
+      const mockBlob = new Blob(['PDF content'], { type: 'application/pdf' })
+      global.fetch.mockResolvedValue({
+        ok: true,
+        blob: async () => mockBlob
+      })
+
+      const result = await fileService.generatePdf(123, false)
+
+      expect(global.fetch).toHaveBeenCalledWith('/api/files/123/pdf-kit', {
+        headers: { 'Authorization': 'Bearer test-token' }
+      })
+      expect(result).toBe(mockBlob)
+    })
+
+    it('uses pdf-kit endpoint when no usePuppeteer parameter provided', async () => {
       const mockBlob = new Blob(['PDF content'], { type: 'application/pdf' })
       global.fetch.mockResolvedValue({
         ok: true,
@@ -189,7 +204,22 @@ describe('fileService', () => {
 
       const result = await fileService.generatePdf(123)
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/files/123/pdf', {
+      expect(global.fetch).toHaveBeenCalledWith('/api/files/123/pdf-kit', {
+        headers: { 'Authorization': 'Bearer test-token' }
+      })
+      expect(result).toBe(mockBlob)
+    })
+
+    it('uses pdf-puppeteer endpoint when usePuppeteer is true', async () => {
+      const mockBlob = new Blob(['PDF content'], { type: 'application/pdf' })
+      global.fetch.mockResolvedValue({
+        ok: true,
+        blob: async () => mockBlob
+      })
+
+      const result = await fileService.generatePdf(123, true)
+
+      expect(global.fetch).toHaveBeenCalledWith('/api/files/123/pdf-puppeteer', {
         headers: { 'Authorization': 'Bearer test-token' }
       })
       expect(result).toBe(mockBlob)
@@ -202,7 +232,18 @@ describe('fileService', () => {
         json: async () => ({ error: 'File not found' })
       })
 
-      await expect(fileService.generatePdf(999))
+      await expect(fileService.generatePdf(999, false))
+        .rejects.toThrow('File not found')
+    })
+
+    it('throws error with server message when Puppeteer PDF generation fails', async () => {
+      global.fetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+        json: async () => ({ error: 'File not found' })
+      })
+
+      await expect(fileService.generatePdf(999, true))
         .rejects.toThrow('File not found')
     })
 

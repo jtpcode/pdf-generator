@@ -4,7 +4,10 @@ import {
   Container,
   Box,
   Typography,
-  Alert
+  Alert,
+  Paper,
+  FormControlLabel,
+  Switch
 } from '@mui/material'
 import fileService from '../../services/fileService'
 import FileUpload from './FileUpload'
@@ -16,6 +19,9 @@ const Dashboard = ({ user, onLogout }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
+  const [usePuppeteer, setUsePuppeteer] = useState(() => {
+    return localStorage.getItem('pdfGenerator') === 'puppeteer'
+  })
 
   useEffect(() => {
     fetchFiles()
@@ -103,7 +109,7 @@ const Dashboard = ({ user, onLogout }) => {
       setLoading(true)
       setError(null)
 
-      const pdfBlob = await fileService.generatePdf(fileId)
+      const pdfBlob = await fileService.generatePdf(fileId, usePuppeteer)
 
       const url = window.URL.createObjectURL(pdfBlob)
       const link = document.createElement('a')
@@ -141,6 +147,32 @@ const Dashboard = ({ user, onLogout }) => {
             {success}
           </Alert>
         )}
+
+        <Paper sx={{ p: 2, mb: 2, backgroundColor: '#f5f5f5' }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={usePuppeteer}
+                onChange={(e) => {
+                  setUsePuppeteer(e.target.checked)
+                  localStorage.setItem('pdfGenerator', e.target.checked ? 'puppeteer' : 'pdfkit')
+                }}
+                slotProps={{ input: { 'aria-label': 'PDFKit / HTML + Puppeteer generator selector' } }}
+              />
+            }
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body2" color={!usePuppeteer ? 'primary' : 'text.secondary'} fontWeight={!usePuppeteer ? 'bold' : 'normal'}>
+                  PDFKit
+                </Typography>
+                <Typography variant="body2">/</Typography>
+                <Typography variant="body2" color={usePuppeteer ? 'primary' : 'text.secondary'} fontWeight={usePuppeteer ? 'bold' : 'normal'}>
+                  HTML/Puppeteer
+                </Typography>
+              </Box>
+            }
+          />
+        </Paper>
 
         <FileUpload onFileUpload={handleFileUpload} loading={loading} />
 

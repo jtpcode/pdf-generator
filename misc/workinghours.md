@@ -48,6 +48,7 @@ Working hours:
 | 12.2 | 2 | Study pdf generation with html -> Puppeteer. |
 | 13.2 | 5 | Implement 'Settings' page: user information, possibility to change name and password. |
 | 16.2 | 2 | Add tests for 'Settings' page. Fix navigation to Dashboard on login. |
-|      |   | Fix lining of "Login/Register here" links in Login and Register. Update tests accordingly. |
-|      | 1 | Add password change validation to ensure new password differs from current password. Update related tests. Add Eye-icon to password fields in Register component.
-| Total   | 149 |
+|      | 1 | Fix lining of "Login/Register here" links in Login and Register. Update tests accordingly. |
+|      | 4 | Add password change validation to ensure new password differs from current password. Update related tests. Add Eye-icon to password fields in Register component. |
+| 17.2 | 5 | Add early version of html+puppeteer pdf generation and tests accordingly. |
+| Total   | 158 |
