@@ -6,6 +6,6 @@ npm --prefix frontend ci
 npm --prefix backend ci
 
 echo "Installing Chromium for Puppeteer..."
-npx puppeteer browsers install chrome
+cd backend && npx puppeteer browsers install chrome
 
-npm --prefix backend run build:ui
+npm run build:ui
