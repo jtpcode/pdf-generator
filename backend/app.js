@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler, authRateLimiter, generalRateLimiter } from './utils/middleware.js'
+import { helmet, jsonParser, staticFiles, logger, unknownEndpoint, errorHandler } from './utils/middleware.js'
 import { connectToDatabase } from './utils/db.js'
 import usersRouter from './controllers/users.js'
 import loginRouter from './controllers/login.js'
@@ -14,9 +14,6 @@ await connectToDatabase()
 
 // Middleware
 app.use(helmet())
-if (process.env.NODE_ENV !== 'test') {
-  app.use(generalRateLimiter)
-}
 app.use(jsonParser)
 app.use(staticFiles)
 app.use(logger)
@@ -27,8 +24,8 @@ app.get('/health', (req, res) => {
 })
 
 // Routes
-app.use('/api/users', process.env.NODE_ENV !== 'test' ? authRateLimiter : (_req, _res, next) => next(), usersRouter)
-app.use('/api/login', process.env.NODE_ENV !== 'test' ? authRateLimiter : (_req, _res, next) => next(), loginRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 app.use('/api/logout', logoutRouter)
 app.use('/api/files', filesRouter)
 

@@ -20,8 +20,8 @@ env:
   # Check if we should deploy (main branch push with #deploy in commit message)
   OK_TO_DEPLOY: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && contains(join(github.event.commits.*.message, ' '), '#deploy') }}
   
-  # Run Playwright tests if commit contains #play or it's a pull request
-  RUN_PLAYWRIGHT: ${{ contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
+  # Run Playwright tests if main branch push commit message contains #play OR it's a pull request
+  RUN_PLAYWRIGHT: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && contains(join(github.event.commits.*.message, ' '), '#play') || github.event_name == 'pull_request' }}
 
 jobs:
   deployment_pipeline:

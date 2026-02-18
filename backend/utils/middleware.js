@@ -25,47 +25,6 @@ const jsonParser = express.json()
 const staticFiles = express.static('dist')
 const logger = morgan(':method :url :status :res[content-length] - :response-time ms :body')
 
-const createRateLimiter = (options = {}) => {
-  const {
-    windowMs = 60 * 1000,
-    maxRequests = 5,
-    message = 'Too many requests, please try again later'
-  } = options
-
-  const requests = new Map()
-
-  setInterval(() => {
-    requests.clear()
-  }, windowMs)
-
-  return (req, res, next) => {
-    const identifier = req.ip || req.connection.remoteAddress
-    const now = Date.now()
-    const userRequests = requests.get(identifier) || []
-    const recentRequests = userRequests.filter(timestamp => now - timestamp < windowMs)
-
-    if (recentRequests.length >= maxRequests) {
-      return res.status(429).json({ error: message })
-    }
-
-    recentRequests.push(now)
-    requests.set(identifier, recentRequests)
-    next()
-  }
-}
-
-const authRateLimiter = createRateLimiter({
-  windowMs: 15 * 60 * 1000,
-  maxRequests: 5,
-  message: 'Too many authentication attempts, please try again later'
-})
-
-const generalRateLimiter = createRateLimiter({
-  windowMs: 60 * 1000,
-  maxRequests: 100,
-  message: 'Too many requests, please try again later'
-})
-
 const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: 'Unknown endpoint.' })
 }
@@ -176,7 +135,5 @@ export {
   logger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor,
-  authRateLimiter,
-  generalRateLimiter
+  tokenExtractor
 }

@@ -19,7 +19,7 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 - Dashboard
   - Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
   - Example files can be asked directly from the developer
-  - Choose between PDFkit or html/css + puppeteer
+  - Choose between PDFkit or html + puppeteer
   - Click the 'Pdf' icon to generate the PDF
   - To delete a file, click the trashcan icon
 - Settings
