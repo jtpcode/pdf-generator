@@ -52,4 +52,5 @@ Working hours:
 |      | 4 | Add password change validation to ensure new password differs from current password. Update related tests. Add Eye-icon to password fields in Register component. |
 | 17.2 | 5 | Add early version of html+puppeteer pdf generation and tests accordingly. |
 |      | 2 | Refactor pdf generation code and finetune html+puppeteer pdf generation. |
-| Total | 160 |
+| 18.2 | 3 | Update dependencies of the whole project. Remove ratelimiters. Update Render build script to install Chromium for Puppeteer. |
+| Total | 163 |
