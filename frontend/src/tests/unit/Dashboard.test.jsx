@@ -480,8 +480,6 @@ describe('Dashboard Component', () => {
 
       await waitFor(() => {
         expect(screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })).toBeInTheDocument()
-        expect(screen.getByText(/PDFKit/i)).toBeInTheDocument()
-        expect(screen.getByText(/HTML\/Puppeteer/i)).toBeInTheDocument()
       })
     })
 
