@@ -129,6 +129,7 @@ export const parseStructuredData = (excelData) => {
     }
   }
 
+  // Handle any remaining data for the last section
   if (currentTag === '_list_' && currentData.length > 0) {
     result.sections.push({
       type: 'list',
