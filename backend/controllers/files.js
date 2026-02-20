@@ -5,7 +5,7 @@ import { promises as fs } from 'fs'
 import { File } from '../models/index.js'
 import { tokenExtractor } from '../utils/middleware.js'
 import { generateProductDataSheetPdfKit } from '../utils/pdfGeneratorKit.js'
-import { generateProductDataSheetPdfPuppeteer } from '../utils/pdfGeneratorPuppeteer.js'
+import { generateProductDataSheetPdfPuppeteer, buildProductDataSheetHtml } from '../utils/pdfGeneratorPuppeteer.js'
 import {
   initializeUploadsDir,
   getUserUploadDir,
@@ -164,7 +164,7 @@ router.get('/:id/pdf-kit', tokenExtractor, async (req, res, next) => {
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'inline; filename="Product Name.pdf"')
 
-    await generateProductDataSheetPdfKit(excelData, res)
+    await generateProductDataSheetPdfKit(excelData, res, req.user.id)
   } catch (error) {
     next(error)
   }
@@ -178,7 +178,23 @@ router.get('/:id/pdf-puppeteer', tokenExtractor, async (req, res, next) => {
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'inline; filename="Product Name.pdf"')
 
-    await generateProductDataSheetPdfPuppeteer(excelData, res)
+    await generateProductDataSheetPdfPuppeteer(excelData, res, req.user.id)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.get('/:id/html-preview', tokenExtractor, async (req, res, next) => {
+  try {
+    const excelData = await validateAndParseExcel(req, res)
+    if (!excelData) return
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    res.setHeader('X-Content-Type-Options', 'nosniff')
+    res.setHeader('Content-Security-Policy', 'default-src \'none\'; style-src \'unsafe-inline\'; img-src data:; font-src data:')
+
+    const { html } = buildProductDataSheetHtml(excelData, req.user.id)
+    res.send(html)
   } catch (error) {
     next(error)
   }

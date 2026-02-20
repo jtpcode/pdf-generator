@@ -12,6 +12,8 @@ import {
 import { UPLOADS_DIR } from '../../utils/config.js'
 
 const TEST_UPLOADS_DIR = path.join(process.cwd(), UPLOADS_DIR)
+const TEST_USER_ID = '1'
+const TEST_USER_DIR = path.join(TEST_UPLOADS_DIR, TEST_USER_ID)
 
 beforeEach(async () => {
   vi.restoreAllMocks()
@@ -399,65 +401,80 @@ describe('findLogoFile', () => {
   test('returns undefined when uploads directory does not exist', async () => {
     await fs.rm(TEST_UPLOADS_DIR, { recursive: true, force: true })
 
-    const logoPath = findLogoFile()
+    const logoPath = findLogoFile(TEST_USER_ID)
 
     expect(logoPath).toBeUndefined()
   })
 
   test('returns undefined when no logo file exists', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'test.png'), 'fake png data')
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'image.png'), 'fake png data')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'test.png'), 'fake png data')
+    await fs.writeFile(path.join(TEST_USER_DIR, 'image.png'), 'fake png data')
 
-    const logoPath = findLogoFile()
+    const logoPath = findLogoFile(TEST_USER_ID)
 
     expect(logoPath).toBeUndefined()
   })
 
   test('finds logo file with "logo" in filename (case insensitive)', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'company-logo.png'), 'fake png data')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'company-logo.png'), 'fake png data')
 
-    const logoPath = findLogoFile()
+    const logoPath = findLogoFile(TEST_USER_ID)
 
     expect(logoPath).toBeDefined()
     expect(logoPath).toContain('company-logo.png')
   })
 
   test('finds logo with uppercase in filename', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'LOGO.png'), 'fake png data')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'LOGO.png'), 'fake png data')
 
-    const logoPath = findLogoFile()
+    const logoPath = findLogoFile(TEST_USER_ID)
 
     expect(logoPath).toBeDefined()
     expect(logoPath).toContain('LOGO.png')
   })
 
   test('ignores non-png logo files', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'logo.jpg'), 'fake jpg data')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'logo.jpg'), 'fake jpg data')
 
-    const logoPath = findLogoFile()
+    const logoPath = findLogoFile(TEST_USER_ID)
 
     expect(logoPath).toBeUndefined()
   })
 
-  test('finds logo in subdirectory', async () => {
-    const subdir = path.join(TEST_UPLOADS_DIR, '1')
+  test('finds logo in subdirectory within user folder', async () => {
+    const subdir = path.join(TEST_USER_DIR, 'subdir')
     await fs.mkdir(subdir, { recursive: true })
     await fs.writeFile(path.join(subdir, 'brand-logo.png'), 'fake png data')
 
-    const logoPath = findLogoFile()
+    const logoPath = findLogoFile(TEST_USER_ID)
 
     expect(logoPath).toBeDefined()
     expect(logoPath).toContain('brand-logo.png')
   })
 
   test('returns first logo found when multiple exist', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'logo1.png'), 'fake png data')
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'logo2.png'), 'fake png data')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'logo1.png'), 'fake png data')
+    await fs.writeFile(path.join(TEST_USER_DIR, 'logo2.png'), 'fake png data')
 
-    const logoPath = findLogoFile()
+    const logoPath = findLogoFile(TEST_USER_ID)
 
     expect(logoPath).toBeDefined()
     expect(logoPath).toMatch(/logo[12]\.png/)
+  })
+
+  test('does not find logo from another user', async () => {
+    const otherUserDir = path.join(TEST_UPLOADS_DIR, '99')
+    await fs.mkdir(otherUserDir, { recursive: true })
+    await fs.writeFile(path.join(otherUserDir, 'company-logo.png'), 'fake png data')
+
+    const logoPath = findLogoFile(TEST_USER_ID)
+
+    expect(logoPath).toBeUndefined()
   })
 })
 
@@ -465,92 +482,109 @@ describe('findProductImageFile', () => {
   test('returns undefined when uploads directory does not exist', async () => {
     await fs.rm(TEST_UPLOADS_DIR, { recursive: true, force: true })
 
-    const imagePath = findProductImageFile('Product Name')
+    const imagePath = findProductImageFile('Product Name', TEST_USER_ID)
 
     expect(imagePath).toBeUndefined()
   })
 
   test('returns undefined when productName is not provided', async () => {
-    expect(findProductImageFile(undefined)).toBeUndefined()
-    expect(findProductImageFile(null)).toBeUndefined()
-    expect(findProductImageFile('')).toBeUndefined()
+    expect(findProductImageFile(undefined, TEST_USER_ID)).toBeUndefined()
+    expect(findProductImageFile(null, TEST_USER_ID)).toBeUndefined()
+    expect(findProductImageFile('', TEST_USER_ID)).toBeUndefined()
   })
 
   test('returns undefined when productName is not a string', async () => {
-    expect(findProductImageFile(123)).toBeUndefined()
-    expect(findProductImageFile({})).toBeUndefined()
-    expect(findProductImageFile([])).toBeUndefined()
+    expect(findProductImageFile(123, TEST_USER_ID)).toBeUndefined()
+    expect(findProductImageFile({}, TEST_USER_ID)).toBeUndefined()
+    expect(findProductImageFile([], TEST_USER_ID)).toBeUndefined()
   })
 
   test('returns undefined when no matching image exists', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'other-product.png'), 'fake png')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'other-product.png'), 'fake png')
 
-    const imagePath = findProductImageFile('My Product')
+    const imagePath = findProductImageFile('My Product', TEST_USER_ID)
 
     expect(imagePath).toBeUndefined()
   })
 
   test('finds product image with matching name', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'MyProduct.png'), 'fake png')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'MyProduct.png'), 'fake png')
 
-    const imagePath = findProductImageFile('My Product')
+    const imagePath = findProductImageFile('My Product', TEST_USER_ID)
 
     expect(imagePath).toBeDefined()
     expect(imagePath).toContain('MyProduct.png')
   })
 
   test('matches product name case-insensitively', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'myproduct.png'), 'fake png')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'myproduct.png'), 'fake png')
 
-    const imagePath = findProductImageFile('MY PRODUCT')
+    const imagePath = findProductImageFile('MY PRODUCT', TEST_USER_ID)
 
     expect(imagePath).toBeDefined()
     expect(imagePath).toContain('myproduct.png')
   })
 
   test('ignores spaces in matching', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'SuperWidget.png'), 'fake png')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'SuperWidget.png'), 'fake png')
 
-    const imagePath = findProductImageFile('Super Widget')
+    const imagePath = findProductImageFile('Super Widget', TEST_USER_ID)
 
     expect(imagePath).toBeDefined()
     expect(imagePath).toContain('SuperWidget.png')
   })
 
   test('ignores non-png files', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'Product.jpg'), 'fake jpg')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'Product.jpg'), 'fake jpg')
 
-    const imagePath = findProductImageFile('Product')
+    const imagePath = findProductImageFile('Product', TEST_USER_ID)
 
     expect(imagePath).toBeUndefined()
   })
 
-  test('finds image in subdirectory', async () => {
-    const subdir = path.join(TEST_UPLOADS_DIR, '1')
+  test('finds image in subdirectory within user folder', async () => {
+    const subdir = path.join(TEST_USER_DIR, 'subdir')
     await fs.mkdir(subdir, { recursive: true })
     await fs.writeFile(path.join(subdir, 'TestProduct.png'), 'fake png')
 
-    const imagePath = findProductImageFile('Test Product')
+    const imagePath = findProductImageFile('Test Product', TEST_USER_ID)
 
     expect(imagePath).toBeDefined()
     expect(imagePath).toContain('TestProduct.png')
   })
 
   test('matches partial product name', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'WidgetPro2000.png'), 'fake png')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'WidgetPro2000.png'), 'fake png')
 
-    const imagePath = findProductImageFile('Widget')
+    const imagePath = findProductImageFile('Widget', TEST_USER_ID)
 
     expect(imagePath).toBeDefined()
     expect(imagePath).toContain('WidgetPro2000.png')
   })
 
   test('handles special characters in filename', async () => {
-    await fs.writeFile(path.join(TEST_UPLOADS_DIR, 'Product-Model-X.png'), 'fake png')
+    await fs.mkdir(TEST_USER_DIR, { recursive: true })
+    await fs.writeFile(path.join(TEST_USER_DIR, 'Product-Model-X.png'), 'fake png')
 
-    const imagePath = findProductImageFile('Product-Model-X')
+    const imagePath = findProductImageFile('Product-Model-X', TEST_USER_ID)
 
     expect(imagePath).toBeDefined()
     expect(imagePath).toContain('Product-Model-X.png')
+  })
+
+  test('does not find image from another user', async () => {
+    const otherUserDir = path.join(TEST_UPLOADS_DIR, '99')
+    await fs.mkdir(otherUserDir, { recursive: true })
+    await fs.writeFile(path.join(otherUserDir, 'MyProduct.png'), 'fake png')
+
+    const imagePath = findProductImageFile('My Product', TEST_USER_ID)
+
+    expect(imagePath).toBeUndefined()
   })
 })

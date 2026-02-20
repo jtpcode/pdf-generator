@@ -8,41 +8,41 @@ import { UPLOADS_DIR } from './config.js'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-export const findLogoFile = () => {
-  const uploadsDir = path.join(__dirname, '..', UPLOADS_DIR)
-  if (!fs.existsSync(uploadsDir)) {
+export const findLogoFile = (userId) => {
+  const userDir = path.join(__dirname, '..', UPLOADS_DIR, String(userId))
+  if (!fs.existsSync(userDir)) {
     return undefined
   }
 
-  const files = fs.readdirSync(uploadsDir, { recursive: true })
+  const files = fs.readdirSync(userDir, { recursive: true })
   const logoFile = files.find(file =>
     typeof file === 'string' &&
     file.toLowerCase().includes('logo') &&
     file.toLowerCase().endsWith('.png')
   )
 
-  return logoFile ? path.join(uploadsDir, logoFile) : undefined
+  return logoFile ? path.join(userDir, logoFile) : undefined
 }
 
-export const findProductImageFile = (productName) => {
+export const findProductImageFile = (productName, userId) => {
   if (!productName || typeof productName !== 'string') {
     return undefined
   }
 
-  const uploadsDir = path.join(__dirname, '..', UPLOADS_DIR)
-  if (!fs.existsSync(uploadsDir)) {
+  const userDir = path.join(__dirname, '..', UPLOADS_DIR, String(userId))
+  if (!fs.existsSync(userDir)) {
     return undefined
   }
 
   const cleanProductName = productName.toLowerCase().replace(/\s+/g, '')
-  const files = fs.readdirSync(uploadsDir, { recursive: true })
+  const files = fs.readdirSync(userDir, { recursive: true })
   const productImageFile = files.find(file =>
     typeof file === 'string' &&
     file.toLowerCase().replace(/\s+/g, '').includes(cleanProductName) &&
     file.toLowerCase().endsWith('.png')
   )
 
-  return productImageFile ? path.join(uploadsDir, productImageFile) : undefined
+  return productImageFile ? path.join(userDir, productImageFile) : undefined
 }
 
 export const parseStructuredData = (excelData) => {

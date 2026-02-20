@@ -97,55 +97,59 @@ const renderZebraTableHtml = (dataRows, subtitle) => {
   return html
 }
 
-export const generateProductDataSheetPdfPuppeteer = async (excelData, outputStream) => {
+export const buildProductDataSheetHtml = (excelData, userId) => {
+  const parsedData = parseStructuredData(excelData)
+
+  const templatePath = path.join(__dirname, '..', 'templates', 'datasheet.html')
+  let htmlTemplate = fs.readFileSync(templatePath, 'utf-8')
+
+  const logoPath = findLogoFile(userId)
+  const logoDataUrl = imageToDataUrl(logoPath)
+  const logoHtml = logoDataUrl
+    ? `<img src="${logoDataUrl}" class="logo" alt="Logo">`
+    : '<span style="font-size: 10pt;">[Logo placeholder]</span>'
+
+  const productImagePath = findProductImageFile(parsedData.header, userId)
+  const productImageDataUrl = imageToDataUrl(productImagePath)
+  const productImageHtml = productImageDataUrl
+    ? `<div class="product-image-container"><img src="${productImageDataUrl}" class="product-image" alt="Product"></div>`
+    : ''
+
+  let sectionsHtml = ''
+  parsedData.sections.forEach(section => {
+    if (section.type === 'list') {
+      sectionsHtml += '<div class="content-section">\n'
+      sectionsHtml += renderListHtml(section.data, section.subtitle)
+      sectionsHtml += '</div>\n'
+    } else if (section.type === 'invisible_table') {
+      sectionsHtml += '<div class="content-section">\n'
+      sectionsHtml += renderKeyValueTableHtml(section.data, section.subtitle)
+      sectionsHtml += '</div>\n'
+    } else if (section.type === 'zebra_table') {
+      sectionsHtml += '<div class="content-section">\n'
+      sectionsHtml += renderZebraTableHtml(section.data, section.subtitle)
+      sectionsHtml += '</div>\n'
+    }
+  })
+
+  const versionDate = new Date().toISOString().split('T')[0]
+
+  htmlTemplate = htmlTemplate.replace('{{productName}}', formatSubscript(parsedData.header || 'Product Name'))
+  htmlTemplate = htmlTemplate.replace('{{logoImage}}', logoHtml)
+  htmlTemplate = htmlTemplate.replace('{{title}}', formatSubscript(parsedData.title || ''))
+  htmlTemplate = htmlTemplate.replace('{{code}}', formatSubscript(parsedData.code || ''))
+  htmlTemplate = htmlTemplate.replace('{{powerSupply}}', formatSubscript(parsedData.powerSupply || ''))
+  htmlTemplate = htmlTemplate.replace('{{productImage}}', productImageHtml)
+  htmlTemplate = htmlTemplate.replace('{{sectionsHtml}}', sectionsHtml)
+
+  return { html: htmlTemplate, footer: parsedData.footer, versionDate }
+}
+
+export const generateProductDataSheetPdfPuppeteer = async (excelData, outputStream, userId) => {
   let browser = null
 
   try {
-    const parsedData = parseStructuredData(excelData)
-
-    const templatePath = path.join(__dirname, '..', 'templates', 'datasheet.html')
-    let htmlTemplate = fs.readFileSync(templatePath, 'utf-8')
-
-    const logoPath = findLogoFile()
-    const logoDataUrl = imageToDataUrl(logoPath)
-    const logoHtml = logoDataUrl
-      ? `<img src="${logoDataUrl}" class="logo" alt="Logo">`
-      : '<span style="font-size: 10pt;">[Logo placeholder]</span>'
-
-    const productImagePath = findProductImageFile(parsedData.header)
-    const productImageDataUrl = imageToDataUrl(productImagePath)
-    const productImageHtml = productImageDataUrl
-      ? `<div class="product-image-container"><img src="${productImageDataUrl}" class="product-image" alt="Product"></div>`
-      : ''
-
-    let sectionsHtml = ''
-    parsedData.sections.forEach(section => {
-      if (section.type === 'list') {
-        sectionsHtml += '<div class="content-section">\n'
-        sectionsHtml += renderListHtml(section.data, section.subtitle)
-        sectionsHtml += '</div>\n'
-      } else if (section.type === 'invisible_table') {
-        sectionsHtml += '<div class="content-section">\n'
-        sectionsHtml += renderKeyValueTableHtml(section.data, section.subtitle)
-        sectionsHtml += '</div>\n'
-      } else if (section.type === 'zebra_table') {
-        sectionsHtml += '<div class="content-section">\n'
-        sectionsHtml += renderZebraTableHtml(section.data, section.subtitle)
-        sectionsHtml += '</div>\n'
-      }
-    })
-
-    const versionDate = new Date().toISOString().split('T')[0]
-
-    htmlTemplate = htmlTemplate.replace('{{productName}}', formatSubscript(parsedData.header || 'Product Name'))
-    htmlTemplate = htmlTemplate.replace('{{logoImage}}', logoHtml)
-    htmlTemplate = htmlTemplate.replace('{{title}}', formatSubscript(parsedData.title || ''))
-    htmlTemplate = htmlTemplate.replace('{{code}}', formatSubscript(parsedData.code || ''))
-    htmlTemplate = htmlTemplate.replace('{{powerSupply}}', formatSubscript(parsedData.powerSupply || ''))
-    htmlTemplate = htmlTemplate.replace('{{productImage}}', productImageHtml)
-    htmlTemplate = htmlTemplate.replace('{{sectionsHtml}}', sectionsHtml)
-    htmlTemplate = htmlTemplate.replace('{{footerText}}', formatSubscript(parsedData.footer || ''))
-    htmlTemplate = htmlTemplate.replace('{{versionDate}}', versionDate)
+    const { html: htmlTemplate, footer, versionDate } = buildProductDataSheetHtml(excelData, userId)
 
     browser = await puppeteer.launch({
       headless: true,
@@ -158,7 +162,7 @@ export const generateProductDataSheetPdfPuppeteer = async (excelData, outputStre
     const footerTemplate = `
       <div style="font-size: 7pt; width: 100%; padding: 0 30px; margin: 0;">
         <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-          <span>${formatSubscript(parsedData.footer || '')}</span>
+          <span>${formatSubscript(footer || '')}</span>
           <span>Version: ${versionDate}<span style="margin-left: 8px;" class="pageNumber"></span>/<span class="totalPages"></span></span>
         </div>
         <div style="text-align: left;">
@@ -172,11 +176,9 @@ export const generateProductDataSheetPdfPuppeteer = async (excelData, outputStre
       printBackground: true,
       preferCSSPageSize: true,
       displayHeaderFooter: true,
-      footerTemplate,
       headerTemplate: '<div></div>',
-      margin: {
-        bottom: '80px'
-      }
+      footerTemplate,
+      margin: { bottom: '35px' }
     })
 
     await browser.close()

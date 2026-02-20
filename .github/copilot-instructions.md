@@ -1,5 +1,7 @@
 # PDF Generator - Copilot Instructions
 
+**Always answer using the same language as the prompt question for Copilot was written.**
+
 ## Repository Overview
 
 **Project Type**: Full-stack web application for PDF generation with Excel file upload

@@ -6,14 +6,14 @@ import { findLogoFile, findProductImageFile, parseStructuredData } from './pdfHe
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const addHeader = (doc, productName = 'Product Name') => {
+const addHeader = (doc, productName = 'Product Name', userId) => {
   doc.fontSize(14)
     .font('DejaVuSans-Bold')
     .fillColor('#c91e42')
     .text(productName, 50, 30)
     .fillColor('black')
 
-  const logoPath = findLogoFile()
+  const logoPath = findLogoFile(userId)
   if (logoPath) {
     try {
       const logoWidth = 80
@@ -143,7 +143,7 @@ const renderStripedTable = (doc, dataRows) => {
   doc.moveDown(0.3)
 }
 
-export const generateProductDataSheetPdfKit = (excelData, outputStream) => {
+export const generateProductDataSheetPdfKit = (excelData, outputStream, userId) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       margins: {
@@ -166,7 +166,7 @@ export const generateProductDataSheetPdfKit = (excelData, outputStream) => {
 
     const parsedData = parseStructuredData(excelData)
 
-    addHeader(doc, parsedData.header)
+    addHeader(doc, parsedData.header, userId)
 
     doc.fontSize(14)
       .font('DejaVuSans-Bold')
@@ -181,7 +181,7 @@ export const generateProductDataSheetPdfKit = (excelData, outputStream) => {
     doc.text(parsedData.powerSupply, { align: 'right' })
     doc.moveDown(0.2)
 
-    const productImagePath = findProductImageFile(parsedData.header)
+    const productImagePath = findProductImageFile(parsedData.header, userId)
     if (productImagePath) {
       try {
         const imageWidth = 150
