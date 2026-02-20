@@ -126,6 +126,26 @@ test.describe('Login functionality', () => {
       await expect(page.getByRole('alert')).toContainText('PDF generated successfully!')
     })
 
+    test('should open HTML preview in new tab', async ({ page }) => {
+      await uploadFile(page, await createMockExcelFile('html-preview-test.xlsx'))
+      await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')
+
+      await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
+
+      const listItem = page.locator('li', { has: page.getByText('html-preview-test.xlsx') })
+      const previewButton = listItem.getByRole('button', { name: 'preview html' })
+
+      const newPagePromise = page.context().waitForEvent('page')
+      await previewButton.click()
+
+      const newPage = await newPagePromise
+      await newPage.waitForLoadState()
+
+      await expect(page.getByRole('alert')).toContainText('HTML preview opened in new window!')
+
+      await newPage.close()
+    })
+
     test('should delete uploaded file', async ({ page }) => {
       await uploadFile(page, await createMockExcelFile('file-to-delete.xlsx'))
       await expect(page.getByRole('alert')).toContainText('File uploaded successfully!')

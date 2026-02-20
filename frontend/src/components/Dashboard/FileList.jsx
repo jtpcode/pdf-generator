@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import FileItem from './FileItem'
 
-const FileList = ({ files, loading, onDelete, onGeneratePdf }) => {
+const FileList = ({ files, loading, onDelete, onGeneratePdf, onHtmlPreview }) => {
   const formatFileSize = (bytes) => {
     if (bytes < 1024) return bytes + ' B'
     if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB'
@@ -41,6 +41,7 @@ const FileList = ({ files, loading, onDelete, onGeneratePdf }) => {
               file={file}
               onDelete={onDelete}
               onGeneratePdf={onGeneratePdf}
+              onHtmlPreview={onHtmlPreview}
               loading={loading}
               formatFileSize={formatFileSize}
               formatDate={formatDate}
@@ -63,7 +64,8 @@ FileList.propTypes = {
   ).isRequired,
   loading: PropTypes.bool.isRequired,
   onDelete: PropTypes.func.isRequired,
-  onGeneratePdf: PropTypes.func.isRequired
+  onGeneratePdf: PropTypes.func.isRequired,
+  onHtmlPreview: PropTypes.func.isRequired
 }
 
 export default FileList

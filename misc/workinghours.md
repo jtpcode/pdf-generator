@@ -53,4 +53,7 @@ Working hours:
 | 17.2 | 5 | Add early version of html+puppeteer pdf generation and tests accordingly. |
 |      | 2 | Refactor pdf generation code and finetune html+puppeteer pdf generation. |
 | 18.2 | 3 | Update dependencies of the whole project. Remove ratelimiters. Update Render build script to install Chromium for Puppeteer. |
-| Total | 163 |
+| 19.2 | 5 | Study html preview techniques and requirements. Added html preview for the PDF. |
+| 20.2 | 1 | Fix logo file search to include only user's own directory. |
+|      | 2 | Add tests for html preview. |
+| Total | 171 |

@@ -269,4 +269,54 @@ describe('fileService', () => {
         .rejects.toThrow('Failed to generate PDF (400)')
     })
   })
+
+  describe('getHtmlPreview', () => {
+    it('sends GET request to html-preview endpoint with authorization header', async () => {
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: async () => '<!DOCTYPE html><html><body>Preview</body></html>'
+      })
+
+      const result = await fileService.getHtmlPreview(42)
+
+      expect(global.fetch).toHaveBeenCalledWith('/api/files/42/html-preview', {
+        headers: { 'Authorization': 'Bearer test-token' }
+      })
+      expect(result).toBe('<!DOCTYPE html><html><body>Preview</body></html>')
+    })
+
+    it('returns HTML text on success', async () => {
+      const htmlContent = '<!DOCTYPE html><html><head><title>Preview</title></head><body><h1>Product</h1></body></html>'
+      global.fetch.mockResolvedValue({
+        ok: true,
+        text: async () => htmlContent
+      })
+
+      const result = await fileService.getHtmlPreview(1)
+
+      expect(result).toBe(htmlContent)
+    })
+
+    it('throws error with server message when preview generation fails', async () => {
+      global.fetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+        json: async () => ({ error: 'File not found' })
+      })
+
+      await expect(fileService.getHtmlPreview(999))
+        .rejects.toThrow('File not found')
+    })
+
+    it('throws generic error when server returns no error message', async () => {
+      global.fetch.mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: async () => ({})
+      })
+
+      await expect(fileService.getHtmlPreview(1))
+        .rejects.toThrow('Failed to generate HTML preview')
+    })
+  })
 })

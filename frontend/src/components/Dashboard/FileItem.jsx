@@ -3,12 +3,14 @@ import {
   ListItem,
   ListItemText,
   IconButton,
-  Box
+  Box,
+  Tooltip
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
+import VisibilityIcon from '@mui/icons-material/Visibility'
 
-const FileItem = ({ file, onDelete, onGeneratePdf, loading, formatFileSize, formatDate }) => {
+const FileItem = ({ file, onDelete, onGeneratePdf, onHtmlPreview, loading, formatFileSize, formatDate }) => {
   const isExcelFile = file.originalName.toLowerCase().endsWith('.xls') ||
                      file.originalName.toLowerCase().endsWith('.xlsx')
 
@@ -18,14 +20,28 @@ const FileItem = ({ file, onDelete, onGeneratePdf, loading, formatFileSize, form
       secondaryAction={
         <Box sx={{ display: 'flex', gap: 1 }}>
           {isExcelFile && (
-            <IconButton
-              edge="end"
-              aria-label="generate pdf"
-              onClick={() => onGeneratePdf(file.id)}
-              disabled={loading}
-            >
-              <PictureAsPdfIcon />
-            </IconButton>
+            <>
+              <Tooltip title="Preview HTML template">
+                <IconButton
+                  edge="end"
+                  aria-label="preview html"
+                  onClick={() => onHtmlPreview(file.id)}
+                  disabled={loading}
+                >
+                  <VisibilityIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Generate PDF">
+                <IconButton
+                  edge="end"
+                  aria-label="generate pdf"
+                  onClick={() => onGeneratePdf(file.id)}
+                  disabled={loading}
+                >
+                  <PictureAsPdfIcon />
+                </IconButton>
+              </Tooltip>
+            </>
           )}
           <IconButton
             edge="end"
@@ -55,6 +71,7 @@ FileItem.propTypes = {
   }).isRequired,
   onDelete: PropTypes.func.isRequired,
   onGeneratePdf: PropTypes.func.isRequired,
+  onHtmlPreview: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   formatFileSize: PropTypes.func.isRequired,
   formatDate: PropTypes.func.isRequired

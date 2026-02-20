@@ -19,9 +19,7 @@ const Dashboard = ({ user, onLogout }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
-  const [usePuppeteer, setUsePuppeteer] = useState(() => {
-    return localStorage.getItem('pdfGenerator') === 'puppeteer'
-  })
+  const [usePuppeteer, setUsePuppeteer] = useState(false)
 
   useEffect(() => {
     fetchFiles()
@@ -34,6 +32,7 @@ const Dashboard = ({ user, onLogout }) => {
       setFiles(fileList)
     } catch (err) {
       setError(err.message)
+      setTimeout(() => setError(null), 5000)
     } finally {
       setLoading(false)
     }
@@ -79,6 +78,7 @@ const Dashboard = ({ user, onLogout }) => {
       setTimeout(() => setSuccess(null), 5000)
     } catch (err) {
       setError(err.message)
+      setTimeout(() => setError(null), 5000)
     } finally {
       setLoading(false)
       event.target.value = ''
@@ -99,6 +99,7 @@ const Dashboard = ({ user, onLogout }) => {
       setTimeout(() => setSuccess(null), 5000)
     } catch (err) {
       setError(err.message)
+      setTimeout(() => setError(null), 5000)
     } finally {
       setLoading(false)
     }
@@ -126,6 +127,36 @@ const Dashboard = ({ user, onLogout }) => {
       setTimeout(() => setSuccess(null), 5000)
     } catch (err) {
       setError(err.message)
+      setTimeout(() => setError(null), 5000)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleHtmlPreview = async (fileId) => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Open window synchronously before the async fetch to avoid popup blocker
+      const newWindow = window.open('about:blank', '_blank')
+      if (!newWindow) {
+        throw new Error('Failed to open preview window. Please check your popup blocker settings.')
+      }
+
+      const html = await fileService.getHtmlPreview(fileId)
+
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+      const url = URL.createObjectURL(blob)
+      newWindow.location.href = url
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+
+      setSuccess('HTML preview opened in new window!')
+      setTimeout(() => setSuccess(null), 5000)
+    } catch (err) {
+      setError(err.message)
+      setTimeout(() => setError(null), 5000)
     } finally {
       setLoading(false)
     }
@@ -155,7 +186,6 @@ const Dashboard = ({ user, onLogout }) => {
                 checked={usePuppeteer}
                 onChange={(e) => {
                   setUsePuppeteer(e.target.checked)
-                  localStorage.setItem('pdfGenerator', e.target.checked ? 'puppeteer' : 'pdfkit')
                 }}
                 slotProps={{ input: { 'aria-label': 'PDFKit / HTML + Puppeteer generator selector' } }}
               />
@@ -181,6 +211,7 @@ const Dashboard = ({ user, onLogout }) => {
           loading={loading}
           onDelete={handleFileDelete}
           onGeneratePdf={handlePdfGeneration}
+          onHtmlPreview={handleHtmlPreview}
         />
       </Box>
     </Container>

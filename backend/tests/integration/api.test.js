@@ -901,3 +901,104 @@ describe('PDF Generation API', () => {
     expect(response.body.error).toBe('Failed to parse Excel file. File may be corrupted.')
   })
 })
+
+describe('HTML Preview API', () => {
+  test('returns HTML for valid Excel file', async () => {
+    const { token } = await createAndLoginUser()
+
+    const uploadResponse = await uploadFile(
+      token,
+      'test.xlsx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    const fileId = uploadResponse.body.id
+
+    const response = await api
+      .get(`/api/files/${fileId}/html-preview`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(200)
+
+    expect(response.headers['content-type']).toMatch(/text\/html/)
+    expect(response.text).toContain('<!DOCTYPE html>')
+  })
+
+  test('returns 404 for non-existent file', async () => {
+    const { token } = await createAndLoginUser()
+
+    const response = await api
+      .get('/api/files/99999/html-preview')
+      .set('Authorization', `bearer ${token}`)
+      .expect(404)
+
+    expect(response.body.error).toBe('File not found')
+  })
+
+  test('returns 403 for other user\'s file', async () => {
+    const { token: token1 } = await createAndLoginUser(
+      generateUniqueUsername('user1'),
+      'Test User 1'
+    )
+    const { token: token2 } = await createAndLoginUser(
+      generateUniqueUsername('user2'),
+      'Test User 2'
+    )
+
+    const uploadResponse = await uploadFile(
+      token1,
+      'test.xlsx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+    const fileId = uploadResponse.body.id
+
+    const response = await api
+      .get(`/api/files/${fileId}/html-preview`)
+      .set('Authorization', `bearer ${token2}`)
+      .expect(403)
+
+    expect(response.body.error).toBe('Access denied')
+  })
+
+  test('returns 401 without authentication token', async () => {
+    await api
+      .get('/api/files/1/html-preview')
+      .expect(401)
+      .expect({ error: 'token missing' })
+  })
+
+  test('returns 400 for invalid file ID', async () => {
+    const { token } = await createAndLoginUser()
+
+    const response = await api
+      .get('/api/files/invalid/html-preview')
+      .set('Authorization', `bearer ${token}`)
+      .expect(400)
+
+    expect(response.body.error).toBe('Invalid file ID')
+  })
+
+  test('returns 400 for corrupted Excel file', async () => {
+    const { token } = await createAndLoginUser()
+
+    const corruptedBuffer = Buffer.from('PK\x03\x04' + 'corrupted Excel data')
+
+    const uploadResponse = await api
+      .post('/api/files')
+      .attach('file', corruptedBuffer, {
+        filename: 'corrupted.xlsx',
+        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      })
+      .set('Authorization', `bearer ${token}`)
+      .expect(201)
+
+    const fileId = uploadResponse.body.id
+
+    const response = await api
+      .get(`/api/files/${fileId}/html-preview`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(400)
+
+    expect(response.body.error).toBe('Failed to parse Excel file. File may be corrupted.')
+  })
+})

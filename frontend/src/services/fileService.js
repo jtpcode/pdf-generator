@@ -94,4 +94,23 @@ const generatePdf = async (fileId, usePuppeteer = false) => {
   return await response.blob()
 }
 
-export default { getAllFiles, uploadFile, deleteFile, generatePdf }
+const getHtmlPreview = async (fileId) => {
+  const response = await fetch(`${baseUrl}/${fileId}/html-preview`, {
+    headers: getAuthHeaders()
+  })
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to generate HTML preview'
+    try {
+      const errorData = await response.json()
+      errorMessage = errorData.error || errorMessage
+    } catch {
+      errorMessage = `${errorMessage} (${response.status})`
+    }
+    throw new Error(errorMessage)
+  }
+
+  return await response.text()
+}
+
+export default { getAllFiles, uploadFile, deleteFile, generatePdf, getHtmlPreview }
