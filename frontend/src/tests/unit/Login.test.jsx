@@ -43,11 +43,11 @@ describe('Login Component', () => {
     expect(passwordInput).toHaveValue('testpass123')
   })
 
-  it('calls authService.login, authService.saveUser and onLogin with correct credentials on form submit', async () => {
+  it('calls authService.login, authService.saveAuthData and onLogin with correct credentials on form submit', async () => {
     const user = userEvent.setup()
     const mockUserData = { username: 'testuser', token: 'test-token' }
     authService.login.mockResolvedValue(mockUserData)
-    authService.saveUser.mockImplementation(() => {})
+    authService.saveAuthData.mockImplementation(() => {})
 
     render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
 
@@ -61,7 +61,7 @@ describe('Login Component', () => {
 
     await waitFor(() => {
       expect(authService.login).toHaveBeenCalledWith('testuser', 'testpass123')
-      expect(authService.saveUser).toHaveBeenCalledWith(mockUserData)
+      expect(authService.saveAuthData).toHaveBeenCalledWith(mockUserData)
       expect(mockOnLogin).toHaveBeenCalledWith(mockUserData)
     })
   })
@@ -156,7 +156,7 @@ describe('Login Component', () => {
       expect(authService.login).toHaveBeenCalled()
     })
 
-    expect(authService.saveUser).not.toHaveBeenCalled()
+    expect(authService.saveAuthData).not.toHaveBeenCalled()
     expect(mockOnLogin).not.toHaveBeenCalled()
   })
 

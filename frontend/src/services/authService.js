@@ -77,9 +77,9 @@ const getToken = () => {
   return localStorage.getItem('token')
 }
 
-const saveUser = (userData) => {
+const saveAuthData = (userData) => {
   localStorage.setItem('token', userData.token)
   localStorage.setItem('user', JSON.stringify(userData))
 }
 
-export default { register, login, logout, getStoredUser, getToken, saveUser }
+export default { register, login, logout, getStoredUser, getToken, saveAuthData }

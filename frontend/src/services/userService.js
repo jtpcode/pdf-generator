@@ -29,7 +29,7 @@ const updateUser = async (userId, newName) => {
 
   const storedUser = authService.getStoredUser()
   if (storedUser) {
-    authService.saveUser({ ...storedUser, ...updatedUser })
+    authService.saveAuthData({ ...storedUser, ...updatedUser })
   }
 
   return updatedUser

@@ -8,7 +8,7 @@ vi.mock('../../services/authService', () => ({
   default: {
     register: vi.fn(),
     login: vi.fn(),
-    saveUser: vi.fn(),
+    saveAuthData: vi.fn(),
   }
 }))
 
@@ -185,7 +185,7 @@ describe('Register Component', () => {
     await waitFor(() => {
       expect(authService.register).toHaveBeenCalledWith('testuser', 'Test User', 'ValidPassword123!')
       expect(authService.login).toHaveBeenCalledWith('testuser', 'ValidPassword123!')
-      expect(authService.saveUser).toHaveBeenCalledWith(mockUserData)
+      expect(authService.saveAuthData).toHaveBeenCalledWith(mockUserData)
       expect(mockOnRegisterSuccess).toHaveBeenCalledWith(mockUserData)
     })
   })

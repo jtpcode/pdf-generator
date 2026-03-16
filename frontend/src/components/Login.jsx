@@ -18,7 +18,7 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
       const userData = await authService.login(username, password)
 
       if (userData.token) {
-        authService.saveUser(userData)
+        authService.saveAuthData(userData)
         onLogin(userData)
       }
     } catch (err) {

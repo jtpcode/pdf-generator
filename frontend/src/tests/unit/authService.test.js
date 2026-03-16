@@ -211,11 +211,11 @@ describe('authService', () => {
     })
   })
 
-  describe('saveUser', () => {
+  describe('saveAuthData', () => {
     it('saves token and user data to localStorage', () => {
       const userData = { username: 'testuser', token: 'test-token' }
 
-      authService.saveUser(userData)
+      authService.saveAuthData(userData)
 
       expect(localStorage.getItem('token')).toBe('test-token')
       expect(localStorage.getItem('user')).toBe(JSON.stringify(userData))

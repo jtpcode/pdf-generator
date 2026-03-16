@@ -6,7 +6,7 @@ vi.mock('../../services/authService', () => ({
   default: {
     getToken: vi.fn(),
     getStoredUser: vi.fn(),
-    saveUser: vi.fn()
+    saveAuthData: vi.fn()
   }
 }))
 
@@ -44,7 +44,7 @@ describe('userService', () => {
         body: JSON.stringify({ newName: 'New Name' })
       })
       expect(result).toEqual(mockUpdatedUser)
-      expect(authService.saveUser).toHaveBeenCalled()
+      expect(authService.saveAuthData).toHaveBeenCalled()
     })
 
     it('throws error when no token is available', async () => {
