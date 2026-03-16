@@ -56,4 +56,5 @@ Working hours:
 | 19.2 | 5 | Study html preview techniques and requirements. Added html preview for the PDF. |
 | 20.2 | 1 | Fix logo file search to include only user's own directory. |
 |      | 2 | Add tests for html preview. |
-| Total | 171 |
+| 16.3 | 2 | Update documentation. |
+| Total | 173 |

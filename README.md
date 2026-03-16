@@ -14,7 +14,7 @@ https://pdf-generator-3ucg.onrender.com/
 
 The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be achieved. The application accepts Excel and .png files, and their naming/content has to be in a specific form to comply with the code. Example files can be asked directly from the developer. **The application is by no means a ready made product for general use**.
 
-## How to use
+## How to use the application
 - Create credentials for login
 - Dashboard
   - Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
@@ -25,6 +25,54 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 - Settings
   - Update user name
   - Update password
+
+## Setting up local development environment
+
+### Prerequisites
+- Node.js 24+
+- npm 11+
+- Docker & Docker Compose (for local PostgeSQL DB)
+
+### Installation
+1. Clone the repository
+2. Install root, frontend, and backend dependencies:
+	```sh
+	npm ci
+	npm --prefix frontend ci
+	npm --prefix backend ci
+	```
+3. Configure environment variables:
+	- For PostgreSQL (Docker containerized), include `.env` in the project root:
+	  - POSTGRES_PASSWORD=[YOUR_PASSWORD]
+	- For backend, include `.env` in /backend:
+		- JWT_SECRET=[YOUR_JWT_SECRET]
+	  - DATABASE_URL=postgres://[POSTGRES_USER]:[YOUR_PASSWORD]@localhost:5432/[DATABASE_NAME]
+		  - default user is 'postgers': [POSTGRES_USER] = postgres
+		  - default database is 'postgres': [DATABASE_NAME] = postgres
+	  - TEST_DATABASE_URL=postgres://[POSTGRES_USER]:[YOUR_PASSWORD]@localhost:5432[TEST_DATABASE_NAME]
+		  - NOTE: You must first create a separate test database if you're going to run tests locally, for example:
+		  - `docker exec -it [CONTAINER_ID] psql -U postgres -c "CREATE DATABASE [TEST_DATABASE_NAME];"`
+4. Start PostgreSQL with Docker Compose:
+	```sh
+	docker compose -f docker-compose.dev.yml up
+	```
+5. Start development servers:
+	```sh
+	npm --prefix backend run dev
+	npm --prefix frontend run dev
+	```
+6. App is located at: `http://localhost:5173/`
+
+### Local testing:
+- Use ready made test scripts in the package.json files, since they will use NODE_ENV=test which automatically enable using TEST_DATABASE once it's been created
+- Make sure Postgres database is running, and both frontend and backend dev servers are offline
+- In project root:
+	- `npm run test:frontend`
+	- `npm run test:backend`
+- The same thing in /frontend and /backend:
+	- `npm run test`
+- E2E testing with Playwright in the project root:
+	- `npm run test:play`
 
 ## Technology stack
 
@@ -42,41 +90,6 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 - **Backend**: RESTful API with authentication, file handling, and user/session management
 - **Database**: PostgreSQL, managed via Sequelize migrations
 - **CI/CD**: Automated pipeline for linting, testing and deploying
-
-## Getting started
-
-### Prerequisites
-- Node.js 24+
-- npm 11+
-- Docker & Docker Compose (for local PostgeSQL DB)
-
-### Installation
-1. Clone the repository
-2. Install root, frontend, and backend dependencies:
-	```sh
-	npm ci
-	npm --prefix frontend ci
-	npm --prefix backend ci
-	```
-3. Configure environment variables:
-	- For PostgreSQL, include `.env` in project root:
-	  - POSTGRES_PASSWORD=[YOUR_PASSWORD]
-	- For backend, include `.env` in /backend:
-	  - DATABASE_URL=[YOUR_DATABASE_URL]
-	  - TEST_DATABASE_URL=[TEST_DATABASE_URL]
-	  - JWT_SECRET=[YOUR_JWT_SECRET]
-	- NOTE:
-	  - You must create a test database if you're going to use tests.
-	  - DATABASE_URL: postgres://[POSTGRES_USER]:[YOUR_PASSWORD]@localhost:5432/[DATABASE_NAME]
-4. Start PostgreSQL with Docker Compose:
-	```sh
-	docker compose -f docker-compose.dev.yml up
-	```
-5. Start development servers:
-	```sh
-	npm --prefix backend run dev
-	npm --prefix frontend run dev
-	```
 
 ## Key features
 

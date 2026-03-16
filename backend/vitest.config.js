@@ -5,11 +5,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: true
-      }
-    },
+    singleThread: true,
     fileParallelism: false,
     testTimeout: 10000,
     coverage: {
