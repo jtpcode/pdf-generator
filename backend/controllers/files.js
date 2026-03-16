@@ -42,6 +42,9 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024 // 10MB limit
   },
   fileFilter: (req, file, cb) => {
+    // Decode filename from Buffer to string using UTF-8 to fix encoding issues
+    file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8')
+
     const allowedMimeTypes = [
       'application/vnd.ms-excel',
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

@@ -43,14 +43,16 @@ const FileItem = ({ file, onDelete, onGeneratePdf, onHtmlPreview, loading, forma
               </Tooltip>
             </>
           )}
-          <IconButton
-            edge="end"
-            aria-label="delete"
-            onClick={() => onDelete(file.id, file.originalName)}
-            disabled={loading}
-          >
-            <DeleteIcon />
-          </IconButton>
+          <Tooltip title="Delete file">
+            <IconButton
+              edge="end"
+              aria-label="delete"
+              onClick={() => onDelete(file.id, file.originalName)}
+              disabled={loading}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
         </Box>
       }
     >

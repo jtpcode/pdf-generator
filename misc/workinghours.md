@@ -57,4 +57,5 @@ Working hours:
 | 20.2 | 1 | Fix logo file search to include only user's own directory. |
 |      | 2 | Add tests for html preview. |
 | 16.3 | 2 | Update documentation. |
-| Total | 173 |
+|      | 2 | Fix page reload routing issue in production. Fix: show scandic letters (ä,ö..) correctly with filenames.
+| Total | 175 |
