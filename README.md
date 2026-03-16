@@ -20,6 +20,7 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
   - Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
   - Example files can be asked directly from the developer
   - Choose between PDFkit or html + puppeteer
+	- Click 'eye' icon to quick check how the PDF looks like
   - Click the 'Pdf' icon to generate the PDF
   - To delete a file, click the trashcan icon
 - Settings
@@ -67,12 +68,20 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 - Use ready made test scripts in the package.json files, since they will use NODE_ENV=test which automatically enable using TEST_DATABASE once it's been created
 - Make sure Postgres database is running, and both frontend and backend dev servers are offline
 - In project root:
-	- `npm run test:frontend`
-	- `npm run test:backend`
+	```sh
+	npm run test:frontend
+	```
+	```sh
+	npm run test:backend
+	```
 - The same thing in /frontend and /backend:
-	- `npm run test`
+	```sh
+	npm run test
+	```
 - E2E testing with Playwright in the project root:
-	- `npm run test:play`
+	```sh
+	npm run test:play
+	```
 
 ## Technology stack
 
