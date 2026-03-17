@@ -17,6 +17,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  # Force all JavaScript actions to use Node.js 24 to prepare for the Github actions runtime upgrade in June 2026
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
   # Check if we should deploy (main branch push with #deploy in commit message)
   OK_TO_DEPLOY: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' && contains(join(github.event.commits.*.message, ' '), '#deploy') }}
   
@@ -52,7 +55,7 @@ jobs:
           node-version: '24'
       
       - name: Cache npm dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.npm
@@ -91,7 +94,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Cache Playwright Browsers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium-${{ hashFiles('**/package-lock.json') }}
