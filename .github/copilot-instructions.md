@@ -21,7 +21,7 @@
 │   └── tests/         # Backend integration and unit tests
 ├── frontend/          # React + Vite SPA
 │   └── src/
-│       ├── components/  # Login.jsx, Register.jsx, Dashboard.jsx
+│       ├── components/  # Login.jsx, Register.jsx, Navigation.jsx, Settings.jsx, Dashboard/*.jsx
 │       ├── services/    # API service layers
 │       └── tests/unit/  # Frontend unit tests
 ├── e2e-tests/         # Playwright end-to-end tests
@@ -110,7 +110,7 @@ npm run test:backend
 npx playwright install --with-deps
 
 # Run E2E tests
-npx playwright test
+npm run test:play
 ```
 - **REQUIRES**: Both PostgreSQL running AND environment variables set
 - Starts backend server (`npm run dev:test`) and frontend dev server automatically
@@ -124,9 +124,14 @@ npx playwright test
 ```bash
 cd frontend && npm run build
 ```
-- Creates production bundle in `frontend/dist/`
+- Creates production bundle in `backend/dist/` (see `frontend/vite.config.js`)
 - Takes ~3 seconds
-- **Note**: Backend has no build step (runs directly with Node.js)
+
+**Build UI into backend (wrapper script)**:
+```bash
+cd backend && npm run build:ui
+```
+- **Note**: Backend runs directly with Node.js; the UI build is the only build step
 
 ### Running Locally
 
@@ -160,17 +165,18 @@ cd frontend && npm run dev
 7. `npm run test:backend` (with DB connection)
 8. `npm run test:frontend`
 9. Upload coverage to Codecov
-10. **Conditionally** install Playwright browsers with `npx playwright install --with-deps` (if PR or commit contains `#play`)
+10. **Conditionally** install Playwright browsers with `npx playwright install chromium --with-deps` (if PR or commit contains `#play`)
 11. **Conditionally** run `npx playwright test` (if PR or commit contains `#play`)
 12. Upload Playwright report as artifact
+13. **Conditionally** deploy (main branch push with `#deploy` in commit message)
 
 ### Special Commit Message Flags
 
-- `#skip` - Skip deployment (only affects main branch)
+- `#deploy` - Deploy (only affects main branch pushes)
 - `#noci` - Skip entire CI pipeline
-- `#play` - Force Playwright tests to run (otherwise only on PRs)
+- `#play` - Force Playwright tests to run on main branch pushes (pull requests run Playwright by default)
 
-**Default behavior**: Playwright tests run on ALL pull requests but NOT on direct pushes to main (unless `#play` is in commit message).
+**Default behavior**: Playwright tests run on ALL pull requests but NOT on direct pushes to main (unless `#play` is in commit message). Deployment runs only on main branch pushes that include `#deploy` in the commit message.
 
 ### Common CI Failures & Solutions
 
@@ -224,7 +230,7 @@ The application supports **two PDF generation approaches** for comparison:
 - **File**: `backend/utils/pdfGeneratorPuppeteer.js`
 - **Template**: `backend/templates/datasheet.html`
 - **Endpoint**: `GET /api/files/:id/pdf-puppeteer`
-- **Dependencies**: `puppeteer` (^24.37.3, ~300MB with Chromium)
+- **Dependencies**: `puppeteer` (^24.x, ~300MB with Chromium)
 - **Approach**: HTML/CSS template → Puppeteer headless Chrome → PDF
 - **Pros**: Standard HTML/CSS, easy table styling, template-based
 - **Cons**: Heavy dependency, slower generation, higher memory usage
@@ -239,7 +245,7 @@ Both implementations reuse:
 ### Frontend Toggle
 - **Component**: `frontend/src/components/Dashboard/Dashboard.jsx`
 - **UI**: Switch labeled "PDFKit / HTML + Puppeteer"
-- **Storage**: User selection in `localStorage` (`pdfGenerator` key)
+- **Storage**: User selection in `sessionStorage` (`usePuppeteer` key, `'true'`/`'false'`)
 - **Service**: `frontend/src/services/fileService.js` routes to correct endpoint
 
 ### Error Handling Guidelines
@@ -304,13 +310,16 @@ When developing new features or adding new error scenarios, **ALWAYS** evaluate 
 - **Middleware**: `backend/utils/middleware.js` (helmet, auth, error handling)
 - **Frontend entry**: `frontend/src/main.jsx`
 - **Frontend app**: `frontend/src/App.jsx`
-- **Components**: `frontend/src/components/{Login,Register,Dashboard}.jsx`
+- **Components**: `frontend/src/components/{Login,Register,Navigation,Settings}.jsx`, `frontend/src/components/Dashboard/*`
 
 ### Test Files
 - **Backend tests**: 
   - Integration: `backend/tests/integration/api.test.js`
-  - Unit: `backend/tests/unit/files.test.js`
-- **Frontend tests**: `frontend/src/tests/unit/{Login,Register,Dashboard}.test.jsx`
+   - Unit: `backend/tests/unit/{files,pdfGeneratorKit,pdfGeneratorPuppeteer,pdfHelpers}.test.js`
+- **Frontend tests**:
+   - Integration: `frontend/src/tests/integration/App.test.jsx`
+   - Unit: `frontend/src/tests/unit/{Login,Register,Dashboard,Navigation,Settings}.test.jsx`
+   - Unit (services): `frontend/src/tests/unit/{authService,fileService,userService}.test.js`
 - **E2E tests**: `e2e-tests/{login,register}.spec.js`
 
 ## Important Notes
@@ -323,7 +332,8 @@ When developing new features or adding new error scenarios, **ALWAYS** evaluate 
 6. **Coverage is tracked** via Codecov (badge in README)
 7. **Dependencies use `npm ci`** for reproducible installs - ALWAYS use `npm ci`, not `npm install`
 8. **Express.js 5** is used (not 4) - ensure middleware and routing follow v5 conventions
-9. **Update these instructions** if any setup, commands, or structure changes. Also check .github/instruction folder for related files.
+9. **Update these instructions** if any setup, commands, or structure changes. Also check `.github/instructions/` for related files.
+
 
 ## Validation Checklist Before PR
 
@@ -337,15 +347,15 @@ npm --prefix backend ci
 # Lint
 npm run lint
 
+# Testing
+When testing, always test only relevant files, for example files that have failing tests.
+
 # Test backend (requires PostgreSQL)
 JWT_SECRET=test-secret-key-for-ci TEST_DATABASE_URL=postgres://postgres:dummypassword1234@localhost:5432/test_db npm run test:backend
 
 # Test frontend
 npm run test:frontend
 
-# Optional: E2E tests (if making frontend/integration changes)
-npx playwright install --with-deps
-JWT_SECRET=test-secret-key-for-ci TEST_DATABASE_URL=postgres://postgres:dummypassword1234@localhost:5432/test_db npx playwright test
 ```
 
 All commands must pass without errors before creating a PR.

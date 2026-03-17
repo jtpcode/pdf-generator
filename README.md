@@ -10,18 +10,18 @@ https://pdf-generator-3ucg.onrender.com/
 
 ## Project name and description
 
-**pdf-generator** is aimed for demonstrating technical datasheet generation in PDF format. There are two options on how to generate the document: PDFkit and html/css + puppeteer. Both produce almost identical documents and the difference is only in the technical implementation.
+**pdf-generator** is aimed at demonstrating technical datasheet generation in PDF format. There are two options on how to generate the document: PDFKit and HTML/CSS + Puppeteer. Both produce almost identical documents and the difference is only in the technical implementation.
 
-The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be achieved. The application accepts Excel and .png files, and their naming/content has to be in a specific form to comply with the code. Example files can be asked directly from the developer. **The application is by no means a ready made product for general use**.
+The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be achieved. The application accepts Excel and .png files, and their naming/content has to be in a specific form to comply with the code. Example files can be asked directly from the developer. **The application is by no means a ready-made product for general use**.
 
 ## How to use the application
 - Create credentials for login
 - Dashboard
   - Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
   - Example files can be asked directly from the developer
-  - Choose between PDFkit or html + puppeteer
-  - Click 'eye' icon to quick check how the PDF looks like
-  - Click the 'Pdf' icon to generate the PDF
+	- Choose between PDFKit or HTML + Puppeteer
+	- Click the 'eye' icon to quickly check how the PDF looks like
+	- Click the 'PDF' icon to generate the PDF
   - To delete a file, click the trashcan icon
 - Settings
   - Update user name
@@ -32,7 +32,7 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 ### Prerequisites
 - Node.js 24+
 - npm 11+
-- Docker & Docker Compose (for local PostgeSQL DB)
+- Docker & Docker Compose (for local PostgreSQL DB)
 
 ### Installation
 1. Clone the repository
@@ -48,9 +48,9 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 	- For backend, include `.env` in /backend:
 		- JWT_SECRET=[YOUR_JWT_SECRET]
 	  - DATABASE_URL=postgres://[POSTGRES_USER]:[YOUR_PASSWORD]@localhost:5432/[DATABASE_NAME]
-		  - default user is 'postgers': [POSTGRES_USER] = postgres
+		  - default user is 'postgres': [POSTGRES_USER] = postgres
 		  - default database is 'postgres': [DATABASE_NAME] = postgres
-	  - TEST_DATABASE_URL=postgres://[POSTGRES_USER]:[YOUR_PASSWORD]@localhost:5432[TEST_DATABASE_NAME]
+	  - TEST_DATABASE_URL=postgres://[POSTGRES_USER]:[YOUR_PASSWORD]@localhost:5432/[TEST_DATABASE_NAME]
 		  - NOTE: You must first create a separate test database if you're going to run tests locally, for example:
 		  - `docker exec -it [CONTAINER_ID] psql -U postgres -c "CREATE DATABASE [TEST_DATABASE_NAME];"`
 4. Start PostgreSQL with Docker Compose:
@@ -65,7 +65,7 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 6. App is located at: `http://localhost:5173/`
 
 ### Local testing:
-- Use ready made test scripts in the package.json files, since they will use NODE_ENV=test which automatically enable using TEST_DATABASE once it's been created
+- Use ready-made test scripts in the package.json files, since they will use `NODE_ENV=test` which automatically enables `TEST_DATABASE_URL` once it's been created
 - Make sure Postgres database is running, and both frontend and backend dev servers are offline
 - In project root:
 	```sh
@@ -106,6 +106,7 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 - Secure file upload (Multer, Express)
 - RESTful API (Express, Sequelize)
 - React SPA with MUI design
+- Tanstack/react-query for state management
 - Unit testing: Vitest
 - Integration testing: Vitest + Supertest
 - End-to-end testing: Playwright
