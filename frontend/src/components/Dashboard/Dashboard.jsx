@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import PropTypes from 'prop-types'
 import {
   Container,
@@ -15,28 +16,45 @@ import FileList from './FileList'
 import Navigation from '../Navigation'
 
 const Dashboard = ({ user, onLogout }) => {
-  const [files, setFiles] = useState([])
-  const [loading, setLoading] = useState(false)
+  const queryClient = useQueryClient()
+  const [loadingAction, setLoadingAction] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(null)
-  const [usePuppeteer, setUsePuppeteer] = useState(false)
+  const [usePuppeteer, setUsePuppeteer] = useState(() => {
+    return sessionStorage.getItem('usePuppeteer') === 'true'
+  })
 
-  useEffect(() => {
-    fetchFiles()
-  }, [])
+  const { data: files = [], isLoading: isLoadingFiles, error: queryError } = useQuery({
+    queryKey: ['files'],
+    queryFn: fileService.getAllFiles,
+    staleTime: Infinity,
+  })
 
-  const fetchFiles = async () => {
-    try {
-      setLoading(true)
-      const fileList = await fileService.getAllFiles()
-      setFiles(fileList)
-    } catch (err) {
+  const uploadMutation = useMutation({
+    mutationFn: fileService.uploadFile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['files'] })
+      setSuccess('File uploaded successfully!')
+      setTimeout(() => setSuccess(null), 5000)
+    },
+    onError: (err) => {
       setError(err.message)
       setTimeout(() => setError(null), 5000)
-    } finally {
-      setLoading(false)
     }
-  }
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: fileService.deleteFile,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['files'] })
+      setSuccess('File deleted successfully!')
+      setTimeout(() => setSuccess(null), 5000)
+    },
+    onError: (err) => {
+      setError(err.message)
+      setTimeout(() => setError(null), 5000)
+    }
+  })
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0]
@@ -69,20 +87,9 @@ const Dashboard = ({ user, onLogout }) => {
       return
     }
 
-    try {
-      setLoading(true)
-      setError(null)
-      await fileService.uploadFile(file)
-      setSuccess('File uploaded successfully!')
-      await fetchFiles()
-      setTimeout(() => setSuccess(null), 5000)
-    } catch (err) {
-      setError(err.message)
-      setTimeout(() => setError(null), 5000)
-    } finally {
-      setLoading(false)
-      event.target.value = ''
-    }
+    setError(null)
+    uploadMutation.mutate(file)
+    event.target.value = ''
   }
 
   const handleFileDelete = async (fileId, fileName) => {
@@ -90,24 +97,13 @@ const Dashboard = ({ user, onLogout }) => {
       return
     }
 
-    try {
-      setLoading(true)
-      setError(null)
-      await fileService.deleteFile(fileId)
-      setSuccess('File deleted successfully!')
-      await fetchFiles()
-      setTimeout(() => setSuccess(null), 5000)
-    } catch (err) {
-      setError(err.message)
-      setTimeout(() => setError(null), 5000)
-    } finally {
-      setLoading(false)
-    }
+    setError(null)
+    deleteMutation.mutate(fileId)
   }
 
   const handlePdfGeneration = async (fileId) => {
     try {
-      setLoading(true)
+      setLoadingAction(true)
       setError(null)
 
       const pdfBlob = await fileService.generatePdf(fileId, usePuppeteer)
@@ -129,13 +125,13 @@ const Dashboard = ({ user, onLogout }) => {
       setError(err.message)
       setTimeout(() => setError(null), 5000)
     } finally {
-      setLoading(false)
+      setLoadingAction(false)
     }
   }
 
   const handleHtmlPreview = async (fileId) => {
     try {
-      setLoading(true)
+      setLoadingAction(true)
       setError(null)
 
       // Open window synchronously before the async fetch to avoid popup blocker
@@ -158,18 +154,21 @@ const Dashboard = ({ user, onLogout }) => {
       setError(err.message)
       setTimeout(() => setError(null), 5000)
     } finally {
-      setLoading(false)
+      setLoadingAction(false)
     }
   }
+
+  const isLoading = isLoadingFiles || uploadMutation.isPending || deleteMutation.isPending || loadingAction
+  const displayError = error || (queryError ? queryError.message : null)
 
   return (
     <Container maxWidth="md">
       <Box sx={{ mt: 8 }}>
         <Navigation user={user} onLogout={onLogout} />
 
-        {error && (
+        {displayError && (
           <Alert severity="error" onClose={() => setError(null)} sx={{ mb: 2 }}>
-            {error}
+            {displayError}
           </Alert>
         )}
 
@@ -185,7 +184,9 @@ const Dashboard = ({ user, onLogout }) => {
               <Switch
                 checked={usePuppeteer}
                 onChange={(e) => {
-                  setUsePuppeteer(e.target.checked)
+                  const isChecked = e.target.checked
+                  setUsePuppeteer(isChecked)
+                  sessionStorage.setItem('usePuppeteer', isChecked)
                 }}
                 slotProps={{ input: { 'aria-label': 'PDFKit / HTML + Puppeteer generator selector' } }}
               />
@@ -204,11 +205,11 @@ const Dashboard = ({ user, onLogout }) => {
           />
         </Paper>
 
-        <FileUpload onFileUpload={handleFileUpload} loading={loading} />
+        <FileUpload onFileUpload={handleFileUpload} loading={isLoading} />
 
         <FileList
           files={files}
-          loading={loading}
+          loading={isLoading}
           onDelete={handleFileDelete}
           onGeneratePdf={handlePdfGeneration}
           onHtmlPreview={handleHtmlPreview}

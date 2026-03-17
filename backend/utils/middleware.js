@@ -23,7 +23,7 @@ morgan.token('body', (req) => {
 
 const jsonParser = express.json()
 const staticFiles = express.static('dist')
-const logger = morgan(':method :url :status :res[content-length] - :response-time ms :body')
+const logger = morgan(':date[iso] :method :url :status :res[content-length] - :response-time ms :body')
 
 const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: 'Unknown endpoint.' })

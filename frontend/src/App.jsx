@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import Login from './components/Login'
 import Register from './components/Register'
@@ -10,6 +11,7 @@ import authService from './services/authService'
 const theme = createTheme()
 
 const AppContent = () => {
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [user, setUser] = useState(() => {
     try {
@@ -22,15 +24,18 @@ const AppContent = () => {
   const [showRegister, setShowRegister] = useState(false)
 
   const handleAuthSuccess = (userData) => {
+    sessionStorage.removeItem('usePuppeteer')
     setUser(userData)
     setShowRegister(false)
     navigate('/dashboard')
   }
 
   const handleLogout = () => {
+    sessionStorage.removeItem('usePuppeteer')
     authService.logout()
     setUser(null)
     setShowRegister(false)
+    queryClient.clear()
     navigate('/')
   }
 
