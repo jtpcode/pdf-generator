@@ -31,7 +31,7 @@ const Dashboard = ({ user, onLogout }) => {
   })
 
   const uploadMutation = useMutation({
-    mutationFn: fileService.uploadFile,
+    mutationFn: (file) => fileService.uploadFile(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['files'] })
       setSuccess('File uploaded successfully!')
@@ -44,7 +44,7 @@ const Dashboard = ({ user, onLogout }) => {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: fileService.deleteFile,
+    mutationFn: (id) => fileService.deleteFile(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['files'] })
       setSuccess('File deleted successfully!')

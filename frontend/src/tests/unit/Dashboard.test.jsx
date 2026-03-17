@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import Dashboard from '../../components/Dashboard'
 import fileService from '../../services/fileService'
@@ -24,6 +24,8 @@ describe('Dashboard Component', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.clear()
+    sessionStorage.clear()
     fileService.getAllFiles.mockResolvedValue([])
   })
 
@@ -105,7 +107,6 @@ describe('Dashboard Component', () => {
     })
 
     it('uploads Excel file successfully', async () => {
-      const user = userEvent.setup()
       const mockFile = new File(['mock content'], 'test.xlsx', {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       })
@@ -117,7 +118,7 @@ describe('Dashboard Component', () => {
       renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-      await user.upload(fileInput, mockFile)
+      fireEvent.change(fileInput, { target: { files: [mockFile] } })
 
       await waitFor(() => {
         expect(screen.getByText(/File uploaded successfully!/i)).toBeInTheDocument()
@@ -128,7 +129,6 @@ describe('Dashboard Component', () => {
     })
 
     it('uploads .xls file successfully', async () => {
-      const user = userEvent.setup()
       const mockFile = new File(['mock content'], 'old-format.xls', {
         type: 'application/vnd.ms-excel'
       })
@@ -139,7 +139,7 @@ describe('Dashboard Component', () => {
       renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-      await user.upload(fileInput, mockFile)
+      fireEvent.change(fileInput, { target: { files: [mockFile] } })
 
       await waitFor(() => {
         expect(screen.getByText(/File uploaded successfully!/i)).toBeInTheDocument()
@@ -149,7 +149,6 @@ describe('Dashboard Component', () => {
     })
 
     it('shows error when uploading non-Excel or non-PNG file', async () => {
-      const user = userEvent.setup()
       const mockFile = new File(['mock content'], 'test.pdf', {
         type: 'application/pdf'
       })
@@ -157,7 +156,7 @@ describe('Dashboard Component', () => {
       renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-      await user.upload(fileInput, mockFile)
+      fireEvent.change(fileInput, { target: { files: [mockFile] } })
 
       await waitFor(() => {
         expect(screen.getByText(/Only Excel files \(\.xls, \.xlsx\) and PNG images \(\.png\) are allowed/i)).toBeInTheDocument()
@@ -167,7 +166,6 @@ describe('Dashboard Component', () => {
     })
 
     it('uploads PNG file successfully', async () => {
-      const user = userEvent.setup()
       const mockFile = new File(['mock content'], 'test.png', {
         type: 'image/png'
       })
@@ -179,7 +177,7 @@ describe('Dashboard Component', () => {
       renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-      await user.upload(fileInput, mockFile)
+      fireEvent.change(fileInput, { target: { files: [mockFile] } })
 
       await waitFor(() => {
         expect(screen.getByText(/File uploaded successfully!/i)).toBeInTheDocument()
@@ -190,7 +188,6 @@ describe('Dashboard Component', () => {
     })
 
     it('shows error when file upload fails', async () => {
-      const user = userEvent.setup()
       const mockFile = new File(['mock content'], 'test.xlsx', {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       })
@@ -200,7 +197,7 @@ describe('Dashboard Component', () => {
       renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-      await user.upload(fileInput, mockFile)
+      fireEvent.change(fileInput, { target: { files: [mockFile] } })
 
       await waitFor(() => {
         expect(screen.getByText(/Upload failed/i)).toBeInTheDocument()
@@ -245,7 +242,6 @@ describe('Dashboard Component', () => {
     })
 
     it('prevents uploading when file limit of 3 is reached', async () => {
-      const user = userEvent.setup()
       const threeFiles = [
         createMockFileData(1, 'file1.xlsx', 1024),
         createMockFileData(2, 'file2.xlsx', 2048),
@@ -264,7 +260,7 @@ describe('Dashboard Component', () => {
       })
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-      await user.upload(fileInput, mockFile)
+      fireEvent.change(fileInput, { target: { files: [mockFile] } })
 
       await waitFor(() => {
         expect(screen.getByText(/File limit reached\. You can only upload up to 3 files\./i)).toBeInTheDocument()
@@ -274,7 +270,6 @@ describe('Dashboard Component', () => {
     })
 
     it('prevents uploading a file with a duplicate name', async () => {
-      const user = userEvent.setup()
       const existingFile = createMockFileData(1, 'duplicate.xlsx', 1024)
       fileService.getAllFiles.mockResolvedValue([existingFile])
 
@@ -289,7 +284,7 @@ describe('Dashboard Component', () => {
       })
 
       const fileInput = screen.getByLabelText(/Choose File/i, { selector: 'input[type="file"]' })
-      await user.upload(fileInput, mockFile)
+      fireEvent.change(fileInput, { target: { files: [mockFile] } })
 
       await waitFor(() => {
         expect(screen.getByText(/A file with the same name already exists\./i)).toBeInTheDocument()

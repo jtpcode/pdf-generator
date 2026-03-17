@@ -27,4 +27,4 @@ Changelog:
 | 13.2 | Added 'Settings' page: user information, possibility to change name and password. |
 | 17.2 | Added early version of html + puppeteer PDF generation option. |
 | 19.2 | Added html preview of the PDF. |
-
+| 17.3 | Added Tanstack React Query for file list state management. |

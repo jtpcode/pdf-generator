@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import App from '../../App'
 import authService from '../../services/authService'
+import { renderWithQueryClient } from '../unit/helpers'
 
 vi.mock('../../services/authService')
 
@@ -59,13 +60,13 @@ describe('App Component', () => {
 
   describe('Initial State - No Stored User', () => {
     it('renders Login component when no user is stored', () => {
-      render(<App />)
+      renderWithQueryClient(<App />)
       expect(screen.getByText('Login Mock')).toBeInTheDocument()
     })
 
     it('shows Register when switch to register is clicked', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       const switchButton = screen.getByText('Switch to Register')
       await user.click(switchButton)
@@ -76,7 +77,7 @@ describe('App Component', () => {
 
     it('switches back to Login from Register', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       await user.click(screen.getByText('Switch to Register'))
       expect(screen.getByText('Register Mock')).toBeInTheDocument()
@@ -89,7 +90,7 @@ describe('App Component', () => {
   describe('Initial State - With Stored User', () => {
     it('renders Dashboard when user is stored in localStorage', () => {
       authService.getStoredUser.mockReturnValue({ username: 'storeduser', token: 'stored-token' })
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       expect(screen.getByText('Dashboard Mock')).toBeInTheDocument()
       expect(screen.getByText('User: storeduser')).toBeInTheDocument()
@@ -101,7 +102,7 @@ describe('App Component', () => {
       })
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       expect(screen.getByText('Login Mock')).toBeInTheDocument()
       expect(consoleSpy).toHaveBeenCalledWith('Failed to retrieve stored user:', expect.any(Error))
@@ -113,7 +114,7 @@ describe('App Component', () => {
   describe('Authentication Flow', () => {
     it('updates user state when login succeeds', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       await user.click(screen.getByText('Mock Login'))
 
@@ -123,7 +124,7 @@ describe('App Component', () => {
 
     it('updates user state when registration succeeds', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       await user.click(screen.getByText('Switch to Register'))
       await user.click(screen.getByText('Mock Register'))
@@ -135,7 +136,7 @@ describe('App Component', () => {
     it('clears user state and calls authService.logout when logout is clicked', async () => {
       const user = userEvent.setup()
       authService.getStoredUser.mockReturnValue({ username: 'storeduser', token: 'stored-token' })
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       expect(screen.getByText('Dashboard Mock')).toBeInTheDocument()
 
@@ -148,7 +149,7 @@ describe('App Component', () => {
 
     it('resets showRegister state after successful login', async () => {
       const user = userEvent.setup()
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       await user.click(screen.getByText('Switch to Register'))
       expect(screen.getByText('Register Mock')).toBeInTheDocument()
@@ -166,7 +167,7 @@ describe('App Component', () => {
       authService.getStoredUser.mockReturnValue({ username: 'testuser', token: 'test-token' })
 
       window.history.pushState({}, '', '/')
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       expect(window.location.pathname).toBe('/dashboard')
       expect(screen.getByText('Dashboard Mock')).toBeInTheDocument()
@@ -176,7 +177,7 @@ describe('App Component', () => {
       authService.getStoredUser.mockReturnValue({ username: 'testuser', token: 'test-token' })
 
       window.history.pushState({}, '', '/settings')
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       expect(screen.getByText('Settings Mock')).toBeInTheDocument()
       expect(screen.getByText('User: testuser')).toBeInTheDocument()
@@ -186,7 +187,7 @@ describe('App Component', () => {
       authService.getStoredUser.mockReturnValue({ username: 'testuser', token: 'test-token' })
 
       window.history.pushState({}, '', '/unknown-route')
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       expect(window.location.pathname).toBe('/dashboard')
       expect(screen.getByText('Dashboard Mock')).toBeInTheDocument()
@@ -197,7 +198,7 @@ describe('App Component', () => {
       authService.getStoredUser.mockReturnValue({ username: 'testuser', token: 'test-token' })
 
       window.history.pushState({}, '', '/settings')
-      render(<App />)
+      renderWithQueryClient(<App />)
 
       expect(screen.getByText('Settings Mock')).toBeInTheDocument()
 

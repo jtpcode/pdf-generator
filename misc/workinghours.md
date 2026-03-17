@@ -58,4 +58,6 @@ Working hours:
 |      | 2 | Add tests for html preview. |
 | 16.3 | 2 | Update documentation. |
 |      | 2 | Fix page reload routing issue in production. Fix: show scandic letters (ä,ö..) correctly with filenames.
-| Total | 175 |
+| 17.3 | 2 | Added Tanstack React Query for file list state management. |
+|      | 1 | Fixed tests for Tanstack |
+| Total | 178 |
