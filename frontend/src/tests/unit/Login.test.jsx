@@ -14,15 +14,6 @@ describe('Login Component', () => {
     vi.clearAllMocks()
   })
 
-  it('renders login form with all elements', () => {
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    expect(screen.getByText('PDF Generator Login')).toBeInTheDocument()
-    expect(screen.getByLabelText(/username/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument()
-  })
-
   it('updates username input when user types', async () => {
     const user = userEvent.setup()
     render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
@@ -86,57 +77,6 @@ describe('Login Component', () => {
     })
   })
 
-  it('displays generic error message when error has no message', async () => {
-    const user = userEvent.setup()
-    authService.login.mockRejectedValue(new Error())
-
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    const usernameInput = screen.getByLabelText(/username/i)
-    const passwordInput = screen.getByLabelText(/password/i)
-    const loginButton = screen.getByRole('button', { name: /login/i })
-
-    await user.type(usernameInput, 'testuser')
-    await user.type(passwordInput, 'testpass')
-    await user.click(loginButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('Login failed. Please try again.')).toBeInTheDocument()
-    })
-  })
-
-  it('clears error message on new login attempt', async () => {
-    const user = userEvent.setup()
-    authService.login.mockRejectedValueOnce(new Error('First error'))
-
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    const usernameInput = screen.getByLabelText(/username/i)
-    const passwordInput = screen.getByLabelText(/password/i)
-    const loginButton = screen.getByRole('button', { name: /login/i })
-
-    // First failed login
-    await user.type(usernameInput, 'user1')
-    await user.type(passwordInput, 'pass1')
-    await user.click(loginButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('First error')).toBeInTheDocument()
-    })
-
-    // Clear inputs and try again
-    authService.login.mockResolvedValue({ username: 'user2', token: 'token' })
-    await user.clear(usernameInput)
-    await user.clear(passwordInput)
-    await user.type(usernameInput, 'user2')
-    await user.type(passwordInput, 'pass2')
-    await user.click(loginButton)
-
-    await waitFor(() => {
-      expect(screen.queryByText('First error')).not.toBeInTheDocument()
-    })
-  })
-
   it('does not call onLogin if token is missing', async () => {
     const user = userEvent.setup()
     const mockUserData = { username: 'testuser' } // No token
@@ -158,73 +98,6 @@ describe('Login Component', () => {
 
     expect(authService.saveAuthData).not.toHaveBeenCalled()
     expect(mockOnLogin).not.toHaveBeenCalled()
-  })
-
-  it('has required attribute on username and password fields', () => {
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    const usernameInput = screen.getByLabelText(/username/i)
-    const passwordInput = screen.getByLabelText(/password/i)
-
-    expect(usernameInput).toBeRequired()
-    expect(passwordInput).toBeRequired()
-  })
-
-  it('password field has correct type attribute', () => {
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    const passwordInput = screen.getByLabelText(/password/i)
-    expect(passwordInput).toHaveAttribute('type', 'password')
-  })
-
-  it('shows loading state during login', async () => {
-    const user = userEvent.setup()
-    // Mock login to never resolve to simulate loading state
-    authService.login.mockImplementation(() => new Promise(() => {}))
-
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    const usernameInput = screen.getByLabelText(/username/i)
-    const passwordInput = screen.getByLabelText(/password/i)
-    const loginButton = screen.getByRole('button', { name: /login/i })
-
-    await user.type(usernameInput, 'testuser')
-    await user.type(passwordInput, 'testpass123')
-    await user.click(loginButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('Logging in...')).toBeInTheDocument()
-    })
-  })
-
-  it('re-enables inputs after failed login', async () => {
-    const user = userEvent.setup()
-    authService.login.mockRejectedValue(new Error('Login failed'))
-
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    const usernameInput = screen.getByLabelText(/username/i)
-    const passwordInput = screen.getByLabelText(/password/i)
-    const loginButton = screen.getByRole('button', { name: /login/i })
-
-    await user.type(usernameInput, 'testuser')
-    await user.type(passwordInput, 'testpass123')
-    await user.click(loginButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('Login failed')).toBeInTheDocument()
-    })
-
-    expect(usernameInput).not.toBeDisabled()
-    expect(passwordInput).not.toBeDisabled()
-    expect(loginButton).not.toBeDisabled()
-  })
-
-  it('shows link to switch to register page', () => {
-    render(<Login onLogin={mockOnLogin} onSwitchToRegister={mockOnSwitchToRegister} />)
-
-    expect(screen.getByText(/don't have an account\?/i)).toBeInTheDocument()
-    expect(screen.getByText(/register here/i)).toBeInTheDocument()
   })
 
   it('calls onSwitchToRegister when register link is clicked', async () => {

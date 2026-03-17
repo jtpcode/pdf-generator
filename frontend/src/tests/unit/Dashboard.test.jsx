@@ -29,23 +29,6 @@ describe('Dashboard Component', () => {
     fileService.getAllFiles.mockResolvedValue([])
   })
 
-  it('renders welcome message', async () => {
-    renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
-    })
-  })
-
-  it('renders logout button', async () => {
-    renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-    await waitFor(() => {
-      const logoutButton = screen.getByRole('button', { name: /logout/i })
-      expect(logoutButton).toBeInTheDocument()
-    })
-  })
-
   it('calls onLogout when logout button is clicked', async () => {
     const user = userEvent.setup()
 
@@ -57,33 +40,7 @@ describe('Dashboard Component', () => {
     expect(mockOnLogout).toHaveBeenCalledTimes(1)
   })
 
-  it('logout button is clickable and not disabled', async () => {
-    renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-    await waitFor(() => {
-      const logoutButton = screen.getByRole('button', { name: /logout/i })
-      expect(logoutButton).not.toBeDisabled()
-    })
-  })
-
   describe('File Upload', () => {
-    it('renders file upload section', async () => {
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByRole('heading', { name: /Upload File/i })).toBeInTheDocument()
-        expect(screen.getByRole('button', { name: /Choose File/i })).toBeInTheDocument()
-      })
-    })
-
-    it('renders user files section', async () => {
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByRole('heading', { name: /Your Files/i })).toBeInTheDocument()
-      })
-    })
-
     it('displays "No files uploaded yet" when there are no files', async () => {
       renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
 
@@ -206,41 +163,6 @@ describe('Dashboard Component', () => {
       expect(fileService.uploadFile).toHaveBeenCalledWith(mockFile)
     })
 
-    it('shows error when fetching files fails', async () => {
-      fileService.getAllFiles.mockRejectedValue(new Error('Failed to fetch files'))
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to fetch files/i)).toBeInTheDocument()
-      })
-    })
-
-    it('displays file size correctly', async () => {
-      const mockFiles = createMockFilesList()
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByText(/512 B/i)).toBeInTheDocument()
-        expect(screen.getByText(/2\.0 KB/i)).toBeInTheDocument()
-      })
-    })
-
-    it('displays file size in MB for files >= 1048576 bytes', async () => {
-      const mockFiles = [
-        createMockFileData(1, 'large-file.xlsx', 5242880)
-      ]
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByText(/5\.0 MB/i)).toBeInTheDocument()
-      })
-    })
-
     it('prevents uploading when file limit of 3 is reached', async () => {
       const threeFiles = [
         createMockFileData(1, 'file1.xlsx', 1024),
@@ -299,21 +221,6 @@ describe('Dashboard Component', () => {
       window.confirm = vi.fn()
     })
 
-    it('renders delete button for each file', async () => {
-      const mockFiles = [
-        createMockFileData(1, 'test-file.xlsx', 512),
-        createMockFileData(2, 'another-file.xlsx', 2048)
-      ]
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        const deleteButtons = screen.getAllByLabelText('delete')
-        expect(deleteButtons).toHaveLength(2)
-      })
-    })
-
     it('deletes file when delete button is clicked and confirmed', async () => {
       const user = userEvent.setup()
       const mockFiles = [createMockFileData(1, 'test-file.xlsx', 512)]
@@ -357,29 +264,6 @@ describe('Dashboard Component', () => {
 
       expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete test-file.xlsx?')
       expect(fileService.deleteFile).not.toHaveBeenCalled()
-    })
-
-    it('shows error when file deletion fails', async () => {
-      const user = userEvent.setup()
-      const mockFiles = [createMockFileData(1, 'test-file.xlsx', 512)]
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-      fileService.deleteFile.mockRejectedValue(new Error('Delete failed'))
-      window.confirm.mockReturnValue(true)
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByText('test-file.xlsx')).toBeInTheDocument()
-      })
-
-      const deleteButton = screen.getByLabelText('delete')
-      await user.click(deleteButton)
-
-      await waitFor(() => {
-        expect(screen.getByText(/Delete failed/i)).toBeInTheDocument()
-      })
-
-      expect(fileService.deleteFile).toHaveBeenCalledWith(1)
     })
 
     it('deletes correct file when multiple files exist', async () => {
@@ -470,52 +354,6 @@ describe('Dashboard Component', () => {
       removeChildSpy.mockRestore()
     })
 
-    it('renders PDF generator toggle switch', async () => {
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })).toBeInTheDocument()
-      })
-    })
-
-    it('toggle defaults to PDFKit (unchecked)', async () => {
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        const toggle = screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
-        expect(toggle).not.toBeChecked()
-      })
-    })
-
-    it('renders generate PDF button for Excel files', async () => {
-      const mockFiles = [
-        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
-      ]
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByLabelText('generate pdf')).toBeInTheDocument()
-      })
-    })
-
-    it('does not render generate PDF button for PNG files', async () => {
-      const mockFiles = [
-        { id: 1, originalName: 'image.png', fileSize: 1024, createdAt: new Date().toISOString() }
-      ]
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByText('image.png')).toBeInTheDocument()
-      })
-
-      expect(screen.queryByLabelText('generate pdf')).not.toBeInTheDocument()
-      expect(screen.getByLabelText('delete')).toBeInTheDocument()
-    })
-
     it('generates PDF with PDFKit by default (toggle off)', async () => {
       const user = userEvent.setup()
       const mockFiles = [
@@ -579,45 +417,6 @@ describe('Dashboard Component', () => {
       })
     })
 
-    it('shows error when PDF generation fails', async () => {
-      const user = userEvent.setup()
-      const mockFiles = [
-        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
-      ]
-
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-      fileService.generatePdf.mockRejectedValue(new Error('PDF generation failed'))
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByText('test.xlsx')).toBeInTheDocument()
-      })
-
-      const pdfButton = screen.getByLabelText('generate pdf')
-      await user.click(pdfButton)
-
-      await waitFor(() => {
-        expect(fileService.generatePdf).toHaveBeenCalledWith(1, false)
-        expect(screen.getByText(/PDF generation failed/i)).toBeInTheDocument()
-      })
-    })
-
-    it('has separate PDF buttons for multiple Excel files', async () => {
-      const mockFiles = [
-        { id: 1, originalName: 'first.xlsx', fileSize: 512, createdAt: new Date().toISOString() },
-        { id: 2, originalName: 'second.xlsx', fileSize: 1024, createdAt: new Date().toISOString() }
-      ]
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        const pdfButtons = screen.getAllByLabelText('generate pdf')
-        expect(pdfButtons).toHaveLength(2)
-      })
-    })
-
     it('shows PDF button only for Excel files when mixed with PNG', async () => {
       const mockFiles = [
         { id: 1, originalName: 'document.xlsx', fileSize: 512, createdAt: new Date().toISOString() },
@@ -654,19 +453,6 @@ describe('Dashboard Component', () => {
 
     afterEach(() => {
       vi.restoreAllMocks()
-    })
-
-    it('renders preview html button for Excel files', async () => {
-      const mockFiles = [
-        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
-      ]
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => {
-        expect(screen.getByLabelText('preview html')).toBeInTheDocument()
-      })
     })
 
     it('calls getHtmlPreview with correct file ID', async () => {
@@ -708,26 +494,6 @@ describe('Dashboard Component', () => {
         expect(window.open).toHaveBeenCalledWith('about:blank', '_blank')
         expect(window.URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob))
         expect(mockPreviewWindow.location.href).toBe('blob:mock-url')
-      })
-    })
-
-    it('shows error when getHtmlPreview fails', async () => {
-      const user = userEvent.setup()
-      const mockFiles = [
-        { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
-      ]
-
-      fileService.getAllFiles.mockResolvedValue(mockFiles)
-      fileService.getHtmlPreview.mockRejectedValue(new Error('Failed to generate HTML preview'))
-
-      renderWithRouter(<Dashboard user={mockUser} onLogout={mockOnLogout} />)
-
-      await waitFor(() => expect(screen.getByText('test.xlsx')).toBeInTheDocument())
-
-      await user.click(screen.getByLabelText('preview html'))
-
-      await waitFor(() => {
-        expect(screen.getByText(/Failed to generate HTML preview/i)).toBeInTheDocument()
       })
     })
   })

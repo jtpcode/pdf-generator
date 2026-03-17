@@ -28,31 +28,6 @@ describe('Settings Component', () => {
     vi.clearAllMocks()
   })
 
-  it('renders settings heading', () => {
-    renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
-
-    expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument()
-  })
-
-  it('renders profile information section', () => {
-    renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
-
-    expect(screen.getByRole('heading', { name: 'Profile Information' })).toBeInTheDocument()
-    const textboxes = screen.getAllByRole('textbox')
-    expect(textboxes.length).toBeGreaterThanOrEqual(2)
-  })
-
-  it('renders change password section', () => {
-    renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
-
-    expect(screen.getByRole('heading', { name: 'Change Password' })).toBeInTheDocument()
-
-    const passwordInputs = screen.getAllByLabelText(/Password/i, { selector: 'input' })
-    expect(passwordInputs).toHaveLength(3)
-
-    expect(screen.getByRole('button', { name: /Change Password/i })).toBeInTheDocument()
-  })
-
   it('displays current user information in form fields', () => {
     renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
 

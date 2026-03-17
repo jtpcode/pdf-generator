@@ -60,4 +60,5 @@ Working hours:
 |      | 2 | Fix page reload routing issue in production. Fix: show scandic letters (ä,ö..) correctly with filenames.
 | 17.3 | 2 | Added Tanstack React Query for file list state management. |
 |      | 1 | Fixed tests for Tanstack |
-| Total | 178 |
+|      | 1 | Update documentation. Remove redundant frontend tests. |
+| Total | 179 |
