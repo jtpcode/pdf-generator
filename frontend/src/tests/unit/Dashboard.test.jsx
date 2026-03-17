@@ -540,7 +540,7 @@ describe('Dashboard Component', () => {
         expect(window.URL.createObjectURL).toHaveBeenCalledWith(mockBlob)
         expect(document.createElement).toHaveBeenCalledWith('a')
         expect(mockLink.href).toBe('blob:mock-url')
-        expect(mockLink.download).toBe('Product Name.pdf')
+        expect(mockLink.download).toBe('Product datasheet.pdf')
         expect(mockLink.target).toBe('_blank')
         expect(mockLink.rel).toBe('noopener noreferrer')
         expect(appendChildSpy).toHaveBeenCalledWith(mockLink)

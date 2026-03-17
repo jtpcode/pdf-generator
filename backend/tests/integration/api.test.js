@@ -818,7 +818,7 @@ describe('PDF Generation API', () => {
       .expect('Content-Type', /pdf/)
 
     expect(response.header['content-disposition']).toMatch(/inline/)
-    expect(response.header['content-disposition']).toMatch(/filename="Product Name\.pdf"/)
+    expect(response.header['content-disposition']).toMatch(/filename="Product datasheet\.pdf"/)
     expect(response.body).toBeDefined()
   })
 

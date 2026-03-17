@@ -165,7 +165,7 @@ router.get('/:id/pdf-kit', tokenExtractor, async (req, res, next) => {
     if (!excelData) return
 
     res.setHeader('Content-Type', 'application/pdf')
-    res.setHeader('Content-Disposition', 'inline; filename="Product Name.pdf"')
+    res.setHeader('Content-Disposition', 'inline; filename="Product datasheet.pdf"')
 
     await generateProductDataSheetPdfKit(excelData, res, req.user.id)
   } catch (error) {
@@ -179,7 +179,7 @@ router.get('/:id/pdf-puppeteer', tokenExtractor, async (req, res, next) => {
     if (!excelData) return
 
     res.setHeader('Content-Type', 'application/pdf')
-    res.setHeader('Content-Disposition', 'inline; filename="Product Name.pdf"')
+    res.setHeader('Content-Disposition', 'inline; filename="Product datasheet.pdf"')
 
     await generateProductDataSheetPdfPuppeteer(excelData, res, req.user.id)
   } catch (error) {

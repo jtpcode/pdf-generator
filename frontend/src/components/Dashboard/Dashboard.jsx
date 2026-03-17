@@ -111,7 +111,7 @@ const Dashboard = ({ user, onLogout }) => {
       const url = window.URL.createObjectURL(pdfBlob)
       const link = document.createElement('a')
       link.href = url
-      link.download = 'Product Name.pdf'
+      link.download = 'Product datasheet.pdf'
       link.target = '_blank'
       link.rel = 'noopener noreferrer'
       document.body.appendChild(link)
