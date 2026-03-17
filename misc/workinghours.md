@@ -61,4 +61,5 @@ Working hours:
 | 17.3 | 2 | Added Tanstack React Query for file list state management. |
 |      | 1 | Fixed tests for Tanstack |
 |      | 1 | Update documentation. Remove redundant frontend tests. |
-| Total | 179 |
+|      | 2 | Start using Dependabot, update a bunch of dependencies. |
+| Total | 181 |
