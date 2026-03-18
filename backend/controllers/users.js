@@ -22,8 +22,8 @@ const validateName = (name) => {
   if (!name || typeof name !== 'string') {
     return 'Name is required'
   }
-  if (name.length < 1 || name.length > 100) {
-    return 'Name must be between 1 and 100 characters'
+  if (name.length < 2 || name.length > 100) {
+    return 'Name must be between 2 and 100 characters'
   }
   return undefined
 }
@@ -80,8 +80,8 @@ router.post('/', async (req, res) => {
     passwordHash,
   })
 
-  const { passwordHash: _, ...userWithoutPassword } = user.toJSON()
-  res.status(201).json(userWithoutPassword)
+  const { passwordHash: _pw, createdAt: _ca, updatedAt: _ua, disabled: _d, ...createdUser } = user.toJSON()
+  res.status(201).json(createdUser)
 })
 
 router.put('/:id', tokenExtractor, async (req, res) => {
@@ -102,11 +102,15 @@ router.put('/:id', tokenExtractor, async (req, res) => {
     return res.status(400).json({ error: nameError })
   }
 
+  if (newName === user.name) {
+    return res.status(400).json({ error: 'Name is the same as current name' })
+  }
+
   user.name = newName
   await user.save()
 
-  const { passwordHash: _, ...userWithoutPassword } = user.toJSON()
-  res.json(userWithoutPassword)
+  const { passwordHash: _pw, createdAt: _ca, updatedAt: _ua, disabled: _d, ...updatedUser } = user.toJSON()
+  res.json(updatedUser)
 })
 
 router.put('/:id/password', tokenExtractor, async (req, res) => {

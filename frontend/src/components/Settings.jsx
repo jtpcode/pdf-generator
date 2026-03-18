@@ -30,6 +30,18 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
     setProfileLoading(true)
 
     try {
+      if (name.trim().length < 2 || name.trim().length > 100) {
+        setProfileError('Name must be between 2 and 100 characters long')
+        setTimeout(() => setProfileError(''), 5000)
+        return
+      }
+
+      if (name === user.name) {
+        setProfileError('Name is the same as current name')
+        setTimeout(() => setProfileError(''), 5000)
+        return
+      }
+
       const updatedUser = await userService.updateUser(user.id, name)
       setProfileSuccess('Profile updated successfully')
       setTimeout(() => setProfileSuccess(''), 5000)
