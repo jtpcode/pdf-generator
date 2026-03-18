@@ -63,4 +63,5 @@ Working hours:
 |      | 1 | Update documentation. Remove redundant frontend tests. |
 |      | 2 | Start using Dependabot, update a bunch of dependencies. |
 | 18.3 | 3 | Fix user's name update. Fix password front validation. Fix switch button inactivity while generating PDF. |
-| Total | 184 |
+|      | 2 | Final testing. Go through local installation instructions. |
+| Total | 186 |

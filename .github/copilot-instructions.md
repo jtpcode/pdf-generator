@@ -324,41 +324,14 @@ When developing new features or adding new error scenarios, **ALWAYS** evaluate 
 
 ## Important Notes
 
-1. **NEVER commit to main directly** - All changes go through pull requests
-2. **Test parallelization is DISABLED** in backend tests (`singleThread: true`) to prevent database race conditions
-3. **Migrations run automatically** when backend starts - no manual migration command needed
-4. **File uploads** are stored in `uploads/` directory (gitignored) - tests use `test-uploads/`
-5. **Testing endpoint** `/api/testing/resetDb` only available in test mode (`NODE_ENV=test`)
-6. **Coverage is tracked** via Codecov (badge in README)
-7. **Dependencies use `npm ci`** for reproducible installs - ALWAYS use `npm ci`, not `npm install`
-8. **Express.js 5** is used (not 4) - ensure middleware and routing follow v5 conventions
-9. **Update these instructions** if any setup, commands, or structure changes. Also check `.github/instructions/` for related files.
-
-
-## Validation Checklist Before PR
-
-Run these commands in order to replicate CI locally:
-```bash
-# Install dependencies
-npm ci
-npm --prefix frontend ci
-npm --prefix backend ci
-
-# Lint
-npm run lint
-
-# Testing
-When testing, always test only relevant files, for example files that have failing tests.
-
-# Test backend (requires PostgreSQL)
-JWT_SECRET=test-secret-key-for-ci TEST_DATABASE_URL=postgres://postgres:dummypassword1234@localhost:5432/test_db npm run test:backend
-
-# Test frontend
-npm run test:frontend
-
-```
-
-All commands must pass without errors before creating a PR.
+1. **Test parallelization is DISABLED** in backend tests (`singleThread: true`) to prevent database race conditions
+2. **Migrations run automatically** when backend starts - no manual migration command needed
+3. **File uploads** are stored in `uploads/` directory (gitignored) - tests use `test-uploads/`
+4. **Testing endpoint** `/api/testing/resetDb` only available in test mode (`NODE_ENV=test`)
+5. **Coverage is tracked** via Codecov (badge in README)
+6. **Dependencies use `npm ci`** for reproducible installs - ALWAYS use `npm ci`, not `npm install`
+7. **Express.js 5** is used (not 4) - ensure middleware and routing follow v5 conventions
+8. **Update these instructions** if any setup, commands, or structure changes. Also check `.github/instructions/` for related files.
 
 ## Trust These Instructions
 
