@@ -5,7 +5,7 @@
 
 ## Live demo
 
-The current test version of the app is running at:
+The current version of the app is running at:
 https://pdf-generator-3ucg.onrender.com/
 
 ## Working hours
