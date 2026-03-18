@@ -87,6 +87,46 @@ describe('Settings Component', () => {
 
       expect(mockOnUserUpdate).not.toHaveBeenCalled()
     })
+
+    it('shows error when profile name is too short (1 character)', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const inputs = screen.getAllByRole('textbox')
+      const nameField = inputs[1]
+      const updateButton = screen.getByRole('button', { name: /Update Profile/i })
+
+      await user.clear(nameField)
+      await user.type(nameField, 'A')
+      await user.click(updateButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Name must be between 2 and 100 characters/i)).toBeInTheDocument()
+      })
+
+      expect(userService.updateUser).not.toHaveBeenCalled()
+    })
+
+    it('shows error when profile name is too long (101 characters)', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const inputs = screen.getAllByRole('textbox')
+      const nameField = inputs[1]
+      const updateButton = screen.getByRole('button', { name: /Update Profile/i })
+
+      await user.clear(nameField)
+      await user.type(nameField, 'a'.repeat(101))
+      await user.click(updateButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Name must be between 2 and 100 characters/i)).toBeInTheDocument()
+      })
+
+      expect(userService.updateUser).not.toHaveBeenCalled()
+    })
   })
 
   describe('Password Change', () => {
@@ -187,6 +227,149 @@ describe('Settings Component', () => {
 
       await waitFor(() => {
         expect(screen.getByText('New password must be different from current password')).toBeInTheDocument()
+      })
+
+      expect(userService.changePassword).not.toHaveBeenCalled()
+    })
+
+    it('shows error when password is 11 characters (too short)', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const passwordFields = screen.getAllByLabelText(/Password/i)
+      const currentPasswordField = passwordFields[0]
+      const newPasswordField = passwordFields[1]
+      const confirmPasswordField = passwordFields[2]
+      const changeButton = screen.getByRole('button', { name: /Change Password/i })
+
+      await user.type(currentPasswordField, 'OldPassword123!')
+      await user.type(newPasswordField, 'Pasw123!abc')
+      await user.type(confirmPasswordField, 'Pasw123!abc')
+      await user.click(changeButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Password must be at least 12 characters long/i)).toBeInTheDocument()
+      })
+
+      expect(userService.changePassword).not.toHaveBeenCalled()
+    })
+
+    it('shows error when password is 129 characters (too long)', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const passwordFields = screen.getAllByLabelText(/Password/i)
+      const currentPasswordField = passwordFields[0]
+      const newPasswordField = passwordFields[1]
+      const confirmPasswordField = passwordFields[2]
+      const changeButton = screen.getByRole('button', { name: /Change Password/i })
+
+      const password = 'a'.repeat(129)
+      await user.type(currentPasswordField, 'OldPassword123!')
+      await user.type(newPasswordField, password)
+      await user.type(confirmPasswordField, password)
+      await user.click(changeButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Password must be at most 128 characters long/i)).toBeInTheDocument()
+      })
+
+      expect(userService.changePassword).not.toHaveBeenCalled()
+    }, 10000)
+
+    it('shows error when password is missing lowercase letter', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const passwordFields = screen.getAllByLabelText(/Password/i)
+      const currentPasswordField = passwordFields[0]
+      const newPasswordField = passwordFields[1]
+      const confirmPasswordField = passwordFields[2]
+      const changeButton = screen.getByRole('button', { name: /Change Password/i })
+
+      const password = 'NEWPASSWORD456@'
+      await user.type(currentPasswordField, 'OldPassword123!')
+      await user.type(newPasswordField, password)
+      await user.type(confirmPasswordField, password)
+      await user.click(changeButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Password must contain at least one lowercase letter/i)).toBeInTheDocument()
+      })
+
+      expect(userService.changePassword).not.toHaveBeenCalled()
+    })
+
+    it('shows error when password is missing uppercase letter', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const passwordFields = screen.getAllByLabelText(/Password/i)
+      const currentPasswordField = passwordFields[0]
+      const newPasswordField = passwordFields[1]
+      const confirmPasswordField = passwordFields[2]
+      const changeButton = screen.getByRole('button', { name: /Change Password/i })
+
+      const password = 'newpassword456@'
+      await user.type(currentPasswordField, 'OldPassword123!')
+      await user.type(newPasswordField, password)
+      await user.type(confirmPasswordField, password)
+      await user.click(changeButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Password must contain at least one uppercase letter/i)).toBeInTheDocument()
+      })
+
+      expect(userService.changePassword).not.toHaveBeenCalled()
+    })
+
+    it('shows error when password is missing number', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const passwordFields = screen.getAllByLabelText(/Password/i)
+      const currentPasswordField = passwordFields[0]
+      const newPasswordField = passwordFields[1]
+      const confirmPasswordField = passwordFields[2]
+      const changeButton = screen.getByRole('button', { name: /Change Password/i })
+
+      const password = 'NewPassword@'
+      await user.type(currentPasswordField, 'OldPassword123!')
+      await user.type(newPasswordField, password)
+      await user.type(confirmPasswordField, password)
+      await user.click(changeButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Password must contain at least one number/i)).toBeInTheDocument()
+      })
+
+      expect(userService.changePassword).not.toHaveBeenCalled()
+    })
+
+    it('shows error when password is missing special character', async () => {
+      const user = userEvent.setup()
+
+      renderWithRouter(<Settings user={mockUser} onLogout={mockOnLogout} onUserUpdate={mockOnUserUpdate} />)
+
+      const passwordFields = screen.getAllByLabelText(/Password/i)
+      const currentPasswordField = passwordFields[0]
+      const newPasswordField = passwordFields[1]
+      const confirmPasswordField = passwordFields[2]
+      const changeButton = screen.getByRole('button', { name: /Change Password/i })
+
+      const password = 'NewPassword123'
+      await user.type(currentPasswordField, 'OldPassword123!')
+      await user.type(newPasswordField, password)
+      await user.type(confirmPasswordField, password)
+      await user.click(changeButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/Password must contain at least one special character/i)).toBeInTheDocument()
       })
 
       expect(userService.changePassword).not.toHaveBeenCalled()

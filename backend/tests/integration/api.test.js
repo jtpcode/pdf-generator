@@ -287,6 +287,51 @@ describe('User API', () => {
     expect(response.body.error).toContain('Password must contain at least one special character')
   })
 
+  test('rejects user with non-string username', async () => {
+    const newUser = {
+      username: 12345,
+      name: 'Test User',
+      password: 'ValidPassword123!'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Username is required')
+  })
+
+  test('rejects user with username that is 1 character', async () => {
+    const newUser = {
+      username: 'a',
+      name: 'Test User',
+      password: 'ValidPassword123!'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Username must be between 3 and 50 characters')
+  })
+
+  test('rejects user with username that is 51 characters', async () => {
+    const newUser = {
+      username: 'a'.repeat(51),
+      name: 'Test User',
+      password: 'ValidPassword123!'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Username must be between 3 and 50 characters')
+  })
+
   test('updates user information with valid data', async () => {
     const { user, token } = await createAndLoginUser()
 

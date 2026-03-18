@@ -189,32 +189,5 @@ test.describe('Login functionality', () => {
 
       await expect(page.getByRole('alert')).toContainText('Password changed successfully')
     })
-
-    test('should show error when passwords do not match', async ({ page }) => {
-      await page.getByRole('textbox', { name: 'Current Password' }).fill('ValidPassword123!')
-      await page.getByRole('textbox', { name: 'New Password', exact: true }).fill('NewValidPass456!')
-      await page.getByRole('textbox', { name: 'Confirm New Password' }).fill('DifferentPass789!')
-      await page.getByRole('button', { name: 'Change Password' }).click()
-
-      await expect(page.getByRole('alert')).toContainText('New passwords do not match')
-    })
-
-    test('should show error when current password is incorrect', async ({ page }) => {
-      await page.getByRole('textbox', { name: 'Current Password' }).fill('WrongPassword123!')
-      await page.getByRole('textbox', { name: 'New Password', exact: true }).fill('NewValidPass456!')
-      await page.getByRole('textbox', { name: 'Confirm New Password' }).fill('NewValidPass456!')
-      await page.getByRole('button', { name: 'Change Password' }).click()
-
-      await expect(page.getByRole('alert')).toContainText('Current password is incorrect')
-    })
-
-    test('should show error when new password is same as current password', async ({ page }) => {
-      await page.getByRole('textbox', { name: 'Current Password' }).fill('ValidPassword123!')
-      await page.getByRole('textbox', { name: 'New Password', exact: true }).fill('ValidPassword123!')
-      await page.getByRole('textbox', { name: 'Confirm New Password' }).fill('ValidPassword123!')
-      await page.getByRole('button', { name: 'Change Password' }).click()
-
-      await expect(page.getByRole('alert')).toContainText('New password must be different from current password')
-    })
   })
 })

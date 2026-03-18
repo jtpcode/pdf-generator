@@ -20,6 +20,43 @@ describe('Register Component', () => {
     vi.clearAllMocks()
   })
 
+  it('shows error when name is too short (1 character)', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), 'A')
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Name must be between 2 and 100 characters/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
+  it('shows error when name is too long (101 characters)', async () => {
+    const user = userEvent.setup()
+    render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
+
+    const longName = 'a'.repeat(101)
+    await user.type(screen.getByLabelText(/username/i), 'testuser')
+    await user.type(screen.getByLabelText(/full name/i), longName)
+    await user.type(screen.getAllByLabelText(/password/i)[0], 'ValidPassword123!')
+    await user.type(screen.getByLabelText(/confirm password/i, { selector: 'input' }), 'ValidPassword123!')
+
+    await user.click(screen.getByRole('button', { name: /register/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText(/Name must be between 2 and 100 characters/i)).toBeInTheDocument()
+    })
+
+    expect(authService.register).not.toHaveBeenCalled()
+  })
+
   it('shows error when passwords do not match', async () => {
     const user = userEvent.setup()
     render(<Register onRegisterSuccess={mockOnRegisterSuccess} onSwitchToLogin={mockOnSwitchToLogin} />)
