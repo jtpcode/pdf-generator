@@ -4,6 +4,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material'
 import PropTypes from 'prop-types'
 import Navigation from './Navigation'
 import userService from '../services/userService'
+import { validateName, validatePassword } from '../utils/validation'
 
 const Settings = ({ user, onLogout, onUserUpdate }) => {
   const [name, setName] = useState(user.name || '')
@@ -30,14 +31,15 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
     setProfileLoading(true)
 
     try {
-      if (name.trim().length < 2 || name.trim().length > 100) {
-        setProfileError('Name must be between 2 and 100 characters long')
+      if (name === user.name) {
+        setProfileError('Name is the same as current name')
         setTimeout(() => setProfileError(''), 5000)
         return
       }
 
-      if (name === user.name) {
-        setProfileError('Name is the same as current name')
+      const nameError = validateName(name)
+      if (nameError) {
+        setProfileError(nameError)
         setTimeout(() => setProfileError(''), 5000)
         return
       }
@@ -67,6 +69,13 @@ const Settings = ({ user, onLogout, onUserUpdate }) => {
 
     if (currentPassword === newPassword) {
       setPasswordError('New password must be different from current password')
+      setTimeout(() => setPasswordError(''), 5000)
+      return
+    }
+
+    const passwordValidationError = validatePassword(newPassword)
+    if (passwordValidationError) {
+      setPasswordError(passwordValidationError)
       setTimeout(() => setPasswordError(''), 5000)
       return
     }

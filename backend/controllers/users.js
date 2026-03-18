@@ -13,7 +13,7 @@ const validateUsername = (username) => {
     return 'Username must be between 3 and 50 characters'
   }
   if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-    return 'Username can only contain letters, numbers, hyphens and underscores'
+    return 'Username can only contain letters, numbers, hyphens(-) and underscores(_)'
   }
   return undefined
 }

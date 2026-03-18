@@ -50,7 +50,7 @@ describe('Register Component', () => {
     await user.click(screen.getByRole('button', { name: /register/i }))
 
     await waitFor(() => {
-      expect(screen.getByText(/password must be between 12 and 128 characters long/i)).toBeInTheDocument()
+      expect(screen.getByText(/Password must be at least 12 characters long/i)).toBeInTheDocument()
     })
 
     expect(authService.register).not.toHaveBeenCalled()
@@ -69,7 +69,7 @@ describe('Register Component', () => {
     await user.click(screen.getByRole('button', { name: /register/i }))
 
     await waitFor(() => {
-      expect(screen.getByText(/Password must be between 12 and 128 characters long/i)).toBeInTheDocument()
+      expect(screen.getByText(/Password must be at most 128 characters long/i)).toBeInTheDocument()
     })
 
     expect(authService.register).not.toHaveBeenCalled()
@@ -87,7 +87,7 @@ describe('Register Component', () => {
     await user.click(screen.getByRole('button', { name: /register/i }))
 
     await waitFor(() => {
-      expect(screen.getByText(/Username must be between 3 and 50 characters long/i)).toBeInTheDocument()
+      expect(screen.getByText(/Username must be between 3 and 50 characters/i)).toBeInTheDocument()
     })
 
     expect(authService.register).not.toHaveBeenCalled()

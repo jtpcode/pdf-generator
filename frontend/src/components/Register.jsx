@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { Container, TextField, Button, Box, Typography, Paper, Alert, CircularProgress, Link, InputAdornment, IconButton } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import authService from '../services/authService'
+import { validateUsername, validateName, validatePassword } from '../utils/validation'
 
 const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
   const [username, setUsername] = useState('')
@@ -22,18 +23,15 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
     e.preventDefault()
     setError('')
 
-    if(username.length < 3 || username.length > 50) {
-      setError('Username must be between 3 and 50 characters long')
+    const usernameError = validateUsername(username)
+    if (usernameError) {
+      setError(usernameError)
       return
     }
 
-    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-      setError('Username can only contain letters, numbers, hyphens(-) and underscores(_)')
-      return
-    }
-
-    if(name.length < 1 || name.length > 100) {
-      setError('Name must be between 1 and 100 characters long')
+    const nameError = validateName(name)
+    if (nameError) {
+      setError(nameError)
       return
     }
 
@@ -42,28 +40,9 @@ const Register = ({ onRegisterSuccess, onSwitchToLogin }) => {
       return
     }
 
-    if (password.length < 12 || password.length > 128) {
-      setError('Password must be between 12 and 128 characters long')
-      return
-    }
-
-    if (!/[a-z]/.test(password)) {
-      setError('Password must contain at least one lowercase letter')
-      return
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      setError('Password must contain at least one uppercase letter')
-      return
-    }
-
-    if (!/[0-9]/.test(password)) {
-      setError('Password must contain at least one number')
-      return
-    }
-
-    if (!/[!@#$%^&*()_+={}[\];'"\\|,.<>/?-]/.test(password)) {
-      setError('Password must contain at least one special character (!@#$%^&*()_+={}[];\':"\\|,.<>/?-)')
+    const passwordError = validatePassword(password)
+    if (passwordError) {
+      setError(passwordError)
       return
     }
 

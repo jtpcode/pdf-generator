@@ -152,6 +152,21 @@ describe('User API', () => {
     expect(response.body.error).toBe('Name is required')
   })
 
+  test('rejects user with too short name', async () => {
+    const newUser = {
+      username: generateUniqueUsername(),
+      name: 'A',
+      password: 'ValidPassword123!'
+    }
+
+    const response = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+
+    expect(response.body.error).toBe('Name must be between 2 and 100 characters')
+  })
+
   test('rejects user with too long name', async () => {
     const newUser = {
       username: generateUniqueUsername(),
@@ -164,7 +179,7 @@ describe('User API', () => {
       .send(newUser)
       .expect(400)
 
-    expect(response.body.error).toBe('Name must be between 1 and 100 characters')
+    expect(response.body.error).toBe('Name must be between 2 and 100 characters')
   })
 
   test('rejects user with non-string name', async () => {
