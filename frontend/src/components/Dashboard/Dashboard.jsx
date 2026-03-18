@@ -183,6 +183,7 @@ const Dashboard = ({ user, onLogout }) => {
             control={
               <Switch
                 checked={usePuppeteer}
+                disabled={isLoading}
                 onChange={(e) => {
                   const isChecked = e.target.checked
                   setUsePuppeteer(isChecked)

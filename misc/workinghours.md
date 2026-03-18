@@ -62,4 +62,5 @@ Working hours:
 |      | 1 | Fixed tests for Tanstack |
 |      | 1 | Update documentation. Remove redundant frontend tests. |
 |      | 2 | Start using Dependabot, update a bunch of dependencies. |
-| Total | 181 |
+| 18.3 | 3 | Fix user's name update. Fix password front validation. Fix switch button inactivity while generating PDF. |
+| Total | 184 |
