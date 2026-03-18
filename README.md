@@ -12,7 +12,7 @@ https://pdf-generator-3ucg.onrender.com/
 
 [Working hours](misc/workinghours.md)
 
-## Project name and description
+## Project description
 
 **pdf-generator** is aimed at demonstrating technical datasheet generation in PDF format. There are two options on how to generate the document: PDFKit and HTML/CSS + Puppeteer. Both produce almost identical documents and the difference is only in the technical implementation.
 
