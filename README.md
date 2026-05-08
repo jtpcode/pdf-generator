@@ -12,14 +12,13 @@ https://pdf-generator-3ucg.onrender.com/
 
 **pdf-generator** is aimed at demonstrating technical datasheet generation in PDF format. There are two options on how to generate the document: PDFKit and HTML/CSS + Puppeteer. Both produce almost identical documents and the difference is only in the technical implementation.
 
-The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be achieved. The application accepts Excel and .png files, and their naming/content has to be in a specific form to comply with the code. Example files can be asked directly from the developer. **The application is by no means a ready-made product for general use**.
+The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be achieved. The application accepts Excel and .png files, and their naming/content has to be in a specific form to comply with the code. Upon registration, three example files are automatically provided to help users get started immediately. **The application is by no means a ready-made product for general use**.
 
 ## How to use the application
 - Create credentials for login
 - Dashboard
-  - Upload suitable .xlsx and .png files for the datasheet generation (max. three files)
-  - Example files can be asked directly from the developer
-	- Choose between PDFKit or HTML + Puppeteer
+  - Three example files are automatically available upon registration for testing
+	- Select PDFKit or HTML + Puppeteer using the radio buttons
 	- Click the 'eye' icon to quickly check how the PDF looks like
 	- Click the 'PDF' icon to generate the PDF
   - To delete a file, click the trashcan icon
@@ -60,7 +59,7 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 	```sh
 	docker compose -f docker-compose.dev.yml up
 	```
-5. Start development servers:
+5. Start the development servers. Database migrations are automatically run on backend start up:
 	```sh
 	npm --prefix backend run dev
 	npm --prefix frontend run dev
@@ -69,7 +68,7 @@ The goal is to provide 'proof-of-concept' on how datasheet PDF generation can be
 
 ### Local testing:
 - Use ready-made test scripts in the package.json files, since they will use `NODE_ENV=test` which automatically enables `TEST_DATABASE_URL` once it's been created
-- Make sure Postgres database is running, and both frontend and backend dev servers are offline
+- Make sure Postgres database is running, and both frontend and backend dev servers are ***offline***
 - In project root:
 	```sh
 	npm run test:frontend

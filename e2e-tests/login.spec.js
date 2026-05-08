@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { createMockExcelFile, createMockPngFile, uploadFile, resetDatabase } from './helpers.js'
+import { createMockExcelFile, createMockPngFile, uploadFile, resetDatabase, deleteAllUserFiles } from './helpers.js'
 
 test.describe('Login functionality', () => {
   test.beforeEach(async ({ page, request }) => {
@@ -38,7 +38,9 @@ test.describe('Login functionality', () => {
   })
 
   test.describe('When logged in and entered Dashboard', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, request }) => {
+      await deleteAllUserFiles(request, 'testuser', 'ValidPassword123!')
+
       await page.getByLabel('Username').fill('testuser')
       await page.getByLabel('Password').fill('ValidPassword123!')
       await page.getByRole('button', { name: 'Login' }).click()

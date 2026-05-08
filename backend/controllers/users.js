@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import { Router } from 'express'
 import { User } from '../models/index.js'
 import { tokenExtractor } from '../utils/middleware.js'
+import { seedExampleFiles } from '../utils/fileHelpers.js'
 
 const router = Router()
 
@@ -79,6 +80,8 @@ router.post('/', async (req, res) => {
     name,
     passwordHash,
   })
+
+  await seedExampleFiles(user.id)
 
   const { passwordHash: _pw, createdAt: _ca, updatedAt: _ua, disabled: _d, ...createdUser } = user.toJSON()
   res.status(201).json(createdUser)
