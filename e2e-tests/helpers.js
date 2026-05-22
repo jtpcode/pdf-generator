@@ -56,3 +56,25 @@ export const fillRegistrationForm = async (page, { username, name, password, con
   await page.locator('input[type="password"]').first().fill(password)
   await page.locator('input[type="password"]').last().fill(confirmPassword || password)
 }
+
+export const deleteAllUserFiles = async (request, username, password) => {
+  const loginResponse = await request.post('http://localhost:3001/api/login', {
+    data: { username, password }
+  })
+  const { token } = await loginResponse.json()
+
+  const filesResponse = await request.get('http://localhost:3001/api/files', {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  const files = await filesResponse.json()
+
+  for (const file of files) {
+    await request.delete(`http://localhost:3001/api/files/${file.id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+  }
+
+  await request.delete('http://localhost:3001/api/logout', {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+}

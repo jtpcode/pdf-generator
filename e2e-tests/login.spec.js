@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { createMockExcelFile, createMockPngFile, uploadFile, resetDatabase } from './helpers.js'
+import { createMockExcelFile, createMockPngFile, uploadFile, resetDatabase, deleteAllUserFiles } from './helpers.js'
 
 test.describe('Login functionality', () => {
   test.beforeEach(async ({ page, request }) => {
@@ -38,7 +38,9 @@ test.describe('Login functionality', () => {
   })
 
   test.describe('When logged in and entered Dashboard', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page, request }) => {
+      await deleteAllUserFiles(request, 'testuser', 'ValidPassword123!')
+
       await page.getByLabel('Username').fill('testuser')
       await page.getByLabel('Password').fill('ValidPassword123!')
       await page.getByRole('button', { name: 'Login' }).click()
@@ -97,8 +99,8 @@ test.describe('Login functionality', () => {
 
       await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
 
-      const toggle = page.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
-      await expect(toggle).not.toBeChecked()
+      const pdfkitRadio = page.getByRole('radio', { name: 'PDFKit' })
+      await expect(pdfkitRadio).toBeChecked()
 
       const listItem = page.locator('li', { has: page.getByText('pdfkit-test.xlsx') })
       const pdfButton = listItem.getByRole('button', { name: 'generate pdf' })
@@ -114,9 +116,9 @@ test.describe('Login functionality', () => {
 
       await expect(page.getByRole('alert').filter({ hasText: 'File uploaded successfully!' })).not.toBeVisible({ timeout: 7000 })
 
-      const toggle = page.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
-      await toggle.click()
-      await expect(toggle).toBeChecked()
+      const puppeteerRadio = page.getByRole('radio', { name: 'HTML + Puppeteer' })
+      await puppeteerRadio.click()
+      await expect(puppeteerRadio).toBeChecked()
 
       const listItem = page.locator('li', { has: page.getByText('puppeteer-test.xlsx') })
       const pdfButton = listItem.getByRole('button', { name: 'generate pdf' })

@@ -354,7 +354,7 @@ describe('Dashboard Component', () => {
       removeChildSpy.mockRestore()
     })
 
-    it('generates PDF with PDFKit by default (toggle off)', async () => {
+    it('generates PDF with PDFKit by default (PDFKit radio selected)', async () => {
       const user = userEvent.setup()
       const mockFiles = [
         { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
@@ -389,7 +389,7 @@ describe('Dashboard Component', () => {
       })
     })
 
-    it('generates PDF with Puppeteer when toggle is on', async () => {
+    it('generates PDF with Puppeteer when HTML + Puppeteer radio is selected', async () => {
       const user = userEvent.setup()
       const mockFiles = [
         { id: 1, originalName: 'test.xlsx', fileSize: 512, createdAt: new Date().toISOString() }
@@ -405,8 +405,8 @@ describe('Dashboard Component', () => {
         expect(screen.getByText('test.xlsx')).toBeInTheDocument()
       })
 
-      const toggle = screen.getByRole('checkbox', { name: 'PDFKit / HTML + Puppeteer generator selector' })
-      await user.click(toggle)
+      const puppeteerRadio = screen.getByRole('radio', { name: 'HTML + Puppeteer' })
+      await user.click(puppeteerRadio)
 
       const pdfButton = screen.getByLabelText('generate pdf')
       await user.click(pdfButton)

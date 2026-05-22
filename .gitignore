@@ -155,6 +155,7 @@ test-uploads/
 
 # Scripts
 scripts/test.sh
+scripts/auto_approve.sh
 
 # Temporary files
 temp/

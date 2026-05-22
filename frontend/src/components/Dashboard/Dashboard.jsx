@@ -4,11 +4,11 @@ import PropTypes from 'prop-types'
 import {
   Container,
   Box,
-  Typography,
   Alert,
   Paper,
+  RadioGroup,
   FormControlLabel,
-  Switch
+  Radio
 } from '@mui/material'
 import fileService from '../../services/fileService'
 import FileUpload from './FileUpload'
@@ -179,31 +179,18 @@ const Dashboard = ({ user, onLogout }) => {
         )}
 
         <Paper sx={{ p: 2, mb: 2, backgroundColor: '#f5f5f5' }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={usePuppeteer}
-                disabled={isLoading}
-                onChange={(e) => {
-                  const isChecked = e.target.checked
-                  setUsePuppeteer(isChecked)
-                  sessionStorage.setItem('usePuppeteer', isChecked)
-                }}
-                slotProps={{ input: { 'aria-label': 'PDFKit / HTML + Puppeteer generator selector' } }}
-              />
-            }
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Typography variant="body2" color={!usePuppeteer ? 'primary' : 'text.secondary'} fontWeight={!usePuppeteer ? 'bold' : 'normal'}>
-                  PDFKit
-                </Typography>
-                <Typography variant="body2">/</Typography>
-                <Typography variant="body2" color={usePuppeteer ? 'primary' : 'text.secondary'} fontWeight={usePuppeteer ? 'bold' : 'normal'}>
-                  HTML + Puppeteer
-                </Typography>
-              </Box>
-            }
-          />
+          <RadioGroup
+            row
+            value={usePuppeteer ? 'puppeteer' : 'pdfkit'}
+            onChange={(e) => {
+              const isChecked = e.target.value === 'puppeteer'
+              setUsePuppeteer(isChecked)
+              sessionStorage.setItem('usePuppeteer', isChecked)
+            }}
+          >
+            <FormControlLabel value="pdfkit" control={<Radio disabled={isLoading} />} label="PDFKit" />
+            <FormControlLabel value="puppeteer" control={<Radio disabled={isLoading} />} label="HTML + Puppeteer" />
+          </RadioGroup>
         </Paper>
 
         <FileUpload onFileUpload={handleFileUpload} loading={isLoading} />

@@ -10,7 +10,8 @@ import {
   initializeUploadsDir,
   getUserUploadDir,
   isValidFilename,
-  validateAndParseExcel
+  validateAndParseExcel,
+  generateUniqueFilename
 } from '../utils/fileHelpers.js'
 
 const router = express.Router()
@@ -31,8 +32,7 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1000000000)
-    cb(null, uniqueSuffix + '-' + file.originalname)
+    cb(null, generateUniqueFilename(file.originalname))
   }
 })
 
