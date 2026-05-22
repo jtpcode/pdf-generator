@@ -29,3 +29,4 @@ Changelog:
 | 19.2 | Added html preview of the PDF. |
 | 17.3 | Added Tanstack React Query for file list state management. |
 | 8.5 | Test files are included when user registers. Switch button changed into radio buttons. |
+| 9.5 | Updated dependencies. |
