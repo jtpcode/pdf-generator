@@ -8,7 +8,7 @@
     "test:play": "npx playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1",
     "exceljs": "^4.4.0"
   }
