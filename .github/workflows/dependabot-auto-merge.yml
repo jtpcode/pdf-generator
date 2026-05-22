@@ -14,11 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Approve PR
-        run: gh pr review "${{ github.event.pull_request.number }}" --approve
+        run: gh pr review "${{ github.event.pull_request.number }}" --approve -R ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable auto-merge
-        run: gh pr merge "${{ github.event.pull_request.number }}" --auto --squash --delete-branch
+        run: gh pr merge "${{ github.event.pull_request.number }}" --auto --squash --delete-branch -R ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
