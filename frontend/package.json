@@ -29,7 +29,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.2.0",
-    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/coverage-v8": "^4.1.7",
     "baseline-browser-mapping": "^2.10.8",
     "eslint": "^10.1.0",
     "eslint-plugin-react-hooks": "^7.1.1",
