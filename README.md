@@ -3,11 +3,6 @@
 [![CI](https://github.com/jtpcode/pdf-generator/actions/workflows/pipeline.yml/badge.svg)](https://github.com/jtpcode/pdf-generator/actions/workflows/pipeline.yml)
 [![codecov](https://codecov.io/gh/jtpcode/pdf-generator/graph/badge.svg?token=UWIU8TU9D3)](https://codecov.io/gh/jtpcode/pdf-generator)
 
-## Live demo
-
-The current version of the app is running at:
-https://pdf-generator-3ucg.onrender.com/
-
 ## Project description
 
 **pdf-generator** is aimed at demonstrating technical datasheet generation in PDF format. There are two options on how to generate the document: PDFKit and HTML/CSS + Puppeteer. Both produce almost identical documents and the difference is only in the technical implementation.
